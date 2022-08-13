@@ -7,18 +7,27 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import WelcomePage from './pages/WelcomePage';
 import SigninPage from './pages/SigninPage'
 import SignupPage from './pages/SignupPage'
+import PendingPage from './pages/PendingPage'
+
+import { AuthProvider } from './context/AuthContext';
+import PrivateRoute from './utils/PrivateRoute'
 
 class App extends Component {
   render() {
     return (
       <div className="App">
         <BrowserRouter>
-          <Header />
-          <Routes>
-            <Route path="/" element={<WelcomePage />}/>
-            <Route path="/login" element={<SigninPage />}/>
-            <Route path="/signup" element={<SignupPage />}/>
-          </Routes>
+          <AuthProvider>
+            <Header />
+            <Routes>
+              <Route path="/" element={<WelcomePage />}/>
+              <Route path="/login" element={<SigninPage />}/>
+              <Route path="/signup" element={<SignupPage />}/>
+              <Route element={<PrivateRoute />}>
+                <Route path="/pending" element={<PendingPage />} />
+              </Route>
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </div>
     );
