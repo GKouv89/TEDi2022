@@ -63,15 +63,22 @@ const initialValues = {
 export default function SignupPage(){
     return(
         <>
-            <Formik
-                validationSchema={schema}
-                onSubmit={console.log}
-                initialValues={initialValues}
-            >
-            { props => 
-                (<SignupForm {...props}/>)
-            }
-            </Formik>
+            <Container>
+                <Row className="mb-3 mt-3">
+                    <h1>Εγγραφή</h1>
+                </Row>
+                <Row>
+                    <Formik
+                        validationSchema={schema}
+                        onSubmit={console.log}
+                        initialValues={initialValues}
+                    >
+                    { props => 
+                        (<SignupForm {...props}/>)
+                    }
+                    </Formik>
+                </Row>
+            </Container>
         </>
     )
 }
@@ -102,8 +109,13 @@ function SignupForm(props){
     return(
         <Container>
             <Form noValidate onSubmit={props.handleSubmit} className="mt-3 border rounded">
+                <Form.Group as={Row} className="mb-3 mt-3" controlId="reqFields">
+                    <Form.Label column xs={12}>
+                        Τα πεδία με αστερίσκο είναι υποχρεωτικά.
+                    </Form.Label>
+                </Form.Group>
                 <Form.Group as={Row} className="mb-3" controlId="formUsername">
-                    <Form.Label column xs={3}>  Όνομα Χρήστη: </Form.Label>
+                    <Form.Label className="required" column xs={3}>  Όνομα Χρήστη: </Form.Label>
                     <Col>
                         <Form.Control 
                             name="username" 
@@ -117,21 +129,25 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3" controlId="formPassword">
-                    <Form.Label column xs={3}>Κωδικός Πρόσβασης:</Form.Label>
+                    <Form.Label className="required" column xs={3}>Κωδικός Πρόσβασης:</Form.Label>
                     <Col>
                         <Form.Control 
                             name="password"
                             type="password"
                             {...props.getFieldProps('password')}
                             isInvalid={props.touched.password && props.errors.password}
+                            aria-describedby="passwordHelpBlock"
                         />
+                        <Form.Text id="passwordHelpBlock" muted>
+                            O κωδικός σας θα πρέπει να έχει μήκος 8 έως 32 χαρακτήρων.
+                        </Form.Text>
                         <Form.Control.Feedback type="invalid">
                             {props.errors.password}
                         </Form.Control.Feedback>
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formPasswordValidation">
-                    <Form.Label column xs={3}>Επιβεβαίωση Κωδικού Πρόσβασης:</Form.Label>
+                    <Form.Label className="required" column xs={3}>Επιβεβαίωση Κωδικού Πρόσβασης:</Form.Label>
                     <Col>
                         <Form.Control name="passwordValidation" 
                             type="password"
@@ -144,7 +160,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formFirstName">
-                    <Form.Label column xs={3}>Όνομα</Form.Label>
+                    <Form.Label className="required" column xs={3}>Όνομα</Form.Label>
                     <Col>
                         <Form.Control 
                             name="firstName" 
@@ -158,7 +174,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formSurname">
-                    <Form.Label column xs={3}>Επώνυμο</Form.Label>
+                    <Form.Label className="required" column xs={3}>Επώνυμο</Form.Label>
                     <Col>
                         <Form.Control 
                             name="lastName"
@@ -172,7 +188,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formBasicEmail">
-                    <Form.Label column xs={3}>Διεύθυνση Email</Form.Label>
+                    <Form.Label className="required" column xs={3}>Διεύθυνση Email</Form.Label>
                     <Col>
                         <Form.Control 
                             name="email"
@@ -186,7 +202,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formPhoneNumber">
-                    <Form.Label column xs={3}>Τηλέφωνο Επικοινωνίας</Form.Label>
+                    <Form.Label className="required" column xs={3}>Τηλέφωνο Επικοινωνίας</Form.Label>
                     <Col>
                         <Form.Control 
                             name="telephone"
@@ -200,7 +216,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formTIN">
-                    <Form.Label column xs={3}>Αριθμός Φορολογικού Μητρώου</Form.Label>
+                    <Form.Label className="required" column xs={3}>Αριθμός Φορολογικού Μητρώου</Form.Label>
                     <Col>
                         <Form.Control 
                             name="tin"
@@ -214,7 +230,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetName">
-                    <Form.Label column xs={3}>Οδός</Form.Label>
+                    <Form.Label className="required" column xs={3}>Οδός</Form.Label>
                     <Col>
                         <Form.Control
                             name="streetName"
@@ -228,7 +244,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetNumber">
-                    <Form.Label column xs={3}>Αριθμός</Form.Label>
+                    <Form.Label className="required" column xs={3}>Αριθμός</Form.Label>
                     <Col>
                         <Form.Control
                             name="streetNumber"
@@ -242,7 +258,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetZIPCode">
-                    <Form.Label column xs={3}>Ταχυδρομικός Κώδικας</Form.Label>
+                    <Form.Label className="required" column xs={3}>Ταχυδρομικός Κώδικας</Form.Label>
                     <Col>
                         <Form.Control 
                             name="postalCode"
@@ -256,7 +272,7 @@ function SignupForm(props){
                     </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-3 ml-1" controlId="formCountry">
-                    <Form.Label column xs={3}>Χώρα</Form.Label>
+                    <Form.Label className="required" column xs={3}>Χώρα</Form.Label>
                     <Col>
                         {options ? 
                             <>
