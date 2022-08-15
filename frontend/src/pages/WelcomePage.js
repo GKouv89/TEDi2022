@@ -10,7 +10,7 @@ export default function WelcomePage(){
                 <Button variant="primary" size="lg" style={{width: "80%", margin: "auto"}}>
                     Πλοηγήσου ως επισκέπτης
                 </Button>
-                <Button variant="secondary" size="lg" style={{width: "80%", margin: "auto"}}>
+                <Button href="/signup" variant="secondary" size="lg" style={{width: "80%", margin: "auto"}}>
                     Κάνε εγγραφή
                 </Button>
             </div>
