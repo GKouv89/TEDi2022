@@ -1,9 +1,85 @@
 import React, { useState, useEffect } from 'react'
 import { Form, Container, Row, Col, Placeholder, Button} from 'react-bootstrap'
 
-export default function SignupPage(){
-    const [options, setOptions] = useState(null)
+import * as Yup from 'yup'
+import { Formik } from 'formik'
 
+const schema = Yup.object().shape(
+    {
+        username: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.'),
+        password: Yup.string()
+                    .min(8, 'Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες.')
+                    .max(32, 'Ο κωδικός πρέπει να έχει το πολύ 32 χαρακτήρες.')
+                    .required('Υποχρεωτικό πεδίο'),
+        passwordValidation: Yup.string()
+                                .required('Υποχρεωτικό πεδίο.')
+                                .oneOf([Yup.ref('password'), null], 'Οι κωδικοί πρέπει να ταιριάζουν.'),
+        firstName: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.'),
+        lastName: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.'),
+        email: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.')
+                    .email('Μη έγκυρη διεύθυνση ηλεκτρονικού ταχυδρομείου.'),
+        telephone: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.')
+                    .matches(/^[0-9]+$/, "Ο αριθμός τηλεφώνου πρέπει να περιέχει μόνο ψηφία.")
+                    .min(10, 'Ο αριθμός τηλεφώνου πρέπει να έχει 10 ψηφία.')
+                    .max(10, 'Ο αριθμός τηλεφώνου πρέπει να έχει 10 ψηφία.'),
+        tin: Yup.string()
+                .required('Υποχρεωτικό πεδίο.')
+                .matches(/^[0-9]+$/, "Ο αριθμός φορολογικού μητρώου πρέπει να περιέχει μόνο ψηφία.")
+                .min(10, 'Ο αριθμός φορολογικού μητρώου πρέπει να έχει 10 ψηφία.')
+                .max(10, 'Ο αριθμός φορολογικού μητρώου πρέπει να έχει 10 ψηφία.'),
+        streetName: Yup.string()
+                        .required('Υποχρεωτικό πεδίο.'),
+        streetNumber: Yup.string()
+                        .required('Υποχρεωτικό πεδίο.')
+                        .matches(/^[0-9]+$/, "Μη έγκυρος αριθμός."),
+        postalCode: Yup.string()
+                        .required('Υποχρεωτικό πεδίο.')
+                        .matches(/^[A-Za-z0-9][A-Za-z0-9\- ]{0,10}[A-Za-z0-9]$/, "Ο ταχυδρομικός κώδικας συνήθως περιέχει γράμματα, ψηφία, και προαιρετικά ένα κενό ή μία παύλα."),
+        country: Yup.string()
+                   .required('Υποχρεωτικό πεδίο')
+                   .notOneOf([""], 'Επιλέξτε μία έγκυρη χώρα.'),
+    })
+
+const initialValues = {
+    username: '',
+    password: '',
+    passwordValidation: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    telephone: '',
+    tin: '',
+    streetName: '',
+    streetNumber: '',
+    postalCode: '',
+    country: ''
+}
+
+export default function SignupPage(){
+    return(
+        <>
+            <Formik
+                validationSchema={schema}
+                onSubmit={console.log}
+                initialValues={initialValues}
+            >
+            { props => 
+                (<SignupForm {...props}/>)
+            }
+            </Formik>
+        </>
+    )
+}
+
+function SignupForm(props){
+    const [options, setOptions] = useState(null)
+    console.log(props.getFieldProps('username'))
+    console.log(props.getFieldMeta('username'))
     useEffect(() => {
         async function fetchCountries(){
             fetch('https://restcountries.com/v3.1/all')
@@ -22,95 +98,192 @@ export default function SignupPage(){
         }
         fetchCountries()
     }, []);
+
     return(
-        <>
-            <Container>
-                <Form className="mt-3 border rounded">
-                    <Form.Group as={Row} className="mb-3" controlId="formUsername">
-                        <Form.Label column xs={3}>  Όνομα Χρήστη: </Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3" controlId="formPassword">
-                        <Form.Label column xs={3}>Κωδικός Πρόσβασης:</Form.Label>
-                        <Col>
-                            <Form.Control type="password" />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formPasswordValidation">
-                        <Form.Label column xs={3}>Επιβεβαίωση Κωδικού Πρόσβασης:</Form.Label>
-                        <Col>
-                            <Form.Control type="password" />
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formFirstName">
-                        <Form.Label column xs={3}>Όνομα</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formSurname">
-                        <Form.Label column xs={3}>Επώνυμο</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formBasicEmail">
-                        <Form.Label column xs={3}>Διεύθυνση Email</Form.Label>
-                        <Col>
-                            <Form.Control type="email"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formPhoneNumber">
-                        <Form.Label column xs={3}>Τηλέφωνο Επικοινωνίας</Form.Label>
-                        <Col>
-                            <Form.Control type="tel"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formTIN">
-                        <Form.Label column xs={3}>Αριθμός Φορολογικού Μητρώου</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetName">
-                        <Form.Label column xs={3}>Οδός</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetNumber">
-                        <Form.Label column xs={3}>Αριθμός</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetZIPCode">
-                        <Form.Label column xs={3}>Ταχυδρομικός Κώδικας</Form.Label>
-                        <Col>
-                            <Form.Control type="text"/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className="mb-3 ml-1" controlId="formCountry">
-                        <Form.Label column xs={3}>Χώρα</Form.Label>
-                        <Col>
-                            {options ? 
-                                <Form.Select>
-                                    <option>Επιλέξτε</option>
+        <Container>
+            <Form noValidate onSubmit={props.handleSubmit} className="mt-3 border rounded">
+                <Form.Group as={Row} className="mb-3" controlId="formUsername">
+                    <Form.Label column xs={3}>  Όνομα Χρήστη: </Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="username" 
+                            type="text"
+                            {...props.getFieldProps('username')}
+                            isInvalid={props.touched.username && props.errors.username}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.username}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3" controlId="formPassword">
+                    <Form.Label column xs={3}>Κωδικός Πρόσβασης:</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="password"
+                            type="password"
+                            {...props.getFieldProps('password')}
+                            isInvalid={props.touched.password && props.errors.password}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.password}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formPasswordValidation">
+                    <Form.Label column xs={3}>Επιβεβαίωση Κωδικού Πρόσβασης:</Form.Label>
+                    <Col>
+                        <Form.Control name="passwordValidation" 
+                            type="password"
+                            {...props.getFieldProps('passwordValidation')}
+                            isInvalid={props.touched.passwordValidation && props.errors.passwordValidation}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.passwordValidation}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formFirstName">
+                    <Form.Label column xs={3}>Όνομα</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="firstName" 
+                            type="text"
+                            {...props.getFieldProps('firstName')}
+                            isInvalid={props.touched.firstName && props.errors.firstName}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.firstName}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formSurname">
+                    <Form.Label column xs={3}>Επώνυμο</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="lastName"
+                            type="text"
+                            {...props.getFieldProps('lastName')}
+                            isInvalid={props.touched.lastName && props.errors.lastName}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.lastName}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formBasicEmail">
+                    <Form.Label column xs={3}>Διεύθυνση Email</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="email"
+                            type="email"
+                            {...props.getFieldProps('email')}
+                            isInvalid={props.touched.email && props.errors.email}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.email}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formPhoneNumber">
+                    <Form.Label column xs={3}>Τηλέφωνο Επικοινωνίας</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="telephone"
+                            type="tel"
+                            {...props.getFieldProps('telephone')}
+                            isInvalid={props.touched.telephone && props.errors.telephone}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.telephone}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formTIN">
+                    <Form.Label column xs={3}>Αριθμός Φορολογικού Μητρώου</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="tin"
+                            type="text"
+                            {...props.getFieldProps('tin')}
+                            isInvalid={props.touched.tin && props.errors.tin}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.tin}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetName">
+                    <Form.Label column xs={3}>Οδός</Form.Label>
+                    <Col>
+                        <Form.Control
+                            name="streetName"
+                            type="text"
+                            {...props.getFieldProps('streetName')}
+                            isInvalid={props.touched.streetName && props.errors.streetName}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.streetName}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetNumber">
+                    <Form.Label column xs={3}>Αριθμός</Form.Label>
+                    <Col>
+                        <Form.Control
+                            name="streetNumber"
+                            type="text"
+                            {...props.getFieldProps('streetNumber')}
+                            isInvalid={props.touched.streetNumber && props.errors.streetNumber}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.streetNumber}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formStreetZIPCode">
+                    <Form.Label column xs={3}>Ταχυδρομικός Κώδικας</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="postalCode"
+                            type="text"
+                            {...props.getFieldProps('postalCode')}
+                            isInvalid={props.touched.postalCode && props.errors.postalCode}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.postalCode}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formCountry">
+                    <Form.Label column xs={3}>Χώρα</Form.Label>
+                    <Col>
+                        {options ? 
+                            <>
+                                <Form.Select
+                                    name="country"
+                                    value={props.values.country}
+                                    onChange={e => props.setFieldValue('country', e.target.value)}
+                                    onBlur={props.handleBlur}
+                                    isInvalid={props.errors.country}
+                                >
+                                    <option value="">Επιλέξτε</option>
                                     {options}
                                 </Form.Select>
-                            :   <Placeholder as={Form.Select}>
-                                    <Placeholder xs={9} />
-                                </Placeholder>
-                            }
-                        </Col>
-                    </Form.Group>
-                    <Button variant="primary" type="submit">
-                        Ολοκλήρωση Εγγραφής
-                    </Button>
-                </Form>
-            </Container>
-        </>
+                                <Form.Control.Feedback type="invalid">
+                                    {props.errors.country}
+                                </Form.Control.Feedback>
+                            </>
+                        :   <Placeholder as={Form.Select}>
+                                <Placeholder xs={9} />
+                            </Placeholder>
+                        }
+                    </Col>
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                    Ολοκλήρωση Εγγραφής
+                </Button>
+            </Form>
+        </Container>
     )
 }
