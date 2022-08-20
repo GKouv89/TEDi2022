@@ -5,22 +5,24 @@ from .models import MyUser, Address
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
 
 from .serializers import MyUserSerializer, OneUserSerializer
+from . import serializers
 # Create your views here.
 
 # def user(request):
 #     user = User.objects.get.first()
 #     return HttpResponse('This is user %s.' %user.username)
 
-class UserList(APIView):
+class ListUsers(ListAPIView):
     # Authentication remaining here.
     # Check for whether user is admin, too.
-    def get(self, request):
-        users = MyUser.objects.all()
-        serializer = MyUserSerializer(users, many=True)
-        return Response(serializer.data)
+    pagination_class = PageNumberPagination
+    queryset = MyUser.objects.all()
+    serializer_class = MyUserSerializer
 
 class UserDetail(APIView):
     # Authentication remaining here.
