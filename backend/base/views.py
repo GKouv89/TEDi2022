@@ -9,7 +9,7 @@ from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 
-from .serializers import MyUserSerializer, OneUserSerializer
+from .serializers import MyUserSerializer, OneUserSerializer, UserWithAddressSerializer
 from . import serializers
 # Create your views here.
 
@@ -20,8 +20,7 @@ from . import serializers
 class ListUsers(ListAPIView):
     # Authentication remaining here.
     # Check for whether user is admin, too.
-    pagination_class = PageNumberPagination
-    queryset = MyUser.objects.all()
+    queryset = MyUser.objects.all().order_by('username')
     serializer_class = MyUserSerializer
 
 class UserDetail(APIView):
@@ -46,3 +45,10 @@ class UserDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class UserWithAddress(APIView):
+    def post(self, request):
+        serializer = UserWithAddressSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
