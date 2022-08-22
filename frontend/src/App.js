@@ -8,6 +8,7 @@ import WelcomePage from './pages/WelcomePage';
 import SigninPage from './pages/SigninPage'
 import SignupPage from './pages/SignupPage'
 import PendingPage from './pages/PendingPage'
+import AdminPage from './pages/AdminPage'
 
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute'
@@ -26,6 +27,7 @@ class App extends Component {
               <Route element={<PrivateRoute />}>
                 <Route path="/pending" element={<PendingPage />} />
               </Route>
+              <Route path="/admin" element={<AdminPage />} /> // This shall become a protected route once we're done with auth
             </Routes>
           </AuthProvider>
         </BrowserRouter>
