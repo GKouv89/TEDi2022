@@ -8,6 +8,8 @@ import ListGroup from 'react-bootstrap/ListGroup'
 export default function AdminPage(){
     const page_size = 10; // fixed value to paginate
     const count = 5; // dummy data atm, will come from request
+    const page_count = count/page_size + 1
+    console.log(page_count)
     const results = [ // dummy data atm, will come from request
         {"username": "gina", "isPending": true},
         {"username": "takis", "isPending": true},
@@ -30,7 +32,7 @@ export default function AdminPage(){
             </Row>
             <Row>
                 <Col className="d-flex justify-content-center">
-                    <MyPagination count={count}/>
+                    <MyPagination count={page_count}/>
                 </Col>
             </Row>
         </Container>
