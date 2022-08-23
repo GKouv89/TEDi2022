@@ -4,6 +4,7 @@ from types import CoroutineType
 from unicodedata import name
 from django.contrib.gis.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+import requests
 
 # Create your models here.
 
@@ -76,6 +77,8 @@ class MyUser(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+BASE_URL = 'https://nominatim.openstreetmap.org/search?format=json'
+
 class Address(models.Model):
     location = models.PointField(primary_key=True)
     address_name = models.CharField(max_length=50)
@@ -84,3 +87,15 @@ class Address(models.Model):
     Postal_code = models.CharField(max_length=50)
     City =  models.CharField(max_length=50)
     Country = models.CharField(max_length=50)
+
+    def address_lookup(self):
+        url = BASE_URL + '&street=%s, %s&postalcode=%s&city=%s&country=%s' % (self.Street_number, self.Street_name, self.Postal_code, self.City, self.Country)
+        response = requests.get(url)
+        return response.json()[0].get('lat'), response.json()[0].get('lon')
+  
+    def save(self, *args, **kwargs):
+        latitude, longitude = self.address_lookup()
+        self.location = 'POINT(%s %s)' % (longitude, latitude)
+        print(self.location)
+        super(Address, self).save(*args, **kwargs)
+
