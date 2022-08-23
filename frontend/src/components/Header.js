@@ -33,13 +33,14 @@ function NotLoggedInNav(){
 }
 
 function LoggedInNav(){
-    let {user} = useContext(AuthContext)
+    let {user, logoutUser} = useContext(AuthContext)
+
     return(
         <>
             <Nav>
                 <Navbar.Text>{user}</Navbar.Text>
                 <LinkContainer to="/">
-                    <Nav.Link>Αποσύνδεση</Nav.Link>
+                    <Nav.Link onClick={logoutUser}>Αποσύνδεση</Nav.Link>
                 </LinkContainer>
             </Nav>
         </>

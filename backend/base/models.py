@@ -19,7 +19,7 @@ class MyUserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),   #normalize -> format the email
             username = username,
-            # password=password
+            # password=password,
             first_name = first_name,
             last_name = last_name,
             phone_number = phone_number,

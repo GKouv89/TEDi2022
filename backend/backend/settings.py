@@ -12,6 +12,24 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 
+# from datetime import timedelta
+# from rest_framework.settings import api_settings
+
+KNOX_TOKEN_MODEL = 'knox.AuthToken'
+
+REST_KNOX = {
+#   'SECURE_HASH_ALGORITHM': 'hashlib.sha512',
+#   'AUTH_TOKEN_CHARACTER_LENGTH': 64,
+#   'TOKEN_TTL': timedelta(hours=10),
+#   'USER_SERIALIZER': 'knox.serializers.UserSerializer',
+#   'TOKEN_LIMIT_PER_USER': None,
+#   'AUTO_REFRESH': False,
+#   'MIN_REFRESH_INTERVAL': 60,
+#   'AUTH_HEADER_PREFIX': 'Token',
+#   'EXPIRY_DATETIME_FORMAT': api_settings.DATETIME_FORMAT,
+  'TOKEN_MODEL': 'knox.AuthToken',
+}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,10 +45,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:3000/",
+# ]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'knox',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,22 +60,48 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
-    'base.apps.BaseConfig'
+    'base.apps.BaseConfig',
+    ######
+    'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    # 'DEFAULT_FILTER_BACKENDS': (
+    #     'django_filters.rest_framework.DjangoFilterBackend',
+    # ),
+}
+
+# REST_AUTH_TOKEN_MODEL = 'knox.models.AuthToken'
+# REST_AUTH_TOKEN_CREATOR = 'project.apps.accounts.utils.create_knox_token'
+
+# REST_AUTH_SERIALIZERS = {
+#     'USER_DETAILS_SERIALIZER': 'project.apps.accounts.serializers.UserDetailsSerializer',
+#     'TOKEN_SERIALIZER': 'project.apps.accounts.serializers.KnoxSerializer',
+# }
 
 AUTH_USER_MODEL = "base.MyUser"
 
 ROOT_URLCONF = 'backend.urls'
+
+CORS_ALLOWED_ORIGINS = ( 
+    'http://localhost:3000',
+)
 
 TEMPLATES = [
     {
