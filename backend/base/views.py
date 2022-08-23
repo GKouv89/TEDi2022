@@ -14,6 +14,7 @@ from . import serializers
 from . import models
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.serializers import AuthTokenSerializer
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import AuthToken, TokenAuthentication
 
 # user is an instance of MyUser
@@ -50,12 +51,16 @@ def get_user(request):
     return Response({})         #else return "nothing"
 
 class ListUsers(ListAPIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsAdminUser)
     # Authentication remaining here.
     # Check for whether user is admin, too.
     queryset = MyUser.objects.all().order_by('username')
     serializer_class = MyUserSerializer
 
 class UserDetail(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsAdminUser)
     # Authentication remaining here.
     # Check for whether user making request is admin, too.
     def get_object(self, username):
