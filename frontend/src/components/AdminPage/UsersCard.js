@@ -1,4 +1,3 @@
-import Card from 'react-bootstrap/Card'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import ListGroup from 'react-bootstrap/ListGroup'
@@ -7,63 +6,13 @@ import Row from 'react-bootstrap/esm/Row'
 import Col from 'react-bootstrap/esm/Col'
 import Tab from 'react-bootstrap/Tab'
 
-const userDetails = [
-    {
-        "username": "gina", 
-        "firstName": "Gina",
-        "lastName": "Koutiva",
-        "email": "gina@mail.com",
-        "phone_number": '0123456789',
-        "tin": '0123456789',
-        "Address":{
-            "Street_number": 10,
-            "Street_name": 'Μικράς Ασίας',
-            "Postal_code": "241 33",
-            "City": 'Καλαμάτα',
-            "Country": 'Greece'
-        },
-        "isPending": true
-    },
-    {
-        "username": "takis", 
-        "firstName": "Takis",
-        "lastName": "Koutivas",
-        "email": "takis@mail.com",
-        "phone_number": '0123456789',
-        "tin": '0123456789',
-        "Address":{
-            "Street_number": 10,
-            "Street_name": 'Μικράς Ασίας',
-            "Postal_code": "241 33",
-            "City": 'Καλαμάτα',
-            "Country": 'Greece'
-        },
-        "isPending": true
-    },
-    {
-        "username": "voula", 
-        "firstName": "Voula",
-        "lastName": "Theodorakopoulos",
-        "email": "voula@mail.com",
-        "phone_number": '0123456789',
-        "tin": '0123456789',
-        "Address":{
-            "Street_number": 10,
-            "Street_name": 'Μικράς Ασίας',
-            "Postal_code": "241 33",
-            "City": 'Καλαμάτα',
-            "Country": 'Greece'
-        },
-        "isPending": false
-    }
-]
-
 function UsersCard(props){
     console.log(props.results)
     let tabContent = []
-    for(let i = 0; i < 3; i++){
+    
+    for(let i = 0; i < props.results.length; i++){
         tabContent.push(<Tab.Pane eventKey={'#link' + i}>
-                            <UserInfo i={i}/>
+                            <UserInfo result={props.results[i]}/>
                         </Tab.Pane>)
     }
     return(
@@ -104,18 +53,16 @@ function UserCard(props){
 }
 
 function UserInfo(props){
-    console.log('Logging i...')
-    console.log(props.i)
     return(
         <>
-            <p>Όνομα χρήστη: {userDetails[props.i].username}</p>
-            <p>Όνομα: {userDetails[props.i].firstName}</p>
-            <p>Επώνυμο: {userDetails[props.i].lastName}</p>
-            <p>Διεύθυνση ηλεκτρονικού ταχυδρομείου: {userDetails[props.i].email}</p>
-            <p>Τηλέφωνο Επικοινωνίας: {userDetails[props.i].phone_number}</p>
-            <p>Αριθμός Φορολογικού Μητρώου: {userDetails[props.i].tin}</p>
-            <p>Διεύθυνση: {userDetails[props.i].Address.Street_name + ' ' + userDetails[props.i].Address.Street_number + ', ' + userDetails[props.i].Address.Postal_code + ', ' + userDetails[props.i].Address.City + ', ' + userDetails[props.i].Address.Country}</p>
-            {userDetails[props.i].isPending ? <Button variant="success">Έγκριση χρήστη</Button>: <Button variant="outline-success" disabled>Εγκρίθηκε</Button>}
+            <p>Όνομα χρήστη: {props.result.username}</p>
+            <p>Όνομα: {props.result.first_name}</p>
+            <p>Επώνυμο: {props.result.last_name}</p>
+            <p>Διεύθυνση ηλεκτρονικού ταχυδρομείου: {props.result.email}</p>
+            <p>Τηλέφωνο Επικοινωνίας: {props.result.phone_number}</p>
+            <p>Αριθμός Φορολογικού Μητρώου: {props.result.tin}</p>
+            <p>Διεύθυνση: {props.result.Address.Street_name + ' ' + props.result.Address.Street_number + ', ' + props.result.Address.Postal_code + ', ' + props.result.Address.City + ', ' + props.result.Address.Country}</p>
+            {props.result.isPending ? <Button variant="success">Έγκριση χρήστη</Button>: <Button variant="outline-success" disabled>Εγκρίθηκε</Button>}
         </>
     )
 }

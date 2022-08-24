@@ -55,7 +55,7 @@ class ListUsers(ListAPIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
     # Authentication remaining here.
     # Check for whether user is admin, too.
-    queryset = MyUser.objects.all().order_by('username')
+    queryset = MyUser.objects.all().order_by('username').exclude(is_staff=True) # Won't return admin's information
     serializer_class = MyUserSerializer
 
 class UserDetail(APIView):
