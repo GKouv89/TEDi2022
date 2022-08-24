@@ -6,30 +6,76 @@ import Row from 'react-bootstrap/esm/Row'
 import Col from 'react-bootstrap/esm/Col'
 import Tab from 'react-bootstrap/Tab'
 
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
 function UsersCard(props){
-    console.log(props.results)
-    let tabContent = []
-    
-    for(let i = 0; i < props.results.length; i++){
-        tabContent.push(<Tab.Pane eventKey={'#link' + i}>
-                            <UserInfo result={props.results[i]}/>
-                        </Tab.Pane>)
+    const [usersState, setUsersState] = useState([])
+    const [tabContent, setTabContent] = useState([])
+    const [loaded, setLoaded] = useState(false)
+
+    let usersStateTemp = []
+    const initializeUsersStatus = () => {
+        for(let i = 0; i < props.results.length; i++){
+            usersStateTemp.push(props.results[i].isPending);
+        }  
     }
+
+    const createTabContent = () => {
+        let tempTabContent = [];
+        for(let i = 0; i < props.results.length; i++){
+            tempTabContent.push(<Tab.Pane eventKey={'#link' + i}>
+                <UserInfo idx={i} result={props.results[i]} callback={updateUsersStatus}/>
+            </Tab.Pane>);
+        }
+        setTabContent(tempTabContent)
+    }
+
+    useEffect(() => {
+        console.log('inUseEffect')
+        if(usersState.length == 0){
+            console.log('Array is empty')
+            initializeUsersStatus()
+            setUsersState(usersStateTemp)    
+            createTabContent()
+            console.log(tabContent)
+            setLoaded(true)
+        }
+    }, [])
+
+    const updateUsersStatus = (idx, newState) => {
+        let usersStateTemp = []
+        for(let i = 0; i < props.results.length; i++){
+            if(i == idx){
+                usersStateTemp.push(newState);
+            }else{
+                usersStateTemp.push(props.results[i].isPending);
+            }
+        }
+        setUsersState(usersStateTemp)
+        createTabContent()
+        setLoaded(true)
+    }
+
     return(
-        <Tab.Container>
-            <Row>
-                <Col xs={4}>
-                    <ListGroup>
-                        {props.results.map((result, idx) => <UserCard key={idx} idx={idx} username={result.username} isPending={result.isPending} />)}
-                    </ListGroup>
-                </Col>
-                <Col xs={8}>
-                    <Tab.Content>
-                        {tabContent}
-                    </Tab.Content>
-                </Col>
-            </Row>
-        </Tab.Container>
+        <>
+        {loaded ? <>
+                <Tab.Container>
+                    <Row>
+                        <Col xs={4}>
+                            <ListGroup>
+                                {props.results.map((result, idx) => <UserCard key={idx} idx={idx} username={result.username} isPending={usersState[idx]} />)}
+                            </ListGroup>
+                        </Col>
+                        <Col xs={8}>
+                            <Tab.Content>
+                                {tabContent}
+                            </Tab.Content>
+                        </Col>
+                    </Row>
+                </Tab.Container>   
+            </>: <></>}
+        </>
     )
 }
 
@@ -53,6 +99,22 @@ function UserCard(props){
 }
 
 function UserInfo(props){
+    const [isPending, setIsPending] = useState(props.result.isPending)
+
+    const approveUser = () => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${localStorage.getItem('token')}`
+        }
+        const data = {
+            'username': `${props.result.username}`,
+            'isPending': false
+        }
+        axios.patch(`http://localhost:8000/users/${props.result.username}/`, data, { headers })
+            .then(() => {setIsPending(false); props.callback(props.idx, false)})
+            .catch(err => console.log(err)) 
+    }
+
     return(
         <>
             <p>Όνομα χρήστη: {props.result.username}</p>
@@ -62,7 +124,7 @@ function UserInfo(props){
             <p>Τηλέφωνο Επικοινωνίας: {props.result.phone_number}</p>
             <p>Αριθμός Φορολογικού Μητρώου: {props.result.tin}</p>
             <p>Διεύθυνση: {props.result.Address.Street_name + ' ' + props.result.Address.Street_number + ', ' + props.result.Address.Postal_code + ', ' + props.result.Address.City + ', ' + props.result.Address.Country}</p>
-            {props.result.isPending ? <Button variant="success">Έγκριση χρήστη</Button>: <Button variant="outline-success" disabled>Εγκρίθηκε</Button>}
+            {isPending ? <Button variant="success" onClick={() => approveUser()}>Έγκριση χρήστη</Button>: <Button variant="outline-success" disabled>Εγκρίθηκε</Button>}
         </>
     )
 }

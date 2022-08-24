@@ -22,7 +22,7 @@ export default function AdminPage(){
 
     const [fetchResults, setFetchResults] = useState(null)
     const [count, setCount] = useState(null)
-    const [loaded, setLoaded] = useState(false)
+    const [loaded, setloaded] = useState(false)
 
     const fetchData = () => {
         const headers = {
@@ -35,7 +35,7 @@ export default function AdminPage(){
                 setFetchResults(response.data.results)
                 setCount(response.data.count)
                 setPageCount(count/page_size + 1)
-                setLoaded(true)
+                setloaded(true)
             })
             .catch(err => console.log(err))
     }
