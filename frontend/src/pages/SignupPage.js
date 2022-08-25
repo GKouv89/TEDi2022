@@ -96,9 +96,13 @@ export default function SignupPage(){
                             }
 
                             axios.post('http://localhost:8000/register/', data, {headers})
-                                .then()
+                                .then((r) => {
+                                    console.log(r.data)
+                                    //store username and token to local storage
+                                    window.localStorage.setItem("token", r.data.token)
+                                    window.localStorage.setItem("username", r.data.user_data.username)
+                                })
                                 .catch(error => {
-                                    // console.log(error)
                                     console.log(error.response.status)
                                     //check if the server replied with {username: "A user with that username already exists."} and act accordingly
                                     if (error.response.status === 400) {

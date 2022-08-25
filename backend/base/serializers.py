@@ -1,6 +1,15 @@
 from rest_framework import serializers, validators
 from .models import MyUser, Address
 
+# user is an instance of MyUser
+#simple serializer for login & register
+def serialize_user(user):
+    return {
+        "username": user.username,
+        "is_staff": user.is_staff,
+        "isPending": user.isPending
+    }
+
 class OneUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MyUser

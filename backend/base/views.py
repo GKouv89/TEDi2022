@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from .serializers import MyUserSerializer, OneUserSerializer, UserWithAddressSerializer, RegisterSerializer
+from .serializers import MyUserSerializer, OneUserSerializer, UserWithAddressSerializer, RegisterSerializer, serialize_user
 from . import serializers
 from . import models
 from rest_framework.decorators import api_view
@@ -17,14 +17,6 @@ from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from knox.auth import AuthToken, TokenAuthentication
 
-# user is an instance of MyUser
-def serialize_user(user):
-    return {
-        "email" : user.email,
-        "username": user.username,
-        "password": user.password
-        #...
-    }
 
 @api_view(['POST'])
 def login(request):
@@ -46,9 +38,12 @@ def register(request):
     
     if serializer.is_valid(raise_exception=True):
         user = serializer.save()    #save to database
-
-        #admin should first accept the user for them to get a token
-        return Response({})
+        _, token = AuthToken.objects.create(user)
+        
+        return Response({
+            'user_data': serialize_user(user),
+            'token': token
+        })
 
 @api_view(['GET'])
 def get_user(request):
