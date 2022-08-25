@@ -10,10 +10,13 @@ import SigninPage from './pages/SigninPage'
 import SignupPage from './pages/SignupPage'
 import PendingPage from './pages/PendingPage'
 import AdminPage from './pages/AdminPage'
+import IndexPage from './pages/IndexPage'
 
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
+import AuctionManagement from './pages/Auctions/AuctionManagement';
+import AuctionSearch from './pages/Auctions/AuctionSearch';
 
 class App extends Component {
   render() {
@@ -29,8 +32,11 @@ class App extends Component {
               <Route element={<PrivateRoute />}>
                 <Route path="/admin" element={<AdminPage />}/>
                 <Route path="/pending" element={<PendingPage />} />
+                <Route path="/auctionmanagement" element={<AuctionManagement />} />
+                <Route path="/auctions" element={<AuctionSearch />} />
               </Route>
               <Route path="/warning" element={<UnauthorizedPage />} />
+              <Route path="/index" element={<IndexPage />}/> /* Temporary, this will become a protected route*/
             </Routes>
           </AuthProvider>
         </BrowserRouter>
