@@ -1,5 +1,6 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useRef, useEffect } from "react";
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -10,6 +11,19 @@ export function AuthProvider({children}){
     let [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin'))
     let [isPending, setIsPending] = useState(localStorage.getItem('isPending'))
     let [token, setToken] = useState(localStorage.getItem('token'))
+
+    let navigate = useNavigate()
+    const didMount = useRef(false)
+
+    useEffect(() => {
+        if(!didMount.current){
+            didMount.current = true
+            return
+        }
+        if(isAdmin){
+            navigate('../admin', {replace: true})
+        }   
+    }, [isAdmin])
 
     let signupUser = (username, token, is_staff, isPending) => {
         console.log('signupUser')
@@ -29,6 +43,7 @@ export function AuthProvider({children}){
         console.log(e.target.username.value)
         console.log(e.target.password.value)
 
+        let url;
         axios.post('http://localhost:8000/login/', 
             {"username": e.target.username.value, "password": e.target.password.value}, 
             {Headers: {'Content-Type': 'application/json'}})
@@ -43,7 +58,19 @@ export function AuthProvider({children}){
                 window.localStorage.setItem("username", r.data.user_data.username)
                 window.localStorage.setItem("isAdmin", r.data.user_data.is_staff)
                 window.localStorage.setItem("isPending", r.data.user_data.isPending)
+                // if(r.data.user_data.is_staff){
+                //     url = '../admin'
+                // }else{
+                //     url ='../pending'
+                // }
+                // console.log('url ', url)
             })
+            // .then(() => {
+                // console.log('isAdmin', localStorage.getItem(isAdmin))
+                // if(localStorage.getItem(isAdmin) == 'true'){
+                    // navigate(url, {replace: true})
+                // }
+            // })
 
     }
 

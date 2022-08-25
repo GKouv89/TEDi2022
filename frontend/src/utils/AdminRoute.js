@@ -6,9 +6,10 @@ import AuthContext from '../context/AuthContext'
 export default function AdminRoute({children, ...rest}){
     let {isAdmin} = useContext(AuthContext)
     console.log('isAdmin:', isAdmin)
+    console.log(isAdmin == 'true') 
     return(
         <>
-            {(isAdmin == 'true') ? <Outlet /> : <Navigate to={"/warning"} replace/>}
+            {isAdmin ? <Outlet /> : <Navigate to={"/warning"} replace/>}
         </>    
     )
 }
