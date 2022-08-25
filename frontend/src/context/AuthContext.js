@@ -14,7 +14,6 @@ export function AuthProvider({children}){
         // This will also be async
 
         e.preventDefault()
-        console.log("djkfnjkdgjfdb")
         console.log(e.target.username.value)
         console.log(e.target.password.value)
 
