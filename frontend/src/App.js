@@ -13,6 +13,7 @@ import AdminPage from './pages/AdminPage'
 
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute'
+import UnauthorizedPage from './pages/Warnings/WarningPage';
 
 class App extends Component {
   render() {
@@ -26,9 +27,10 @@ class App extends Component {
               <Route path="/login" element={<SigninPage />}/>
               <Route path="/signup" element={<SignupPage />}/>
               <Route element={<PrivateRoute />}>
+                <Route path="/admin" element={<AdminPage />}/>
                 <Route path="/pending" element={<PendingPage />} />
               </Route>
-              <Route path="/admin" element={<AdminPage />} /> // This shall become a protected route once we're done with auth
+              <Route path="/warning" element={<UnauthorizedPage />} />
             </Routes>
           </AuthProvider>
         </BrowserRouter>

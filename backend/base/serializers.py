@@ -1,11 +1,6 @@
 from rest_framework import serializers, validators
 from .models import MyUser, Address
 
-class MyUserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = MyUser
-        fields = ['username', 'isPending']
-
 class OneUserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = MyUser
@@ -27,6 +22,7 @@ class UserWithAddressSerializer(serializers.ModelSerializer):
         addr = Address.objects.create(**addr_data)
         user = MyUser.objects.create_user(**validated_data, Address=addr)
         return user
+
         
 class AddressRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,3 +63,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             Address=addr
         )
         return user
+
+
+class MyUserSerializer(serializers.HyperlinkedModelSerializer):
+    Address = AddressSerializer()
+
+    class Meta:
+        model = MyUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'tin', 'isPending', 'Address']
+
