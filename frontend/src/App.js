@@ -35,11 +35,11 @@ class App extends Component {
                   <Route path="/admin" element={<AdminPage />}/>
                 </Route>
                 <Route path="/pending" element={<PendingPage />} />
+                <Route path="/index" element={<IndexPage />}/>
                 <Route path="/auctionmanagement" element={<AuctionManagement />} />
                 <Route path="/auctions" element={<AuctionSearch />} />
               </Route>
               <Route path="/warning" element={<UnauthorizedPage />} />
-              <Route path="/index" element={<IndexPage />}/> /* Temporary, this will become a protected route*/
             </Routes>
           </AuthProvider>
         </BrowserRouter>

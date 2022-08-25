@@ -2,6 +2,7 @@ import React from 'react'
 import Button from 'react-bootstrap/Button';
 
 export default function WelcomePage(){
+    console.log('Welcome')
     return(
         <>
             <h1 style={{paddingTop: "100px"}}>Καλώς ήρθατε!</h1>
