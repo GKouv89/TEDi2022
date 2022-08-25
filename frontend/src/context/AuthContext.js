@@ -11,7 +11,18 @@ export function AuthProvider({children}){
     let [isPending, setIsPending] = useState(localStorage.getItem('isPending'))
     let [token, setToken] = useState(localStorage.getItem('token'))
 
-    // let signupUser = 
+    let signupUser = (username, token, is_staff, isPending) => {
+        console.log('signupUser')
+        setUser(username)
+        setToken(token)
+        setIsAdmin(is_staff)
+        setIsPending(isPending)
+
+        window.localStorage.setItem("token", token)
+        window.localStorage.setItem("username", username)
+        window.localStorage.setItem("isAdmin", is_staff)
+        window.localStorage.setItem("isPending", isPending)
+    }
 
     let loginUser = (e) =>{
         e.preventDefault()
@@ -64,9 +75,10 @@ export function AuthProvider({children}){
         user: user,
         isAdmin: isAdmin,
         isPending: isPending,
+        token: token,
+        signupUser: signupUser,
         loginUser: loginUser,
-        logoutUser: logoutUser,
-        token: token
+        logoutUser: logoutUser
     }
     return(
         <AuthContext.Provider value={contextData}>{children}</AuthContext.Provider>

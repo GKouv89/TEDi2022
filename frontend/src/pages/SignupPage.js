@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Form, Container, Row, Col, Placeholder, Button} from 'react-bootstrap'
 
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import axios from 'axios'
+import AuthContext from '../context/AuthContext'
 
 const schema = Yup.object().shape(
     {
@@ -65,7 +66,7 @@ const initialValues = {
 }
 
 export default function SignupPage(){
-
+    let {signupUser} = useContext(AuthContext)
     return(
         <>
             <Container>
@@ -103,8 +104,9 @@ export default function SignupPage(){
                                 .then((r) => {
                                     console.log(r.data)
                                     //store username and token to local storage
-                                    window.localStorage.setItem("token", r.data.token)
-                                    window.localStorage.setItem("username", r.data.user_data.username)
+                                    // window.localStorage.setItem("token", r.data.token)
+                                    // window.localStorage.setItem("username", r.data.user_data.username)
+                                    signupUser(r.data.user_data.username, r.data.token, r.data.user_data.is_staff, r.data.user_data.isPending)
                                 })
                                 .catch(error => {
                                     console.log(error.response.status)
