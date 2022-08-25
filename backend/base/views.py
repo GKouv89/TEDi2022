@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from .serializers import MyUserSerializer, OneUserSerializer, UserWithAddressSerializer
+from .serializers import MyUserSerializer, OneUserSerializer, UserWithAddressSerializer, RegisterSerializer
 from . import serializers
 from . import models
 from rest_framework.decorators import api_view
@@ -38,6 +38,16 @@ def login(request):
         'user_data': serialize_user(user),
         'token': token
     })
+
+@api_view(['POST'])
+def register(request):
+    serializer = RegisterSerializer(data=request.data)
+    
+    if serializer.is_valid(raise_exception=True):
+        user = serializer.save()    #save to database
+
+        #admin should first accept the user for them to get a token
+        return Response({})
 
 @api_view(['GET'])
 def get_user(request):

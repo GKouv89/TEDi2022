@@ -3,6 +3,7 @@ import { Form, Container, Row, Col, Placeholder, Button} from 'react-bootstrap'
 
 import * as Yup from 'yup'
 import { Formik } from 'formik'
+import axios from 'axios'
 
 const schema = Yup.object().shape(
     {
@@ -61,6 +62,7 @@ const initialValues = {
 }
 
 export default function SignupPage(){
+
     return(
         <>
             <Container>
@@ -70,7 +72,42 @@ export default function SignupPage(){
                 <Row>
                     <Formik
                         validationSchema={schema}
-                        onSubmit={console.log}
+                        onSubmit={(values, actions) => {
+                            console.log(values)
+                            console.log('CALLING ')
+
+                            const data = {
+                                "username": values.username,
+                                "password": values.password,
+                                "first_name": values.firstName,
+                                "last_name": values.lastName,
+                                "email": values.email,
+                                "phone_number": values.telephone,
+                                "tin": values.tin,
+                                "Address": {
+                                    "Street_number": values.streetNumber,
+                                    "Street_name": values.streetName,
+                                    "Postal_code": values.postalCode,
+                                    "Country": values.country
+                                }
+                            }
+                            const headers = {
+                                'Content-Type': 'application/json',
+                            }
+
+                            axios.post('http://localhost:8000/register/', data, {headers})
+                                .then()
+                                .catch(error => {
+                                    // console.log(error)
+                                    console.log(error.response.status)
+                                    //check if the server replied with {username: "A user with that username already exists."} and act accordingly
+                                    if (error.response.status === 400) {
+                                        if (typeof error.response.data.username !== "undefined") {
+                                            alert("Υπάρχει ήδη χρήστης με το ίδιο username. Παρακαλώ εισάγετε άλλο.")
+                                        }
+                                    }
+                                })
+                        }}
                         initialValues={initialValues}
                     >
                     { props => 
@@ -87,6 +124,7 @@ function SignupForm(props){
     const [options, setOptions] = useState(null)
     console.log(props.getFieldProps('username'))
     console.log(props.getFieldMeta('username'))
+    
     useEffect(() => {
         async function fetchCountries(){
             fetch('https://restcountries.com/v3.1/all')
@@ -105,6 +143,8 @@ function SignupForm(props){
         }
         fetchCountries()
     }, []);
+
+    
 
     return(
         <Container>
