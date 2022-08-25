@@ -41,6 +41,8 @@ const schema = Yup.object().shape(
         postalCode: Yup.string()
                         .required('Υποχρεωτικό πεδίο.')
                         .matches(/^[A-Za-z0-9][A-Za-z0-9\- ]{0,10}[A-Za-z0-9]$/, "Ο ταχυδρομικός κώδικας συνήθως περιέχει γράμματα, ψηφία, και προαιρετικά ένα κενό ή μία παύλα."),
+        city: Yup.string()
+                    .required('Υποχρεωτικό πεδίο.'),
         country: Yup.string()
                    .required('Υποχρεωτικό πεδίο')
                    .notOneOf([""], 'Επιλέξτε μία έγκυρη χώρα.'),
@@ -58,6 +60,7 @@ const initialValues = {
     streetName: '',
     streetNumber: '',
     postalCode: '',
+    city: '',
     country: ''
 }
 
@@ -88,6 +91,7 @@ export default function SignupPage(){
                                     "Street_number": values.streetNumber,
                                     "Street_name": values.streetName,
                                     "Postal_code": values.postalCode,
+                                    "City": values.city,
                                     "Country": values.country
                                 }
                             }
@@ -122,8 +126,6 @@ export default function SignupPage(){
 
 function SignupForm(props){
     const [options, setOptions] = useState(null)
-    console.log(props.getFieldProps('username'))
-    console.log(props.getFieldMeta('username'))
     
     useEffect(() => {
         async function fetchCountries(){
@@ -308,6 +310,20 @@ function SignupForm(props){
                         />
                         <Form.Control.Feedback type="invalid">
                             {props.errors.postalCode}
+                        </Form.Control.Feedback>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-3 ml-1" controlId="formCity">
+                    <Form.Label className="required" column xs={3}>Πόλη</Form.Label>
+                    <Col>
+                        <Form.Control 
+                            name="city"
+                            type="text"
+                            {...props.getFieldProps('city')}
+                            isInvalid={props.touched.city && props.errors.city}
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            {props.errors.city}
                         </Form.Control.Feedback>
                     </Col>
                 </Form.Group>
