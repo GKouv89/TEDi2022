@@ -14,6 +14,7 @@ import IndexPage from './pages/IndexPage'
 
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './utils/PrivateRoute'
+import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
 import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
@@ -34,10 +35,12 @@ class App extends Component {
                 <Route element={<AdminRoute />}>
                   <Route path="/admin" element={<AdminPage />}/>
                 </Route>
+                <Route element={<ApprovedUserRoute />}>
+                  <Route path="/index" element={<IndexPage />}/>
+                  <Route path="/auctionmanagement" element={<AuctionManagement />} />
+                  <Route path="/auctions" element={<AuctionSearch />} />
+                </Route>
                 <Route path="/pending" element={<PendingPage />} />
-                <Route path="/index" element={<IndexPage />}/>
-                <Route path="/auctionmanagement" element={<AuctionManagement />} />
-                <Route path="/auctions" element={<AuctionSearch />} />
               </Route>
               <Route path="/warning" element={<UnauthorizedPage />} />
             </Routes>
