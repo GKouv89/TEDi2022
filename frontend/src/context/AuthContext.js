@@ -7,12 +7,13 @@ export default AuthContext;
 
 export function AuthProvider({children}){
     let [user, setUser] = useState(localStorage.getItem('username'))
+    let [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin'))
+    let [isPending, setIsPending] = useState(localStorage.getItem('isPending'))
     let [token, setToken] = useState(localStorage.getItem('token'))
 
-    let loginUser = (e) =>{
-        // Body will change with completion of backend auth
-        // This will also be async
+    // let signupUser = 
 
+    let loginUser = (e) =>{
         e.preventDefault()
         console.log(e.target.username.value)
         console.log(e.target.password.value)
@@ -25,8 +26,12 @@ export function AuthProvider({children}){
                 //keep username and token in local storage and states 'user' and 'token'
                 setUser(r.data.user_data.username)
                 setToken(r.data.token)
+                setIsAdmin(r.data.user_data.is_staff)
+                setIsPending(r.data.user_data.isPending)
                 window.localStorage.setItem("token", r.data.token)
                 window.localStorage.setItem("username", r.data.user_data.username)
+                window.localStorage.setItem("isAdmin", r.data.user_data.is_staff)
+                window.localStorage.setItem("isPending", r.data.user_data.isPending)
             })
 
     }
@@ -45,16 +50,20 @@ export function AuthProvider({children}){
             .then(() => {
                 setToken(null)
                 setUser(null)
+                setIsAdmin(null)
+                setIsPending(null)
                 localStorage.removeItem("username")
                 localStorage.removeItem("token")
+                localStorage.removeItem("isAdmin")
+                localStorage.removeItem("isPending")
             })
             .catch(err => console.log(err))
-
-        
     }
 
     let contextData = {
         user: user,
+        isAdmin: isAdmin,
+        isPending: isPending,
         loginUser: loginUser,
         logoutUser: logoutUser,
         token: token

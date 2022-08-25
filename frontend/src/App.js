@@ -17,6 +17,7 @@ import PrivateRoute from './utils/PrivateRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
 import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
+import AdminRoute from './utils/AdminRoute';
 
 class App extends Component {
   render() {
@@ -30,7 +31,9 @@ class App extends Component {
               <Route path="/login" element={<SigninPage />}/>
               <Route path="/signup" element={<SignupPage />}/>
               <Route element={<PrivateRoute />}>
-                <Route path="/admin" element={<AdminPage />}/>
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin" element={<AdminPage />}/>
+                </Route>
                 <Route path="/pending" element={<PendingPage />} />
                 <Route path="/auctionmanagement" element={<AuctionManagement />} />
                 <Route path="/auctions" element={<AuctionSearch />} />
