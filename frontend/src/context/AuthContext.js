@@ -64,6 +64,19 @@ export function AuthProvider({children}){
                 window.localStorage.setItem("isAdmin", r.data.user_data.is_staff)
                 window.localStorage.setItem("isPending", r.data.user_data.isPending)
             })
+            .catch(error => {
+                console.log(error.response.status)
+                //check if the server replied with "Bad Request 400"
+                if (error.response.status === 400) {
+                    if (typeof error.response.data.non_field_errors !== "undefined") {
+                        //given username & password are incorrect
+                        alert("Το όνομα χρήστη ή/και ο κωδικός που εισάγατε είναι λάθος.")
+                    }
+                    if (typeof error.response.data.username !== "undefined" || typeof error.response.data.password !== "undefined") {
+                        alert("Απαιτείται όνομα χρήστη και κωδικός πρόσβασης χρήστη.")
+                    }
+                }
+            })
     }
 
     let logoutUser = () => {
