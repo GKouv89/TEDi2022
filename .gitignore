@@ -1,3 +1,5 @@
 backend/backend/__pycache__/
 backend/base/__pycache__/
 backend/base/migrations/__pycache__/
+backend/auctions/migrations/__pycache__/
+backend/auctions/__pycache__/

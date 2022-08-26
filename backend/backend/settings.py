@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'base.apps.BaseConfig',
+    'auctions.apps.AuctionsConfig',
     ######
     'corsheaders',
     'rest_framework',
