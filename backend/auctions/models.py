@@ -14,17 +14,19 @@ class Item(models.Model):
         'base.MyUser',
         through='Bid',
         through_fields=('item', 'bidder'),
-        related_name='bidders',
+        related_name='bids',
     )
 
     address = models.ForeignKey(
         'base.Address',
         on_delete = models.CASCADE,
+        related_name='hosted_items',
     )
+
     seller = models.ForeignKey(
         'base.MyUser',
         on_delete=models.CASCADE,
-        related_name='seller',
+        related_name='sold_items',
     )
     started = models.DateTimeField()
     ended = models.DateTimeField()
@@ -34,11 +36,12 @@ class Bid(models.Model):
     bidder = models.ForeignKey(
         'base.MyUser',
         on_delete=models.CASCADE,
-        related_name='bidder',
+        related_name='bids',
     )
     item = models.ForeignKey(
         'Item',
         on_delete=models.CASCADE,
+        related_name='bids',
     )
     time = models.DateTimeField()
     amount = models.DecimalField(max_digits=6, decimal_places=2)
