@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import Http404
+from base.models import MyUser
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,12 +24,9 @@ class ItemView(APIView):
             raise Http404
 
     def get(self, request, auction_id):
-        # req_user = request.user
         item = self.get_object(auction_id)
-        # if(item.seller == req_user):
         serializer = ItemSerializer(item)
         return Response(serializer.data)
-        # return Response(status=status.HTTP_403_FORBIDDEN)
 
     
     # def post(self, request):
@@ -37,6 +35,28 @@ class ItemView(APIView):
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AllItems(ListAPIView):
+    serializer_class = ItemSerializer
+    queryset = Item.objects.all().order_by('id')
+
+class SellersItems(ListAPIView):
+    serializer_class = ItemSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_queryset(self, username):
+        user = MyUser.objects.get(username=username)
+        return user.sold_items.all()
+
+    def list(self, request, username):
+        req_user = request.user # Only the seller can view these items
+        if req_user.username == username:
+            page = self.paginate_queryset(self.get_queryset(username))
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
 
 class ItemsBids(ListAPIView):
     authentication_classes = (TokenAuthentication,)

@@ -2,7 +2,8 @@ from ast import Add
 from rest_framework import serializers, validators
 from .models import Item, Bid
 from base.models import Address, MyUser
-# from base.serializers import AddressSerializer
+from base.serializers import AddressSerializer, MyUserSerializer
+from django.utils.timezone import make_aware
 
 # VIEW ONLY SERIALIZERS
 # Trying to return only the necessary data
@@ -51,3 +52,32 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = ['id', 'name', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
         depth = 3
+
+class ItemCreationSerializer(serializers.ModelSerializer):
+    address = AddressSerializer()
+    fmt = '%d-%m-%Y %H:%M:%S'
+    started = serializers.DateTimeField(input_formats=[fmt])
+    ended = serializers.DateTimeField(input_formats=[fmt])
+
+    class Meta:
+        model = Item
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'seller', 'address']
+
+    def create(self, validated_data):
+        address_data = validated_data.pop('address')
+        if Address.objects.filter(Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country']).exists():
+            address = Address.objects.get(Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country'])
+        else:
+            address = Address.objects.create(**address_data)
+
+        item = Item.objects.create(
+            name = validated_data["name"],
+            first_bid = validated_data["first_bid"],
+            buy_price = validated_data["buy_price"],
+            address = address,
+            seller = validated_data["seller"],
+            description = validated_data["description"],
+            started = validated_data["started"],
+            ended = validated_data["started"]
+        )
+        return item
