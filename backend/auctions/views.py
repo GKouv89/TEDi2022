@@ -5,9 +5,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView
 from knox.auth import AuthToken, TokenAuthentication
 
-from .serializers import ItemSerializer
+from .serializers import BidSerializer, ItemSerializer
 from .models import Item
 
 # Create your views here.
@@ -25,8 +26,8 @@ class ItemView(APIView):
         # req_user = request.user
         item = self.get_object(auction_id)
         # if(item.seller == req_user):
-            serializer = ItemSerializer(item)
-            return Response(serializer.data)
+        serializer = ItemSerializer(item)
+        return Response(serializer.data)
         # return Response(status=status.HTTP_403_FORBIDDEN)
 
     
@@ -36,3 +37,28 @@ class ItemView(APIView):
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ItemsBids(ListAPIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = BidSerializer
+    
+    def get_object(self, item_id):
+        try:
+            return Item.objects.get(id=item_id)
+        except Item.DoesNotExist:
+            raise Http404
+    
+    def get_queryset(self, item_id):
+        item = self.get_object(item_id)
+        return item.items_bids.all()
+
+    def list(self, request, item_id):
+        req_user = request.user # Only the seller can view the bids
+        item = self.get_object(item_id)
+        if(item.seller == req_user):
+            page = self.paginate_queryset(self.get_queryset(item_id))
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
