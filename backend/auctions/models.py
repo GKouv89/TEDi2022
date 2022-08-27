@@ -14,7 +14,7 @@ class Item(models.Model):
         'base.MyUser',
         through='Bid',
         through_fields=('item', 'bidder'),
-        related_name='bids',
+        related_name='bidded_items', # Clashes
     )
 
     address = models.ForeignKey(
@@ -36,12 +36,12 @@ class Bid(models.Model):
     bidder = models.ForeignKey(
         'base.MyUser',
         on_delete=models.CASCADE,
-        related_name='bids',
+        related_name='user_bids', 
     )
     item = models.ForeignKey(
         'Item',
         on_delete=models.CASCADE,
-        related_name='bids',
+        related_name='items_bids', # Clashes
     )
     time = models.DateTimeField()
     amount = models.DecimalField(max_digits=6, decimal_places=2)
