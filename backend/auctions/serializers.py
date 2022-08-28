@@ -5,6 +5,8 @@ from base.models import Address, MyUser
 from base.serializers import AddressSerializer, MyUserSerializer
 from django.utils.timezone import make_aware
 
+import datetime
+
 # VIEW ONLY SERIALIZERS
 # Trying to return only the necessary data
 # according to the prototype 
@@ -81,3 +83,26 @@ class ItemCreationSerializer(serializers.ModelSerializer):
             ended = validated_data["ended"]
         )
         return item
+
+class BidCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bid
+        fields = ['amount']
+
+    def create(self, validated_data):
+        time = make_aware(datetime.datetime.now())
+        item = Item.objects.get(id=self.context['item'])
+        if validated_data["amount"] > item.currently:
+            item.currently = validated_data["amount"]
+        if item.buy_price is not None and validated_data["amount"] >= item.buy_price:
+            item.status = Item.ACQUIRED
+            # Should we force ended to change to current moment?
+        item.number_of_bids = item.number_of_bids + 1
+        item.save()
+        bid = Bid.objects.create(
+            bidder = self.context['request'].user,
+            time = time,
+            item = item,
+            amount = validated_data["amount"]
+        )
+        return bid

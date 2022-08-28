@@ -13,14 +13,14 @@ from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
 
-from .serializers import BidSerializer, ItemSerializer, ItemCreationSerializer
+from .serializers import BidCreationSerializer, BidSerializer, ItemSerializer, ItemCreationSerializer
 from .models import Item
 
 # Create your views here.
 
 def update_auctions_status():
     Item.objects.filter(ended__lt=datetime.datetime.now()).update(status=Item.ACQUIRED)
-    Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now())).update(status=Item.RUNNING)
+    Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now()) & ~Q(status=Item.ACQUIRED)).update(status=Item.RUNNING)
 
 
 class ItemView(APIView):
@@ -31,10 +31,10 @@ class ItemView(APIView):
         try:
             item = Item.objects.get(id=auction_id)
             now = make_aware(datetime.datetime.now())
-            if item.started < now and item.ended > now:
+            if item.started < now and item.ended > now and item.status != Item.ACQUIRED:
                 item.status = Item.RUNNING
                 item.save()
-            elif item.ended > now:
+            elif item.ended < now:
                 item.status = Item.ACQUIRED
                 item.save()
             return item
@@ -46,13 +46,24 @@ class ItemView(APIView):
         serializer = ItemSerializer(item)
         return Response(serializer.data)
     
+    def patch(self, request, auction_id):
+        item = self.get_object(auction_id)
+        if item.status != Item.INACTIVE:
+            return Response({"error": "auction should have started"}, status=status.HTTP_412_PRECONDITION_FAILED)
+        serializer = ItemCreationSerializer(item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
 class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
-    queryset = Item.objects.all().order_by('id')
+    queryset = Item.objects.all().order_by('id') # Should probably return all active ones only
 
-    def list(self, request):
+    def list(self, request): 
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
         if page is not None:
@@ -97,7 +108,7 @@ class ItemsBids(ListAPIView):
             if item.started < now and item.ended > now:
                 item.status = Item.RUNNING
                 item.save()
-            elif item.ended > now:
+            elif item.ended < now:
                 item.status = Item.ACQUIRED
                 item.save()
             return item
@@ -118,3 +129,17 @@ class ItemsBids(ListAPIView):
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, item_id):
+        item = Item.objects.get(id=item_id)
+        if item.status == Item.ACQUIRED:
+            return Response({"error": "auction is no longer running"}, status=status.HTTP_412_PRECONDITION_FAILED)
+        elif item.status == Item.INACTIVE:
+            return Response({"error": "auction hasn't started yet"}, status=status.HTTP_412_PRECONDITION_FAILED)
+        serializer = BidCreationSerializer(data=request.data, context={'request': request, 'item': item_id})
+        if serializer.is_valid():
+            if item.first_bid > request.data["amount"]:
+                return Response({"error": "Bid amount too small"}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
