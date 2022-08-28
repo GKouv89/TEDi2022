@@ -41,16 +41,26 @@ class BidSerializer(serializers.ModelSerializer):
         depth = 2
 
 class ItemSerializer(serializers.ModelSerializer):
+
+    ACQUIRED = 'AC'
+    RUNNING = 'RU'
+    INACTIVE = 'IN'
+    STATUS_CHOICES = [
+        (INACTIVE, 'Inactive'),
+        (RUNNING, 'Running'),
+        (ACQUIRED, 'Acquired'),
+    ]
+
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(format=fmt)
     ended = serializers.DateTimeField(format=fmt)
     seller = SellerSerializer()
     items_bids = BidSerializer(many=True, required=False, read_only=True)
     address = ItemLocationSerializer()
-
+    status = serializers.ChoiceField(choices=Item.STATUS_CHOICES)
     class Meta:
         model = Item
-        fields = ['id', 'name', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
+        fields = ['id', 'name', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
         depth = 3
 
 class ItemCreationSerializer(serializers.ModelSerializer):

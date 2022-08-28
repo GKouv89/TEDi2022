@@ -3,13 +3,25 @@ from base.models import MyUser, Address
 
 # Create your models here.
 class Item(models.Model):
+    ACQUIRED = 'AC'
+    RUNNING = 'RU'
+    INACTIVE = 'IN'
+    STATUS_CHOICES = [
+        (INACTIVE, 'Inactive'),
+        (RUNNING, 'Running'),
+        (ACQUIRED, 'Acquired'),
+    ]
     name = models.CharField(max_length=255)
     currently =  models.DecimalField(default=0.0, max_digits=6, decimal_places=2)
     first_bid = models.DecimalField(default=0.0, max_digits=6, decimal_places=2)
     buy_price = models.DecimalField(null=True, blank=True, max_digits=6, decimal_places=2)
     number_of_bids = models.IntegerField(default=0)
     # Category field missing
-
+    status = models.CharField(
+        max_length=2,
+        choices=STATUS_CHOICES,
+        default=INACTIVE,   
+    )
     bids = models.ManyToManyField(
         'base.MyUser',
         through='Bid',

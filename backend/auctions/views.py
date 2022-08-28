@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import Http404
 from base.models import MyUser
+from django.db.models import Q
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,13 +10,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from knox.auth import AuthToken, TokenAuthentication
 
+import datetime
+
 from .serializers import BidSerializer, ItemSerializer
 from .models import Item
 
 # Create your views here.
+
+def update_auctions_status():
+    Item.objects.filter(ended__lt=datetime.datetime.now()).update(status=Item.ACQUIRED)
+    Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now())).update(status=Item.RUNNING)
+
+
 class ItemView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, )
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated, )
 
     def get_object(self, auction_id):
         try:
@@ -39,6 +48,17 @@ class ItemView(APIView):
 class AllItems(ListAPIView):
     serializer_class = ItemSerializer
     queryset = Item.objects.all().order_by('id')
+
+    # def get_queryset(self):
+    #     self.update_auctions_status()
+    #     return Item.objects.all()
+
+    def list(self, request):
+        update_auctions_status()
+        page = self.paginate_queryset(self.get_queryset())
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
 class SellersItems(ListAPIView):
     serializer_class = ItemSerializer
