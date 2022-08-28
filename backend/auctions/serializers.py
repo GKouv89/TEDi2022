@@ -41,16 +41,6 @@ class BidSerializer(serializers.ModelSerializer):
         depth = 2
 
 class ItemSerializer(serializers.ModelSerializer):
-
-    ACQUIRED = 'AC'
-    RUNNING = 'RU'
-    INACTIVE = 'IN'
-    STATUS_CHOICES = [
-        (INACTIVE, 'Inactive'),
-        (RUNNING, 'Running'),
-        (ACQUIRED, 'Acquired'),
-    ]
-
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(format=fmt)
     ended = serializers.DateTimeField(format=fmt)
@@ -71,7 +61,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'seller', 'address']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -85,9 +75,9 @@ class ItemCreationSerializer(serializers.ModelSerializer):
             first_bid = validated_data["first_bid"],
             buy_price = validated_data["buy_price"],
             address = address,
-            seller = validated_data["seller"],
+            seller = self.context['request'].user,
             description = validated_data["description"],
             started = validated_data["started"],
-            ended = validated_data["started"]
+            ended = validated_data["ended"]
         )
         return item

@@ -7,13 +7,13 @@ from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.generics import ListAPIView, ListCreateAPIView
 from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
 
-from .serializers import BidSerializer, ItemSerializer
+from .serializers import BidSerializer, ItemSerializer, ItemCreationSerializer
 from .models import Item
 
 # Create your views here.
@@ -45,16 +45,10 @@ class ItemView(APIView):
         item = self.get_object(auction_id)
         serializer = ItemSerializer(item)
         return Response(serializer.data)
-
     
-    # def post(self, request):
-    #     serializer = ItemSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class AllItems(ListAPIView):
+class AllItems(ListCreateAPIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
     queryset = Item.objects.all().order_by('id')
 
@@ -64,6 +58,13 @@ class AllItems(ListAPIView):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+    
+    def post(self, request):
+        serializer = ItemCreationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SellersItems(ListAPIView):
     serializer_class = ItemSerializer
