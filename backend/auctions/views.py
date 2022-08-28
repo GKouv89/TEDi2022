@@ -1,3 +1,4 @@
+from django.utils.timezone import make_aware
 from django.shortcuts import render
 from django.http import Http404
 from base.models import MyUser
@@ -28,7 +29,15 @@ class ItemView(APIView):
 
     def get_object(self, auction_id):
         try:
-            return Item.objects.get(id=auction_id)
+            item = Item.objects.get(id=auction_id)
+            now = make_aware(datetime.datetime.now())
+            if item.started < now and item.ended > now:
+                item.status = Item.RUNNING
+                item.save()
+            elif item.ended > now:
+                item.status = Item.ACQUIRED
+                item.save()
+            return item
         except Item.DoesNotExist:
             raise Http404
 
@@ -49,10 +58,6 @@ class AllItems(ListAPIView):
     serializer_class = ItemSerializer
     queryset = Item.objects.all().order_by('id')
 
-    # def get_queryset(self):
-    #     self.update_auctions_status()
-    #     return Item.objects.all()
-
     def list(self, request):
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
@@ -66,6 +71,7 @@ class SellersItems(ListAPIView):
     permission_classes = (IsAuthenticated, )
     
     def get_queryset(self, username):
+        update_auctions_status()
         user = MyUser.objects.get(username=username)
         return user.sold_items.all()
 
@@ -85,7 +91,16 @@ class ItemsBids(ListAPIView):
     
     def get_object(self, item_id):
         try:
-            return Item.objects.get(id=item_id)
+            item = Item.objects.get(id=item_id)
+            now = make_aware(datetime.datetime.now())
+            if item.started < now and item.ended > now:
+                item.status = Item.RUNNING
+                item.save()
+            elif item.ended > now:
+                item.status = Item.ACQUIRED
+                item.save()
+            return item
+
         except Item.DoesNotExist:
             raise Http404
     
