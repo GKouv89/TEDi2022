@@ -61,7 +61,7 @@ class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
-    queryset = Item.objects.all().order_by('id') # Should probably return all active ones only
+    queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') # Should probably return all active ones only
 
     def list(self, request): 
         update_auctions_status()

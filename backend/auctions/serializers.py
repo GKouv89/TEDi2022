@@ -106,7 +106,7 @@ class BidCreationSerializer(serializers.ModelSerializer):
             item.currently = validated_data["amount"]
         if item.buy_price is not None and validated_data["amount"] >= item.buy_price:
             item.status = Item.ACQUIRED
-            # Should we force ended to change to current moment?
+            item.ended = time
         item.number_of_bids = item.number_of_bids + 1
         item.save()
         bid = Bid.objects.create(
