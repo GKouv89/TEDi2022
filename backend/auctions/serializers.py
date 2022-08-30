@@ -50,6 +50,12 @@ class CategoryHierarchySerializer(serializers.ModelSerializer):
         model = Category
         fields=['name', 'parent_category']
 
+class CategoryHierarchySerializer2(serializers.ModelSerializer):
+    category_set = RecursiveField(allow_null=True, many=True)
+    class Meta:
+        model = Category
+        fields = ['name', 'category_set']
+
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(format=fmt)
@@ -69,7 +75,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(input_formats=[fmt])
     ended = serializers.DateTimeField(input_formats=[fmt])
-    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
+    # category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
     class Meta:
         model = Item
         fields = ['id', 'name', 'category', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']

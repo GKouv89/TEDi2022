@@ -64,5 +64,5 @@ class Bid(models.Model):
     amount = models.DecimalField(max_digits=6, decimal_places=2)
 
 class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50)
     parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
