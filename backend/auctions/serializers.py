@@ -1,6 +1,7 @@
 from ast import Add
 from rest_framework import serializers, validators
-from .models import Item, Bid
+from rest_framework_recursive.fields import RecursiveField
+from .models import Category, Item, Bid, Category
 from base.models import Address, MyUser
 from base.serializers import AddressSerializer, MyUserSerializer
 from django.utils.timezone import make_aware
@@ -42,6 +43,13 @@ class BidSerializer(serializers.ModelSerializer):
         fields = ['bidder', 'time', 'amount']
         depth = 2
 
+class CategoryHierarchySerializer(serializers.ModelSerializer):
+    parent_category = RecursiveField(allow_null=True)
+    
+    class Meta:
+        model = Category
+        fields=['name', 'parent_category']
+
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(format=fmt)
@@ -50,9 +58,10 @@ class ItemSerializer(serializers.ModelSerializer):
     items_bids = BidSerializer(many=True, required=False, read_only=True)
     address = ItemLocationSerializer()
     status = serializers.ChoiceField(choices=Item.STATUS_CHOICES)
+    category = CategoryHierarchySerializer()
     class Meta:
         model = Item
-        fields = ['id', 'name', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
+        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
         depth = 3
 
 class ItemCreationSerializer(serializers.ModelSerializer):
@@ -60,10 +69,10 @@ class ItemCreationSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(input_formats=[fmt])
     ended = serializers.DateTimeField(input_formats=[fmt])
-
+    category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
+        fields = ['id', 'name', 'category', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -77,6 +86,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
             first_bid = validated_data["first_bid"],
             buy_price = validated_data["buy_price"],
             address = address,
+            category = validated_data["category"],
             seller = self.context['request'].user,
             description = validated_data["description"],
             started = validated_data["started"],

@@ -16,7 +16,12 @@ class Item(models.Model):
     first_bid = models.DecimalField(default=0.0, max_digits=6, decimal_places=2)
     buy_price = models.DecimalField(null=True, blank=True, max_digits=6, decimal_places=2)
     number_of_bids = models.IntegerField(default=0)
-    # Category field missing
+    category = models.ForeignKey(
+        'Category',
+        on_delete=models.CASCADE,
+        related_name='categorys_items',
+    )
+    # Image field missing
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,
@@ -53,7 +58,11 @@ class Bid(models.Model):
     item = models.ForeignKey(
         'Item',
         on_delete=models.CASCADE,
-        related_name='items_bids', # Clashes
+        related_name='items_bids', 
     )
     time = models.DateTimeField()
     amount = models.DecimalField(max_digits=6, decimal_places=2)
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
