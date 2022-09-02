@@ -18,6 +18,7 @@ import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
 import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
+import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
 
 class App extends Component {
@@ -43,6 +44,7 @@ class App extends Component {
                 <Route path="/pending" element={<PendingPage />} />
               </Route>
               <Route path="/warning" element={<UnauthorizedPage />} />
+              <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
             </Routes>
           </AuthProvider>
         </BrowserRouter>
