@@ -6,9 +6,14 @@ import {useState, useEffect} from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import { Container, Form, Row, Col, Button, Placeholder } from 'react-bootstrap';
-    
+import TextField from '@mui/material/TextField';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import dayjs from 'dayjs'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
 import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
- 
+
 const schema = Yup.object().shape(
     {
         name: Yup.string()
@@ -36,6 +41,10 @@ const schema = Yup.object().shape(
         country: Yup.string()
             .required('Υποχρεωτικό πεδίο')
             .notOneOf([""], 'Επιλέξτε μία έγκυρη χώρα.'),
+        started: Yup.string()
+            .required('Υποχρεωτικό πεδίο.'),
+        ended: Yup.string()
+            .required('Υποχρεωτικό πεδίο.')
     }
 )
 
@@ -50,7 +59,9 @@ const initialValues = {
     postalCode: '',
     city: '',
     country: '',
-    categories: []
+    categories: [],
+    started: '',
+    ended: ''
 }
 
 export default function NewAuction(){
@@ -75,6 +86,18 @@ export default function NewAuction(){
 
 function AuctionCreationForm(props){
     const [options, setOptions] = useState(null)
+    const [started, setStarted] = useState(null)
+    const [ended, setEnded] = useState(null)
+
+    const handleStarted = (newValue) => {
+        setStarted(newValue)
+        props.setFieldValue('started', dayjs(newValue).format("DD-MM-YYYY HH:mm:ss"))
+    }
+
+    const handleEnded = (newValue) => {
+        setEnded(newValue)
+        props.setFieldValue('ended', dayjs(newValue).format("DD-MM-YYYY HH:mm:ss"))
+    }
 
     useEffect(() => {
         async function fetchCountries(){
@@ -115,9 +138,9 @@ function AuctionCreationForm(props){
                         <Form.Control.Feedback type="invalid">
                             {props.errors.name}
                         </Form.Control.Feedback>
-                    </Col>
+                    </Col>  
                 </Form.Group>
-                <Form.Group as={Row} className="mb-3" controlId="formFirstBid">
+                <Form.Group as={Row}className="mb-3" controlId="formFirstBid">
                     <Form.Label className="required" column xs={3}> Τιμή Πρώτης Προσφοράς: </Form.Label>
                     <Col>
                         <Form.Control 
@@ -258,8 +281,38 @@ function AuctionCreationForm(props){
                         </p>
                     </Col>
                 </Form.Group>
+                <Row>
+                    <Form.Group as={Col} className="mb-3" controlId="formStarted">
+                        <Form.Label className="required"> Έναρξη Δημοπρασίας: </Form.Label>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>        
+                                <DateTimePicker 
+                                    label="Επιλέξτε..."
+                                    value={started}
+                                    onChange={handleStarted}
+                                    renderInput={(params) => <TextField {...params} />}
+                                />
+                                <p style={!props.errors.started ? {display: 'none'} : {color: 'red'}}>
+                                    {props.errors.started}
+                                </p>
+                        </LocalizationProvider>
+                    </Form.Group>
+                    <Form.Group as={Col} className="mb-3" controlId="formEnded">
+                        <Form.Label className="required"> Λήξη Δημοπρασίας: </Form.Label>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>        
+                            <DateTimePicker 
+                                label="Επιλέξτε..."
+                                value={ended}
+                                onChange={handleEnded}
+                                renderInput={(params) => <TextField {...params} />}
+                            />
+                            <p style={!props.errors.ended ? {display: 'none'} : {color: 'red'}}>
+                                {props.errors.ended}
+                            </p>
+                        </LocalizationProvider>
+                    </Form.Group>
+                </Row>
                 <Button variant="primary" type="submit">
-                    Submit
+                    Δημιουργία Δημοπρασίας
                 </Button>
             </Form>
         </Container>
