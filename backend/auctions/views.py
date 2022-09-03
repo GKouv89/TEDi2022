@@ -13,7 +13,7 @@ from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
 
-from .serializers import BidCreationSerializer, BidSerializer, CategoryHierarchySerializer2, ItemSerializer, ItemCreationSerializer
+from .serializers import BidCreationSerializer, BidSerializer, CategorySerializer, ItemSerializer, ItemCreationSerializer
 from .models import Category, Item
 
 # Create your views here.
@@ -73,8 +73,11 @@ class AllItems(ListCreateAPIView):
     def post(self, request):
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            item = serializer.save()
+            for name in request.data['categories']:
+                category, _ = Category.objects.get_or_create(name=name)
+                item.category.add(category)
+            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SellersItems(ListAPIView):
@@ -145,5 +148,5 @@ class ItemsBids(ListAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class Categories(ListAPIView):
-    queryset = Category.objects.filter(parent_category__isnull=True)
-    serializer_class = CategoryHierarchySerializer2
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer

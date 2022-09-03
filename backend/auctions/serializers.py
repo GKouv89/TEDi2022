@@ -5,6 +5,7 @@ from .models import Category, Item, Bid, Category
 from base.models import Address, MyUser
 from base.serializers import AddressSerializer, MyUserSerializer
 from django.utils.timezone import make_aware
+from django.db.models import Q
 
 import datetime
 
@@ -43,18 +44,18 @@ class BidSerializer(serializers.ModelSerializer):
         fields = ['bidder', 'time', 'amount']
         depth = 2
 
-class CategoryHierarchySerializer(serializers.ModelSerializer):
-    parent_category = RecursiveField(allow_null=True)
-    
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields=['name', 'parent_category']
+        fields = ['name']
 
-class CategoryHierarchySerializer2(serializers.ModelSerializer):
-    category_set = RecursiveField(allow_null=True, many=True)
-    class Meta:
-        model = Category
-        fields = ['name', 'category_set']
+    def create(self, validated_data):
+        print('BLAH')
+        if Category.objects.filter(name=validated_data['name']).exists():
+            return Category.objects.filter(name=validated_data['name'])
+        else:
+            return Category.objects.create(name=validated_data['name'])
+
 
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
@@ -64,21 +65,22 @@ class ItemSerializer(serializers.ModelSerializer):
     items_bids = BidSerializer(many=True, required=False, read_only=True)
     address = ItemLocationSerializer()
     status = serializers.ChoiceField(choices=Item.STATUS_CHOICES)
-    category = CategoryHierarchySerializer()
+    category = CategorySerializer(many=True)
     class Meta:
         model = Item
         fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
         depth = 3
+
+# WRITE ONLY SERIALIZERS
 
 class ItemCreationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(input_formats=[fmt])
     ended = serializers.DateTimeField(input_formats=[fmt])
-    # category = serializers.SlugRelatedField(slug_field='name', queryset=Category.objects.all())
     class Meta:
         model = Item
-        fields = ['id', 'name', 'category', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -92,7 +94,6 @@ class ItemCreationSerializer(serializers.ModelSerializer):
             first_bid = validated_data["first_bid"],
             buy_price = validated_data["buy_price"],
             address = address,
-            category = validated_data["category"],
             seller = self.context['request'].user,
             description = validated_data["description"],
             started = validated_data["started"],

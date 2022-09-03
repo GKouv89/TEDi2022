@@ -16,9 +16,8 @@ class Item(models.Model):
     first_bid = models.DecimalField(default=0.0, max_digits=6, decimal_places=2)
     buy_price = models.DecimalField(null=True, blank=True, max_digits=6, decimal_places=2)
     number_of_bids = models.IntegerField(default=0)
-    category = models.ForeignKey(
+    category = models.ManyToManyField(
         'Category',
-        on_delete=models.CASCADE,
         related_name='categorys_items',
     )
     # Image field missing
@@ -64,5 +63,4 @@ class Bid(models.Model):
     amount = models.DecimalField(max_digits=6, decimal_places=2)
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
-    parent_category = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=50, unique=True)
