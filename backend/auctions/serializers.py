@@ -78,27 +78,16 @@ class ItemCreationSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(input_formats=[fmt])
     ended = serializers.DateTimeField(input_formats=[fmt])
+    image_url = serializers.ImageField(required=False)
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'image_url']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
-        if Address.objects.filter(Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country']).exists():
-            address = Address.objects.get(Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country'])
-        else:
-            address = Address.objects.create(**address_data)
-
-        item = Item.objects.create(
-            name = validated_data["name"],
-            first_bid = validated_data["first_bid"],
-            buy_price = validated_data["buy_price"],
-            address = address,
-            seller = self.context['request'].user,
-            description = validated_data["description"],
-            started = validated_data["started"],
-            ended = validated_data["ended"]
-        )
+        print(address_data)
+        address, _ = Address.objects.get_or_create(address_name=address_data['address_name'], Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country'])
+        item = Item.objects.create(address=address, seller=self.context['request'].user,  **validated_data)
         return item
 
 class BidCreationSerializer(serializers.ModelSerializer):

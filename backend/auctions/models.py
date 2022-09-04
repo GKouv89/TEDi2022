@@ -1,6 +1,9 @@
 from django.db import models
 from base.models import MyUser, Address
 
+def upload_to(instance, filename):
+    return 'images/{filename}'.format(filename=filename)
+
 # Create your models here.
 class Item(models.Model):
     ACQUIRED = 'AC'
@@ -20,7 +23,6 @@ class Item(models.Model):
         'Category',
         related_name='categorys_items',
     )
-    # Image field missing
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,
@@ -47,6 +49,7 @@ class Item(models.Model):
     started = models.DateTimeField()
     ended = models.DateTimeField()
     description = models.TextField()
+    image_url = models.ImageField(upload_to=upload_to, blank=True, null=True)
 
 class Bid(models.Model):
     bidder = models.ForeignKey(

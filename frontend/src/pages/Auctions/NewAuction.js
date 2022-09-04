@@ -1,11 +1,7 @@
-// Fields
-    // Start date(time)
-    // End date(time)
-
 import {useState, useEffect} from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
-import { Container, Form, Row, Col, Button, Placeholder } from 'react-bootstrap';
+import { Container, Form, Row, Col, Button, Placeholder, FormControl } from 'react-bootstrap';
 import TextField from '@mui/material/TextField';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import dayjs from 'dayjs'
@@ -13,6 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
+import axios from 'axios';
 
 const schema = Yup.object().shape(
     {
@@ -61,10 +58,38 @@ const initialValues = {
     country: '',
     categories: [],
     started: '',
-    ended: ''
+    ended: '',
+    image_url: ''
 }
 
 export default function NewAuction(){
+
+    const createMyModelEntry = async (values) => {
+        let form_data = new FormData();
+        if (typeof values.image_url != 'string'){
+            console.log('In if', values.image_url)
+            console.log('In if: typeof ', typeof values.image_url)
+            console.log(values.image_url)
+            form_data.append("image_url", values.image_url, values.image_url.name);
+        }
+        form_data.append('name', values.name)
+        form_data.append('first_bid', values.first_bid)
+        form_data.append('buy_price', values.buy_price)
+        form_data.append('description', values.description)
+        form_data.append('address[address_name]', values.addressName)
+        form_data.append('address[Street_number]', values.streetNumber)
+        form_data.append('address[Street_name]', values.streetName)
+        form_data.append('address[Postal_code]', values.postalCode)
+        form_data.append('address[City]', values.city)
+        form_data.append('address[Country]', values.country)
+        for(let i = 0; i < values.categories.length; i++){
+            form_data.append(`categories[${i}]`, values.categories[i])            
+        }
+        form_data.append('started', values.started)
+        form_data.append('ended', values.ended)
+        return form_data
+    }
+    
     return (
         <Container>
             <Row>
@@ -72,6 +97,21 @@ export default function NewAuction(){
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
                         console.log('From formik: ', values)
+                        createMyModelEntry(values)
+                            .then((res) => {
+                                axios.post(
+                                    'http://localhost:8000/auctions/',
+                                    res,
+                                    {
+                                        headers: {
+                                            "Authorization": `Token ${localStorage.getItem('token')}`,
+                                            "Content-Type": "multipart/form-data"
+                                        }
+                                    }
+                                )
+                                .then((response) => console.log(response))
+                                .catch((err) => console.log(err))
+                            })
                     }}
                     initialValues={initialValues}
                 >
@@ -88,6 +128,7 @@ function AuctionCreationForm(props){
     const [options, setOptions] = useState(null)
     const [started, setStarted] = useState(null)
     const [ended, setEnded] = useState(null)
+    const [image_url, setImage_url] = useState(null)
 
     const handleStarted = (newValue) => {
         setStarted(newValue)
@@ -97,6 +138,11 @@ function AuctionCreationForm(props){
     const handleEnded = (newValue) => {
         setEnded(newValue)
         props.setFieldValue('ended', dayjs(newValue).format("DD-MM-YYYY HH:mm:ss"))
+    }
+
+    const handleImage = (e) => {
+        setImage_url(e.target.files[0]);
+        props.setFieldValue('image_url', e.target.files[0]);
     }
 
     useEffect(() => {
@@ -311,6 +357,12 @@ function AuctionCreationForm(props){
                         </LocalizationProvider>
                     </Form.Group>
                 </Row>
+                <Form.Group as={Row} className="mb-3" controlId="formImage">
+                    <Form.Label column xs={3}>Επιλογή Εικόνας: </Form.Label>
+                    <Col>
+                        <FormControl type="file" onChange={handleImage}/>
+                    </Col>
+                </Form.Group>
                 <Button variant="primary" type="submit">
                     Δημιουργία Δημοπρασίας
                 </Button>

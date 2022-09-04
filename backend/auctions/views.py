@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.parsers import FormParser
+from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
@@ -62,7 +64,7 @@ class AllItems(ListCreateAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
     queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') # Should probably return all active ones only
-
+    parser_classes = (NestedMultiPartParser, FormParser)
     def list(self, request): 
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
@@ -71,6 +73,7 @@ class AllItems(ListCreateAPIView):
             return self.get_paginated_response(serializer.data)
     
     def post(self, request):
+        print(request.data)
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             item = serializer.save()
