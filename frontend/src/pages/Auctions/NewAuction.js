@@ -9,6 +9,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
+import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
 import axios from 'axios';
 
 const schema = Yup.object().shape(
@@ -63,6 +64,7 @@ const initialValues = {
 }
 
 export default function NewAuction(){
+    const [show, setShow] = useState(false)
 
     const createMyModelEntry = async (values) => {
         let form_data = new FormData();
@@ -109,6 +111,7 @@ export default function NewAuction(){
                                     }
                                 )
                                 .then((response) => console.log(response))
+                                .then(() => setShow(true))
                                 .catch((err) => console.log(err))
                             })
                     }}
@@ -119,6 +122,7 @@ export default function NewAuction(){
                     }
                 </Formik>
             </Row>
+            <CreationConfirmation show={show} />
         </Container>
     )
 }
