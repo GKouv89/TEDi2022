@@ -1,19 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-
-const options = [
-    { label: 'Clothing & Accessories'},
-    { label: 'Clothing'},
-    { label: '12-24 Months'},
-    { label: 'Bottoms'}
-]
-
 const filter = createFilterOptions();
 
 export default function MultiAutocomplete(props){
     const [values, setValues] = useState([])
+    const [options, setOptions] = useState(null)
+   
+    useEffect(() => {
+        async function fetchCategories(){
+            axios.get('http://localhost:8000/auctions/categories/')
+                .then((response) => {
+                    let opts = []
+                    response.data.results.forEach(category => opts.push({ label: category.name }))
+                    setOptions(opts)
+                })
+        }
+        fetchCategories()
+    }, []);
+
     let cleanedUpValues = []
     return (
         <Autocomplete 
@@ -60,7 +67,6 @@ export default function MultiAutocomplete(props){
               }}
             id="combo-box-demo"
             options={options}
-            // sx={{ width: 300 }}
             freeSolo
             renderInput={(params) => <TextField {...params} label="Κατηγορία..." />}
             renderOption={(props, option) => <li {...props}>{option.label}</li>}
