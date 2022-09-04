@@ -49,7 +49,10 @@ class Item(models.Model):
     started = models.DateTimeField()
     ended = models.DateTimeField()
     description = models.TextField()
-    image_url = models.ImageField(upload_to=upload_to, blank=True, null=True)
+
+class ItemImage(models.Model):
+    image = models.ImageField(upload_to=upload_to)
+    item = models.ForeignKey('Item', on_delete=models.CASCADE, related_name='items_images')
 
 class Bid(models.Model):
     bidder = models.ForeignKey(

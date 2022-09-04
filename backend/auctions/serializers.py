@@ -1,7 +1,7 @@
 from ast import Add
 from rest_framework import serializers, validators
 from rest_framework_recursive.fields import RecursiveField
-from .models import Category, Item, Bid, Category
+from .models import Category, Item, Bid, Category, ItemImage
 from base.models import Address, MyUser
 from base.serializers import AddressSerializer, MyUserSerializer
 from django.utils.timezone import make_aware
@@ -50,7 +50,6 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name']
 
     def create(self, validated_data):
-        print('BLAH')
         if Category.objects.filter(name=validated_data['name']).exists():
             return Category.objects.filter(name=validated_data['name'])
         else:
@@ -73,21 +72,33 @@ class ItemSerializer(serializers.ModelSerializer):
 
 # WRITE ONLY SERIALIZERS
 
+class ItemImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
+    class Meta:
+        model = ItemImage
+        fields = ['image']
+
 class ItemCreationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(input_formats=[fmt])
     ended = serializers.DateTimeField(input_formats=[fmt])
-    image_url = serializers.ImageField(required=False)
+    items_images = ItemImageSerializer(many=True, required=False)
+
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'image_url']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'items_images']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
-        print(address_data)
         address, _ = Address.objects.get_or_create(address_name=address_data['address_name'], Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country'])
-        item = Item.objects.create(address=address, seller=self.context['request'].user,  **validated_data)
+        if('items_images' in validated_data.keys()):
+            images = validated_data.pop('items_images')    
+        item = Item.objects.create(address=address, seller=self.context['request'].user,  **validated_data)        
+        if('items_images' in validated_data.keys()):
+            for image_data in images:
+                ItemImage.objects.create(item=item, **image_data)
         return item
 
 class BidCreationSerializer(serializers.ModelSerializer):

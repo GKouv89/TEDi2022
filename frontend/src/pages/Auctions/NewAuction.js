@@ -59,7 +59,7 @@ const initialValues = {
     categories: [],
     started: '',
     ended: '',
-    image_url: ''
+    image_url: []
 }
 
 export default function NewAuction(){
@@ -67,10 +67,9 @@ export default function NewAuction(){
     const createMyModelEntry = async (values) => {
         let form_data = new FormData();
         if (typeof values.image_url != 'string'){
-            console.log('In if', values.image_url)
-            console.log('In if: typeof ', typeof values.image_url)
-            console.log(values.image_url)
-            form_data.append("image_url", values.image_url, values.image_url.name);
+            for(let i = 0; i < values.image_url.length; i++){
+                form_data.append(`items_images[${i}][image]`, values.image_url[i], values.image_url[i].name);
+            }
         }
         form_data.append('name', values.name)
         form_data.append('first_bid', values.first_bid)
@@ -96,7 +95,7 @@ export default function NewAuction(){
                 <Formik
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
-                        console.log('From formik: ', values)
+                        console.log('From formik: ', values.image_url)
                         createMyModelEntry(values)
                             .then((res) => {
                                 axios.post(
@@ -141,8 +140,8 @@ function AuctionCreationForm(props){
     }
 
     const handleImage = (e) => {
-        setImage_url(e.target.files[0]);
-        props.setFieldValue('image_url', e.target.files[0]);
+        setImage_url(e.target.files);
+        props.setFieldValue('image_url', e.target.files);
     }
 
     useEffect(() => {
@@ -360,7 +359,7 @@ function AuctionCreationForm(props){
                 <Form.Group as={Row} className="mb-3" controlId="formImage">
                     <Form.Label column xs={3}>Επιλογή Εικόνας: </Form.Label>
                     <Col>
-                        <FormControl type="file" onChange={handleImage}/>
+                        <FormControl type="file" multiple onChange={handleImage}/>
                     </Col>
                 </Form.Group>
                 <Button variant="primary" type="submit">
