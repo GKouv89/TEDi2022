@@ -5,7 +5,8 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Button from 'react-bootstrap/Button';
 import AuthContext from '../context/AuthContext';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
+import  MyAlert  from '../components/Alert';
 
 export default function SigninPage(){
     let {loginUser} = useContext(AuthContext)
@@ -14,6 +15,7 @@ export default function SigninPage(){
         <>
             <Container>
                 <Row className="justify-content-md-center">
+                
             <Form style={{paddingTop: "50px"}} onSubmit={loginUser}>
             
             <Form.Group  className="mb-3" controlId="formPlaintextUsername">
@@ -37,7 +39,7 @@ export default function SigninPage(){
             <Row>
             <Button type="submit" variant="success" style={{  width: "30%", margin: "auto"}}>Σύνδεση</Button>{' '}
             </Row>
-
+            <MyAlert/>
             </Form>
             </Row>
             </Container>

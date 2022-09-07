@@ -32,14 +32,8 @@ class UserWithAddressSerializer(serializers.ModelSerializer):
         user = MyUser.objects.create_user(**validated_data, Address=addr)
         return user
 
-        
-class AddressRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Address
-        fields = ['Street_name', 'Street_number', 'Postal_code', 'City', 'Country']
-
 class RegisterSerializer(serializers.ModelSerializer):
-    Address = AddressRegisterSerializer()
+    Address = AddressSerializer()
     class Meta:
         model = MyUser
         fields = ["username", "password", "email", "first_name", "last_name", "phone_number", "tin", "Address"]

@@ -16,7 +16,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Address',
             fields=[
-                ('location', django.contrib.gis.db.models.fields.PointField(primary_key=True, serialize=False, srid=4326)),
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('location', django.contrib.gis.db.models.fields.PointField(serialize=False, srid=4326)),
                 ('address_name', models.CharField(max_length=50)),
                 ('Street_name', models.CharField(max_length=50)),
                 ('Street_number', models.PositiveIntegerField()),

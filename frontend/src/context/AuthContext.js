@@ -1,6 +1,7 @@
-import { createContext, useState, useRef, useEffect } from "react";
+import { useContext, createContext, useState, useRef, useEffect } from "react";
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { AlertContext } from "./VisibleAlert"; 
 
 const AuthContext = createContext();
 
@@ -11,6 +12,8 @@ export function AuthProvider({children}){
     let [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin'))
     let [isPending, setIsPending] = useState(localStorage.getItem('isPending'))
     let [token, setToken] = useState(localStorage.getItem('token'))
+ 
+    let {visible, setVisible, _, setAlertMessage} = useContext(AlertContext);
 
     let navigate = useNavigate()
     const didMount = useRef(false)
@@ -63,6 +66,7 @@ export function AuthProvider({children}){
                 window.localStorage.setItem("username", r.data.user_data.username)
                 window.localStorage.setItem("isAdmin", r.data.user_data.is_staff)
                 window.localStorage.setItem("isPending", r.data.user_data.isPending)
+                setVisible(false)
             })
             .catch(error => {
                 console.log(error.response.status)
@@ -70,10 +74,13 @@ export function AuthProvider({children}){
                 if (error.response.status === 400) {
                     if (typeof error.response.data.non_field_errors !== "undefined") {
                         //given username & password are incorrect
-                        alert("Το όνομα χρήστη ή/και ο κωδικός που εισάγατε είναι λάθος.")
+                        setAlertMessage("Το όνομα χρήστη ή/και ο κωδικός που εισάγατε είναι λάθος.")
+                        setVisible(true)
                     }
                     if (typeof error.response.data.username !== "undefined" || typeof error.response.data.password !== "undefined") {
-                        alert("Απαιτείται όνομα χρήστη και κωδικός πρόσβασης χρήστη.")
+                        //username or password were not given
+                        setAlertMessage("Απαιτείται όνομα χρήστη και κωδικός πρόσβασης χρήστη.")
+                        setVisible(true)
                     }
                 }
             })

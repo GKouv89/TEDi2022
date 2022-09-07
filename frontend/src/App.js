@@ -13,6 +13,7 @@ import AdminPage from './pages/AdminPage'
 import IndexPage from './pages/IndexPage'
 
 import { AuthProvider } from './context/AuthContext';
+import { AlertProvider } from './context/VisibleAlert';
 import PrivateRoute from './utils/PrivateRoute'
 import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
@@ -24,7 +25,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <AlertProvider>
         <BrowserRouter>
+        
           <AuthProvider>
             <Header />
             <Routes>
@@ -45,7 +48,9 @@ class App extends Component {
               <Route path="/warning" element={<UnauthorizedPage />} />
             </Routes>
           </AuthProvider>
+        
         </BrowserRouter>
+        </AlertProvider>
       </div>
     );
   }

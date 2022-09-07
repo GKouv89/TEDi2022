@@ -5,6 +5,8 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import axios from 'axios'
 import AuthContext from '../context/AuthContext'
+import  MyAlert  from '../components/Alert';
+import { AlertContext } from "../context/VisibleAlert"; 
 
 const schema = Yup.object().shape(
     {
@@ -67,6 +69,8 @@ const initialValues = {
 
 export default function SignupPage(){
     let {signupUser} = useContext(AuthContext)
+    let {visible, setVisible, _, setAlertMessage} = useContext(AlertContext);
+
     return(
         <>
             <Container>
@@ -107,13 +111,15 @@ export default function SignupPage(){
                                     // window.localStorage.setItem("token", r.data.token)
                                     // window.localStorage.setItem("username", r.data.user_data.username)
                                     signupUser(r.data.user_data.username, r.data.token, r.data.user_data.is_staff, r.data.user_data.isPending)
+                                    setVisible(false)
                                 })
                                 .catch(error => {
                                     console.log(error.response.status)
                                     //check if the server replied with {username: "A user with that username already exists."} and act accordingly
                                     if (error.response.status === 400) {
                                         if (typeof error.response.data.username !== "undefined") {
-                                            alert("Υπάρχει ήδη χρήστης με το ίδιο username. Παρακαλώ εισάγετε άλλο.")
+                                            setAlertMessage("Υπάρχει ήδη χρήστης με το ίδιο username. Παρακαλώ εισάγετε άλλο.")
+                                            setVisible(true)
                                         }
                                     }
                                 })
@@ -361,6 +367,7 @@ function SignupForm(props){
                 <Button variant="primary" type="submit">
                     Ολοκλήρωση Εγγραφής
                 </Button>
+                <MyAlert/>
             </Form>
         </Container>
     )

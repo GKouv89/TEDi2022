@@ -81,7 +81,7 @@ class MyUser(AbstractBaseUser):
 BASE_URL = 'https://nominatim.openstreetmap.org/search?format=json'
 
 class Address(models.Model):
-    location = models.PointField(primary_key=True)
+    location = models.PointField()
     address_name = models.CharField(max_length=50)
     Street_name = models.CharField(max_length=50)
     Street_number = models.PositiveIntegerField()
