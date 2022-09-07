@@ -9,12 +9,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.parsers import FormParser
+from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
 
-from .serializers import BidCreationSerializer, BidSerializer, ItemSerializer, ItemCreationSerializer
-from .models import Item
+from .serializers import BidCreationSerializer, BidSerializer, CategorySerializer, ItemSerializer, ItemCreationSerializer
+from .models import Category, Item
 
 # Create your views here.
 
@@ -61,8 +63,8 @@ class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
-    queryset = Item.objects.all().order_by('id') # Should probably return all active ones only
-
+    queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') # Should probably return all active ones only
+    parser_classes = (NestedMultiPartParser, FormParser)
     def list(self, request): 
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
@@ -71,10 +73,14 @@ class AllItems(ListCreateAPIView):
             return self.get_paginated_response(serializer.data)
     
     def post(self, request):
+        print(request.data)
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            item = serializer.save()
+            for name in request.data['categories']:
+                category, _ = Category.objects.get_or_create(name=name)
+                item.category.add(category)
+            return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SellersItems(ListAPIView):
@@ -143,3 +149,7 @@ class ItemsBids(ListAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class Categories(ListAPIView):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer

@@ -1,6 +1,9 @@
 from django.db import models
 from base.models import MyUser, Address
 
+def upload_to(instance, filename):
+    return 'images/{filename}'.format(filename=filename)
+
 # Create your models here.
 class Item(models.Model):
     ACQUIRED = 'AC'
@@ -16,7 +19,10 @@ class Item(models.Model):
     first_bid = models.DecimalField(default=0.0, max_digits=6, decimal_places=2)
     buy_price = models.DecimalField(null=True, blank=True, max_digits=6, decimal_places=2)
     number_of_bids = models.IntegerField(default=0)
-    # Category field missing
+    category = models.ManyToManyField(
+        'Category',
+        related_name='categorys_items',
+    )
     status = models.CharField(
         max_length=2,
         choices=STATUS_CHOICES,
@@ -44,6 +50,10 @@ class Item(models.Model):
     ended = models.DateTimeField()
     description = models.TextField()
 
+class ItemImage(models.Model):
+    image = models.ImageField(upload_to=upload_to)
+    item = models.ForeignKey('Item', on_delete=models.CASCADE, related_name='items_images')
+
 class Bid(models.Model):
     bidder = models.ForeignKey(
         'base.MyUser',
@@ -53,7 +63,10 @@ class Bid(models.Model):
     item = models.ForeignKey(
         'Item',
         on_delete=models.CASCADE,
-        related_name='items_bids', # Clashes
+        related_name='items_bids', 
     )
     time = models.DateTimeField()
     amount = models.DecimalField(max_digits=6, decimal_places=2)
+
+class Category(models.Model):
+    name = models.CharField(max_length=50, unique=True)

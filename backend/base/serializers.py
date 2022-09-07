@@ -16,9 +16,10 @@ class OneUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'tin', 'seller_rating', 'buyer_rating', 'isPending']
 
 class AddressSerializer(serializers.ModelSerializer):
+    address_name = serializers.CharField(required=False, allow_blank=True)
     class Meta:
         model = Address
-        fields = ['Street_name', 'Street_number', 'Postal_code', 'City', 'Country']
+        fields = ['address_name', 'Street_name', 'Street_number', 'Postal_code', 'City', 'Country']
 
 class UserWithAddressSerializer(serializers.ModelSerializer):
     Address = AddressSerializer()

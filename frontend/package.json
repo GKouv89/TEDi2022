@@ -4,12 +4,22 @@
   "private": true,
   "proxy": "http://localhost:8000",
   "dependencies": {
+<<<<<<< HEAD
     "@coreui/react": "^4.3.1",
+=======
+    "@date-io/dayjs": "^2.15.0",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/material": "^5.10.3",
+    "@mui/x-date-pickers": "^5.0.0",
+>>>>>>> a1267854b7644c5724a99d99f0cfd46de3d75589
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0",
+    "dayjs": "^1.11.5",
     "formik": "^2.2.9",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
+    "react-calendar": "^3.7.0",
     "react-dom": "^18.2.0",
     "react-native-web": "^0.18.8",
     "react-router-bootstrap": "^0.26.2",
