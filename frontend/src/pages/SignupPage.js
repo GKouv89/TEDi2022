@@ -122,6 +122,10 @@ export default function SignupPage(){
                                             setVisible(true)
                                         }
                                     }
+                                    if (error.response.status === 500) {
+                                        setAlertMessage("Αδυναμία δημιουργίας χρήστη λόγω μη εύρεσης διεύθυνσης.")
+                                        setVisible(true)
+                                    }
                                 })
                         }}
                         initialValues={initialValues}

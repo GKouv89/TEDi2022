@@ -27,35 +27,8 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-<<<<<<< HEAD
-        <AlertProvider>
-        <BrowserRouter>
-        
-          <AuthProvider>
-            <Header />
-            <Routes>
-              <Route path="/" element={<WelcomePage />}/>
-              <Route path="/login" element={<SigninPage />}/>
-              <Route path="/signup" element={<SignupPage />}/>
-              <Route element={<PrivateRoute />}>
-                <Route element={<AdminRoute />}>
-                  <Route path="/admin" element={<AdminPage />}/>
-                </Route>
-                <Route element={<ApprovedUserRoute />}>
-                  <Route path="/index" element={<IndexPage />}/>
-                  <Route path="/auctionmanagement" element={<AuctionManagement />} />
-                  <Route path="/auctions" element={<AuctionSearch />} />
-                </Route>
-                <Route path="/pending" element={<PendingPage />} />
-              </Route>
-              <Route path="/warning" element={<UnauthorizedPage />} />
-            </Routes>
-          </AuthProvider>
-        
-        </BrowserRouter>
-        </AlertProvider>
-=======
         {/* <LocalizationProvider dateAdapter={AdapterMoment}>         */}
+        <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
               <Header />
@@ -79,8 +52,8 @@ class App extends Component {
               </Routes>
             </AuthProvider>
           </BrowserRouter>
+          </AlertProvider>
         {/* </LocalizationProvider> */}
->>>>>>> a1267854b7644c5724a99d99f0cfd46de3d75589
       </div>
     );
   }
