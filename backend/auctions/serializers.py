@@ -55,6 +55,12 @@ class CategorySerializer(serializers.ModelSerializer):
         else:
             return Category.objects.create(name=validated_data['name'])
 
+class ItemImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
+    class Meta:
+        model = ItemImage
+        fields = ['image']
 
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
@@ -65,19 +71,13 @@ class ItemSerializer(serializers.ModelSerializer):
     address = ItemLocationSerializer()
     status = serializers.ChoiceField(choices=Item.STATUS_CHOICES)
     category = CategorySerializer(many=True)
+    items_images = ItemImageSerializer(many=True, required=False)
     class Meta:
         model = Item
-        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address']
+        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address', 'items_images']
         depth = 3
 
 # WRITE ONLY SERIALIZERS
-
-class ItemImageSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField()
-
-    class Meta:
-        model = ItemImage
-        fields = ['image']
 
 class ItemCreationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
@@ -96,7 +96,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
         if('items_images' in validated_data.keys()):
             images = validated_data.pop('items_images')    
         item = Item.objects.create(address=address, seller=self.context['request'].user,  **validated_data)        
-        if('items_images' in validated_data.keys()):
+        if(images):
             for image_data in images:
                 ItemImage.objects.create(item=item, **image_data)
         return item

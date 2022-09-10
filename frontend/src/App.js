@@ -21,6 +21,7 @@ import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
+import ItemCard from './components/Auctions/Browsing/ItemCard';
 
 class App extends Component {
   render() {
@@ -47,6 +48,7 @@ class App extends Component {
                 </Route>
                 <Route path="/warning" element={<UnauthorizedPage />} />
                 <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
+                <Route path="/item" element={<ItemCard />} /> // TEMPORARY  
               </Routes>
             </AuthProvider>
           </BrowserRouter>
