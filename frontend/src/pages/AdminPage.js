@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 
 export default function AdminPage(){
-    const page_size = 10; // fixed value to paginate
+    const page_size = 12; // fixed value to paginate
     const [page_count, setPageCount] = useState(null)
     console.log(page_count)
     // const results = [ // dummy data atm, will come from request
