@@ -8,7 +8,6 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';
 import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 import dayjs from 'dayjs'
 
 function calcRemTime(ended){
@@ -39,59 +38,58 @@ function calcRemTime(ended){
     }
 }
 
-function SkeletonizedBit(props){
+function ItemCard(props){
     return(
-        <>
-            {
-                props.loaded ?
-                    <Typography variant={props.variant} gutterBottom>
-                        {props.data}
-                    </Typography>                                
-                :
-                    <Skeleton variant="text" />
-            }
-        </>
-    )
-}
-
-function ItemCard(){
-    const [data, setData] = useState(null)
-    const [loaded, setLoaded] = useState(false)
-    const fetchData = () => {
-        const headers = {
-            'Content-Type': 'application/json',
-        }
-        axios.get('http://localhost:8000/auctions/', { headers })
-            .then((response) => {
-                setData(response.data.results)
-                setLoaded(true)
-            })
-            .catch(err => console.log(err))
-    }
-
-    useEffect(() => {fetchData()}, [])
-    return(
-        <Card sx={{ width: '33vw'}}>
+        <Card>
             <CardActionArea>
                     {
-                        loaded ? 
-                            data[1].items_images.length == 0 ? 
+                        props.loaded ? 
+                            props.data.items_images.length == 0 ? 
                                 <Typography variant="h3" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '33vh'}}>Εικόνα μη διαθέσιμη</Typography>
                             :
-                                <CardMedia component="img" sx={{ height: '33vh'}} image={`${data[1].items_images[0].image}`}/>
+                                <CardMedia component="img" sx={{ height: '33vh'}} image={`${props.data.items_images[0].image}`}/>
                         :
                             <Skeleton variant="rectangular" sx={{ height: '33vh'}} />
                     }
                 <CardContent>
                     <Grid container spacing={1}>
                         <Grid item xs={12}>
-                            <SkeletonizedBit variant="h2" data={loaded ? data[1].name : null} loaded={loaded} />
+                            <Typography variant="h2" gutterBottom>
+                                {props.data.name}
+                            </Typography>                                
                         </Grid>
                         <Grid item xs={6}>
-                            <SkeletonizedBit variant="body1" data={loaded ? `Από ${data[1].first_bid}€ `: null} loaded={loaded} />
+                            <Typography variant="body1" gutterBottom>
+                                {`Από ${props.data.first_bid}€ `}
+                            </Typography>                                
                         </Grid>
                         <Grid item xs={6}>
-                            <SkeletonizedBit variant="body1" data={loaded ? calcRemTime(data[1].ended) : null} loaded={loaded} />
+                            <Typography variant="body1" gutterBottom>
+                                {calcRemTime(props.data.ended)}
+                            </Typography>                                
+                        </Grid>
+                    </Grid>
+                </CardContent>
+            </CardActionArea>
+        </Card>
+    )
+}
+
+export function SkeletonCard(){
+    return(
+        <Card>
+            <CardActionArea>
+                <Skeleton variant="rectangular" sx={{ height: '33vh'}} />
+                <CardContent>
+                    <Grid container spacing={1}>
+                        <Grid item xs={12}>
+                            <Skeleton variant="text" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Skeleton variant="text" />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Skeleton variant="text" />
                         </Grid>
                     </Grid>
                 </CardContent>
