@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import {Navbar, Container, Nav} from 'react-bootstrap'
 import LinkContainer from 'react-router-bootstrap/LinkContainer'
 import AuthContext from '../context/AuthContext';
+import { AlertContext } from "../context/VisibleAlert"; 
 
 function Header(){
     let {user} = useContext(AuthContext)
@@ -20,13 +21,17 @@ function Header(){
 }
 
 function NotLoggedInNav(){
+    let {visible, setVisible, AlertMessage, setAlertMessage} = useContext(AlertContext);
+   
     return(
         <Nav className="justify-content-end">
             <LinkContainer to="/login">
-                <Nav.Link>Σύνδεση</Nav.Link>
+                <Nav.Link onClick={() => setVisible(false)}>Σύνδεση</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/signup">
-                <Nav.Link>Εγγραφή</Nav.Link>
+                <Nav.Link onClick={() => setVisible(false)}>
+                    Εγγραφή
+                </Nav.Link>
             </LinkContainer>
         </Nav>
     )

@@ -1,10 +1,13 @@
 import Pagination from 'react-bootstrap/Pagination'
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
+import { PaginationContext } from '../context/PaginationContext'
+
 function MyPagination(props){
     // At most, 3 pages will show in the center,
     // as well as the first and the last one.
     // If there are fewer than 5 tabs overall, no ellipse.
-    const [active, setActive] = useState(1)
+    // const [active, setActive] = useState(1)
+    const { active, setActive,} = useContext(PaginationContext);
     let items = [];
 
     const handleClick = (page) => {

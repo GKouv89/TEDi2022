@@ -12,8 +12,11 @@ import SignupPage from './pages/SignupPage'
 import PendingPage from './pages/PendingPage'
 import AdminPage from './pages/AdminPage'
 import IndexPage from './pages/IndexPage'
+import ItemBids from './pages/Auctions/ItemBids'
 
 import { AuthProvider } from './context/AuthContext';
+import { AlertProvider } from './context/VisibleAlert';
+import { PaginationProvider } from './context/PaginationContext';
 import PrivateRoute from './utils/PrivateRoute'
 import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
@@ -21,6 +24,7 @@ import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
+import EditAuction from './pages/Auctions/EditAuction';
 import ItemCard from './components/Auctions/Browsing/ItemCard';
 import Sidebar from './components/Auctions/Browsing/Sidebar';
 
@@ -29,8 +33,10 @@ class App extends Component {
     return (
       <div className="App">
         {/* <LocalizationProvider dateAdapter={AdapterMoment}>         */}
+        <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
+              <PaginationProvider>
               <Header />
               <Routes>
                 <Route path="/" element={<WelcomePage />}/>
@@ -43,6 +49,8 @@ class App extends Component {
                   <Route element={<ApprovedUserRoute />}>
                     <Route path="/index" element={<IndexPage />}/>
                     <Route path="/auctionmanagement" element={<AuctionManagement />} />
+                    <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
+                    <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
                     <Route path="/auctions" element={<AuctionSearch />} />
                   </Route>
                   <Route path="/pending" element={<PendingPage />} />
@@ -51,8 +59,10 @@ class App extends Component {
                 <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
                 <Route path="/sidebar" element={<Sidebar />} /> // TEMPORARY
               </Routes>
+              </PaginationProvider>
             </AuthProvider>
           </BrowserRouter>
+          </AlertProvider>
         {/* </LocalizationProvider> */}
       </div>
     );
