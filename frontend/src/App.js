@@ -24,9 +24,10 @@ import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
-import EditAuction from './pages/Auctions/EditAuction';
+// import EditAuction from './pages/Auctions/EditAuction';
 import ItemCard from './components/Auctions/Browsing/ItemCard';
 import Sidebar from './components/Auctions/Browsing/Sidebar';
+import { SearchProvider } from './context/SearchContext';
 
 class App extends Component {
   render() {
@@ -36,30 +37,34 @@ class App extends Component {
         <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
-              <PaginationProvider>
-              <Header />
-              <Routes>
-                <Route path="/" element={<WelcomePage />}/>
-                <Route path="/login" element={<SigninPage />}/>
-                <Route path="/signup" element={<SignupPage />}/>
-                <Route element={<PrivateRoute />}>
-                  <Route element={<AdminRoute />}>
-                    <Route path="/admin" element={<AdminPage />}/>
+              <SearchProvider>
+                <PaginationProvider>
+                <Header />
+                <Routes>
+                  <Route path="/" element={<WelcomePage />}/>
+                  <Route path="/login" element={<SigninPage />}/>
+                  <Route path="/signup" element={<SignupPage />}/>
+                  <Route element={<PrivateRoute />}>
+                    <Route element={<AdminRoute />}>
+                      <Route path="/admin" element={<AdminPage />}/>
+                    </Route>
+                    <Route element={<ApprovedUserRoute />}>
+                      <Route path="/index" element={<IndexPage />}/>
+                      <Route path="/auctionmanagement" element={<AuctionManagement />} />
+                      <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
+                      {/* <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} /> */}
+                      {/* <SearchProvider> */}
+                        <Route path="/auctions" element={<AuctionSearch />} />
+                      {/* </SearchProvider> */}
+                    </Route>
+                    <Route path="/pending" element={<PendingPage />} />
                   </Route>
-                  <Route element={<ApprovedUserRoute />}>
-                    <Route path="/index" element={<IndexPage />}/>
-                    <Route path="/auctionmanagement" element={<AuctionManagement />} />
-                    <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
-                    <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
-                    <Route path="/auctions" element={<AuctionSearch />} />
-                  </Route>
-                  <Route path="/pending" element={<PendingPage />} />
-                </Route>
-                <Route path="/warning" element={<UnauthorizedPage />} />
-                <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
-                <Route path="/sidebar" element={<Sidebar />} /> // TEMPORARY
-              </Routes>
-              </PaginationProvider>
+                  <Route path="/warning" element={<UnauthorizedPage />} />
+                  <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
+                  <Route path="/sidebar" element={<Sidebar />} /> // TEMPORARY
+                </Routes>
+                </PaginationProvider>
+              </SearchProvider>
             </AuthProvider>
           </BrowserRouter>
           </AlertProvider>

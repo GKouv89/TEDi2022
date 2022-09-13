@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import axios from 'axios'
 
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -11,23 +12,20 @@ import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
-const categories = [
-    'Technology',
-    'Laptops',
-    'MSI',
-    'Gaming'
-];
+import { SearchContext } from '../../../context/SearchContext';
 
 function CategoryItem(props){
+    console.log(props.disabled)
     return(
         <ListItem key={props.value} disablePadding>
-            <ListItemButton onClick={() => props.callback(props.value)}>
+            <ListItemButton disabled={props.disabled} onClick={() => props.callback(props.value)}>
                 <ListItemIcon>
                     <Checkbox 
                         edge="start"
                         checked={props.checked}
                         tabIndex={-1}
                         disableRipple
+                        disabled={props.disabled}
                     />
                 </ListItemIcon>
                 <ListItemText primary={props.value}/>
@@ -37,42 +35,52 @@ function CategoryItem(props){
 }
 
 function Categories(){
-    const [checked, setChecked] = useState([]);
+    const [loaded, setLoaded] = useState(false)
+    const [categories, setCategories] = useState([])
 
-    const handleToggle = (value) => {
-        const currentIndex = checked.indexOf(value);
-        const newChecked = [...checked];
-    
-        if (currentIndex === -1) {
-          newChecked.push(value);
-        } else {
-          newChecked.splice(currentIndex, 1);
+    const { isQuerying, queryCategories, checked } = useContext(SearchContext)
+
+    const fetchCategories = () => {
+        const headers = {
+            'Content-Type': 'application/json',
         }
-    
-        setChecked(newChecked);
+
+        axios.get('http://localhost:8000/auctions/categories/', { headers })
+            .then((response) => {
+                console.log(response.data)
+                setCategories(response.data)
+                setLoaded(true)
+            })
     }
+
+    useEffect(() => fetchCategories(), [])
+
     return(
         <>
-            <List>
-                {
-                    categories.map((category) => 
-                        <CategoryItem 
-                            key={category}
-                            value={category}
-                            callback={handleToggle}
-                            checked={checked.indexOf(category) !== -1}
-                        />
-                    )
-                }
-            </List>    
-            <Button />
+            {loaded ? 
+                    <List>
+                        {
+                            categories.map((category) => 
+                                <CategoryItem 
+                                    key={category.name}
+                                    value={category.name}
+                                    callback={queryCategories}
+                                    checked={checked.indexOf(category.name) !== -1}
+                                    disabled={isQuerying}
+                                />
+                            )
+                        }
+                    </List>                
+                :
+                <></>
+            }
         </>
     )
 }
 
 function Sidebar(){
     return(
-        <Stack sx={{width: '33vw'}} alignItems="flex-start" divider={<Divider flexItem/>} spacing={2}>
+        <Stack alignItems="flex-start" divider={<Divider flexItem/>} spacing={2}>
             <Typography sx={{paddingLeft: '2vw', paddingTop: '1vw'}} variant="subtitle" component="h3">Κατηγορίες</Typography>
             <Categories />
         </Stack>        

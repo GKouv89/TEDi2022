@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.parsers import FormParser
 from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
@@ -63,8 +63,18 @@ class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
-    queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') # Should probably return all active ones only
     parser_classes = (NestedMultiPartParser, FormParser)
+
+    def get_queryset(self):
+        queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
+        category_list = self.request.query_params.getlist('category', '')
+        if category_list is not None:
+            q = Q()
+            for category in category_list:
+                q = q | Q(category__name = category)
+            queryset = queryset.filter(q).distinct()
+        return queryset
+
     def list(self, request): 
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
@@ -153,3 +163,4 @@ class ItemsBids(ListAPIView):
 class Categories(ListAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
+    pagination_class = None
