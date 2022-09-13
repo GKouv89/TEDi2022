@@ -10,6 +10,9 @@ export function SearchProvider({children}){
     const [url, setUrl] = useState(base_url)
     const [checked, setChecked] = useState([])
     const [isQuerying, setIsQuerying] = useState(false);
+    
+    const [search, setSearch] = useState(null)
+    const [isStringQuerying, setIsStringQuerying] = useState(false)
 
     const [data, setData] = useState(null)
     const [count, setCount] = useState(0)
@@ -28,18 +31,20 @@ export function SearchProvider({children}){
         }
 
         setChecked(newChecked);
-        fetchFilteredItems(newChecked)
     }
 
-    const fetchFilteredItems = (checked) => {
+    const fetchFilteredItems = () => {
         const headers = {
             'Content-Type': 'application/json',
         }
 
         let newUrl = base_url + '?'
         checked.forEach((check) => newUrl += `category=${check}&`)
-        // Here, more filters for price, name and description to come
-        newUrl = newUrl.slice(0, -1)
+        // Here, more filters for price to come
+        if(search !== null)
+            newUrl += `search=${search}`
+        else
+            newUrl = newUrl.slice(0, -1)
         console.log(newUrl)
         setUrl(newUrl)
         axios.get(newUrl, { headers })
@@ -48,7 +53,7 @@ export function SearchProvider({children}){
                 setData(response.data.results)
                 setCount(Math.ceil(response.data.count/pageSize))
             })
-            .then(() => {setIsQuerying(false); setLoaded(true)})
+            .then(() => {setIsQuerying(false); setLoaded(true); setIsStringQuerying(false)})
     }
 
     const fetchData = (pageNo) => {
@@ -93,16 +98,25 @@ export function SearchProvider({children}){
     //     }
     // }, [user, isAdmin, isPending])
 
+    useEffect(() => fetchFilteredItems(), [checked])
+    useEffect(() => {
+        if(isStringQuerying)
+            fetchFilteredItems()
+    }, [isStringQuerying])
+
     let contextData = {
         checked: checked,
         isQuerying: isQuerying,
+        data: data, 
+        count: count,
+        loaded: loaded,
+        search: search,
+        setSearch: setSearch,
+        setIsStringQuerying: setIsStringQuerying,
         queryCategories: queryCategories,
         fetchFilteredItems: fetchFilteredItems,
         fetchData: fetchData,
-        paginationCallback: paginationCallback,
-        data: data, 
-        count: count,
-        loaded: loaded
+        paginationCallback: paginationCallback
     }
 
     return(

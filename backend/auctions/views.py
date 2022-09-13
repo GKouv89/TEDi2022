@@ -67,12 +67,18 @@ class AllItems(ListCreateAPIView):
 
     def get_queryset(self):
         queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
+        # queryset = Item.objects.all().order_by('id')
         category_list = self.request.query_params.getlist('category', '')
         if category_list is not None:
             q = Q()
             for category in category_list:
                 q = q | Q(category__name = category)
             queryset = queryset.filter(q).distinct()
+        search_string = self.request.query_params.get('search')
+        if search_string is not None:
+            print(type(search_string))
+            q = Q(name__icontains=search_string) | Q(description__icontains=search_string)
+            queryset = queryset.filter(q)            
         return queryset
 
     def list(self, request): 

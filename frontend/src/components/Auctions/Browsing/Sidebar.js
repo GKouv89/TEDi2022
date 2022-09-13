@@ -9,6 +9,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 
+import Paper from '@mui/material/Paper'
+import IconButton from '@mui/material/IconButton'
+import InputBase from '@mui/material/InputBase'
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
@@ -78,9 +84,35 @@ function Categories(){
     )
 }
 
+function Search(){
+    const { search, setSearch, setIsStringQuerying } = useContext(SearchContext)
+    const [value, setValue] = useState('') // This is for the textbox's appearance, has nothing to do with the query value
+    return(
+        <>
+            <Paper sx={{ paddingTop: '2vh', display: 'flex', alignItems: 'center'}}>
+                <IconButton sx={{p: '10 px'}}>
+                    <SearchIcon onClick={() => setIsStringQuerying(true)}/>
+                </IconButton>
+                <InputBase
+                    sx={{ ml: 1, flex: 1 }}
+                    placeholder="Αναζήτηση..."
+                    value={value}
+                    onKeyPress={(event) => {
+                        if (event.key === 'Enter')
+                            setIsStringQuerying(true)
+                    }}
+                    onChange={(event) => { setSearch(event.target.value); setValue(event.target.value); }}
+                />
+                {search !== null ? <ClearIcon onClick={() => {console.log('here'); setSearch(null); setValue(''); setIsStringQuerying(true)}}/> : <></>} 
+            </Paper>
+        </>
+    )
+}
+
 function Sidebar(){
     return(
         <Stack alignItems="flex-start" divider={<Divider flexItem/>} spacing={2}>
+            <Search />
             <Typography sx={{paddingLeft: '2vw', paddingTop: '1vw'}} variant="subtitle" component="h3">Κατηγορίες</Typography>
             <Categories />
         </Stack>        
