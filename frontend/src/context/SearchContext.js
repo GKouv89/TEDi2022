@@ -18,6 +18,10 @@ export function SearchProvider({children}){
     const [count, setCount] = useState(0)
     const [loaded, setLoaded] = useState(false)
 
+    const [from, setLowerBound] = useState(null)
+    const [to, setUpperBound] = useState(null)
+    const [isPriceQuerying, setIsPriceQuerying] = useState(false)
+
     const queryCategories = (value) => {
         setIsQuerying(true)
         setLoaded(false)
@@ -42,9 +46,12 @@ export function SearchProvider({children}){
         checked.forEach((check) => newUrl += `category=${check}&`)
         // Here, more filters for price to come
         if(search !== null)
-            newUrl += `search=${search}`
-        else
-            newUrl = newUrl.slice(0, -1)
+            newUrl += `search=${search}&`
+        if(from !== null)
+            newUrl += `from=${from}&`
+        if(to !== null)
+            newUrl += `to=${to}&`
+        newUrl = newUrl.slice(0, -1) // Remove trailing &
         console.log(newUrl)
         setUrl(newUrl)
         axios.get(newUrl, { headers })
@@ -53,7 +60,7 @@ export function SearchProvider({children}){
                 setData(response.data.results)
                 setCount(Math.ceil(response.data.count/pageSize))
             })
-            .then(() => {setIsQuerying(false); setLoaded(true); setIsStringQuerying(false)})
+            .then(() => {setIsQuerying(false); setLoaded(true); setIsStringQuerying(false); setIsPriceQuerying(false);})
     }
 
     const fetchData = (pageNo) => {
@@ -99,10 +106,16 @@ export function SearchProvider({children}){
     // }, [user, isAdmin, isPending])
 
     useEffect(() => fetchFilteredItems(), [checked])
+    
     useEffect(() => {
         if(isStringQuerying)
             fetchFilteredItems()
     }, [isStringQuerying])
+
+    useEffect(() => {
+        if(isPriceQuerying)
+            fetchFilteredItems()
+    }, [isPriceQuerying])
 
     let contextData = {
         checked: checked,
@@ -113,10 +126,13 @@ export function SearchProvider({children}){
         search: search,
         setSearch: setSearch,
         setIsStringQuerying: setIsStringQuerying,
+        setIsPriceQuerying: setIsPriceQuerying,
         queryCategories: queryCategories,
         fetchFilteredItems: fetchFilteredItems,
         fetchData: fetchData,
-        paginationCallback: paginationCallback
+        paginationCallback: paginationCallback,
+        setLowerBound: setLowerBound,
+        setUpperBound: setUpperBound
     }
 
     return(

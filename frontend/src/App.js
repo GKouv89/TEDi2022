@@ -53,15 +53,12 @@ class App extends Component {
                       <Route path="/auctionmanagement" element={<AuctionManagement />} />
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       {/* <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} /> */}
-                      {/* <SearchProvider> */}
                         <Route path="/auctions" element={<AuctionSearch />} />
-                      {/* </SearchProvider> */}
                     </Route>
                     <Route path="/pending" element={<PendingPage />} />
                   </Route>
                   <Route path="/warning" element={<UnauthorizedPage />} />
                   <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
-                  <Route path="/sidebar" element={<Sidebar />} /> // TEMPORARY
                 </Routes>
                 </PaginationProvider>
               </SearchProvider>

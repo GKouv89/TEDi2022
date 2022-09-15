@@ -18,6 +18,10 @@ import ClearIcon from '@mui/icons-material/Clear';
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 
+import Grid from '@mui/material/Grid'
+import InputAdornment from '@mui/material/InputAdornment'
+import Button from '@mui/material/Button'
+
 import { SearchContext } from '../../../context/SearchContext';
 
 function CategoryItem(props){
@@ -103,8 +107,69 @@ function Search(){
                     }}
                     onChange={(event) => { setSearch(event.target.value); setValue(event.target.value); }}
                 />
-                {search !== null ? <ClearIcon onClick={() => {console.log('here'); setSearch(null); setValue(''); setIsStringQuerying(true)}}/> : <></>} 
+                {search !== null ? <ClearIcon onClick={() => {setSearch(null); setValue(''); setIsStringQuerying(true)}}/> : <></>} 
             </Paper>
+        </>
+    )
+}
+
+function PriceSearch(){
+    const [from, setFrom] = useState('') // This is for the textbox's appearance, has nothing to do with the query value
+    const [to, setTo] = useState('') // This is for the textbox's appearance, has nothing to do with the query value
+    const [valueToClear, setValueToClear] = useState(false)
+
+    const { setLowerBound, setUpperBound, setIsPriceQuerying } = useContext(SearchContext)
+
+    return(
+        <>
+            <Stack alignItems="flex-start" spacing={1}>
+                <Typography sx={{paddingLeft: '1vw', paddingTop: '1vw'}} variant="subtitle" component="h3">Εύρος Τιμής:</Typography>
+                <Grid container spacing={3}>
+                    <Grid item xs={3}>
+                        <InputBase 
+                            placeholder="Από"
+                            endAdornment={<InputAdornment position="end">€</InputAdornment>}
+                            value={from}
+                            onChange={(event) => {
+                                setFrom(event.target.value); 
+                                setValueToClear(true);
+                                setLowerBound(event.target.value);
+                        }}/>
+                    </Grid>
+                    <Grid item xs={3}>
+                        <InputBase 
+                            placeholder="Έως"
+                            endAdornment={<InputAdornment position="end">€</InputAdornment>}
+                            value={to}
+                            onChange={(event) => {
+                                setTo(event.target.value);
+                                setValueToClear(true);
+                                setUpperBound(event.target.value);
+                        }}/>
+                    </Grid>
+                </Grid>
+                <Grid container justifyContent="flex-start">
+                    <Grid item xs={3}>
+                        <Button 
+                            variant="outlined" 
+                            disabled={!valueToClear} 
+                            onClick={() => {
+                                setFrom('');
+                                setTo('');
+                                setLowerBound(null);
+                                setUpperBound(null);
+                                setValueToClear(false);
+                            }}>Εκκαθάριση</Button>
+                    </Grid>
+                    <Grid item xs={3}>
+                        <Button 
+                            variant="contained"
+                            disabled={!valueToClear}
+                            onClick = {() => {setIsPriceQuerying(true)}}
+                        >Αναζήτηση</Button>
+                    </Grid>
+                </Grid>
+            </Stack>
         </>
     )
 }
@@ -115,6 +180,7 @@ function Sidebar(){
             <Search />
             <Typography sx={{paddingLeft: '2vw', paddingTop: '1vw'}} variant="subtitle" component="h3">Κατηγορίες</Typography>
             <Categories />
+            <PriceSearch />
         </Stack>        
     )
 }

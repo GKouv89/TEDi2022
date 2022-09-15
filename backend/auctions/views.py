@@ -78,7 +78,15 @@ class AllItems(ListCreateAPIView):
         if search_string is not None:
             print(type(search_string))
             q = Q(name__icontains=search_string) | Q(description__icontains=search_string)
-            queryset = queryset.filter(q)            
+            queryset = queryset.filter(q)    
+        price_from = self.request.query_params.get('from')
+        price_to = self.request.query_params.get('to')
+        if price_from is not None:
+            q = Q(currently__gte = price_from)
+            queryset = queryset.filter(q)
+        if price_to is not None:
+            q = Q(currently__lte = price_to)
+            queryset = queryset.filter(q)
         return queryset
 
     def list(self, request): 
@@ -93,6 +101,9 @@ class AllItems(ListCreateAPIView):
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             item = serializer.save()
+            item.currently = item.first_bid
+            print(item.currently)
+            item.save()
             for name in request.data['categories']:
                 category, _ = Category.objects.get_or_create(name=name)
                 item.category.add(category)
