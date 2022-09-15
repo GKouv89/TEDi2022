@@ -87,24 +87,6 @@ export function SearchProvider({children}){
         fetchData(pageNo)
     }
 
-    // const didMount = useRef(false)
-
-    // useEffect(() => {
-    //     if(!didMount.current){
-    //         didMount.current = true
-    //         return
-    //     }
-    //     if(!user){
-    //         navigate('../', {replace: true})
-    //     }else if(isAdmin){
-    //         navigate('../admin', {replace: true})
-    //     }else if(isPending == 'true'){
-    //         navigate('../pending', {replace: true})
-    //     }else{
-    //         navigate('../index', {replace: true})
-    //     }
-    // }, [user, isAdmin, isPending])
-
     useEffect(() => fetchFilteredItems(), [checked])
     
     useEffect(() => {

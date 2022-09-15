@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Skeleton from '@mui/material/Skeleton';
 import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs'
+import { Link } from 'react-router-dom'
 
 function calcRemTime(ended){
     const now = dayjs()
@@ -41,7 +42,7 @@ function calcRemTime(ended){
 function ItemCard(props){
     return(
         <Card>
-            <CardActionArea>
+            <CardActionArea component={Link} to={`${props.data.id}`}>
                     {
                         props.loaded ? 
                             props.data.items_images.length == 0 ? 
@@ -60,7 +61,7 @@ function ItemCard(props){
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body1" gutterBottom>
-                                {`Από ${props.data.first_bid}€ `}
+                                {`Από ${props.data.currently}€ `}
                             </Typography>                                
                         </Grid>
                         <Grid item xs={6}>

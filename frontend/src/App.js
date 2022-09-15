@@ -25,15 +25,13 @@ import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
 // import EditAuction from './pages/Auctions/EditAuction';
-import ItemCard from './components/Auctions/Browsing/ItemCard';
-import Sidebar from './components/Auctions/Browsing/Sidebar';
 import { SearchProvider } from './context/SearchContext';
+import ItemPage from './pages/Auctions/ItemPage'
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        {/* <LocalizationProvider dateAdapter={AdapterMoment}>         */}
         <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
@@ -53,7 +51,8 @@ class App extends Component {
                       <Route path="/auctionmanagement" element={<AuctionManagement />} />
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       {/* <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} /> */}
-                        <Route path="/auctions" element={<AuctionSearch />} />
+                      <Route path="/auctions" element={<AuctionSearch />} />
+                      <Route path="/auctions/:auctionid" element={<ItemPage />} />
                     </Route>
                     <Route path="/pending" element={<PendingPage />} />
                   </Route>
@@ -64,8 +63,7 @@ class App extends Component {
               </SearchProvider>
             </AuthProvider>
           </BrowserRouter>
-          </AlertProvider>
-        {/* </LocalizationProvider> */}
+        </AlertProvider>
       </div>
     );
   }
