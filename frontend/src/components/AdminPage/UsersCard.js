@@ -7,9 +7,11 @@ import Col from 'react-bootstrap/esm/Col'
 import Tab from 'react-bootstrap/Tab'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import axios from 'axios'
 
 function UsersCard(props){
+    console.log(useParams())
     const [usersState, setUsersState] = useState([])
     const [tabContent, setTabContent] = useState([])
     const [loaded, setLoaded] = useState(false)
@@ -19,6 +21,7 @@ function UsersCard(props){
         for(let i = 0; i < props.results.length; i++){
             usersStateTemp.push(props.results[i].isPending);
         }  
+        setUsersState(usersStateTemp)
     }
 
     const createTabContent = () => {
@@ -32,35 +35,24 @@ function UsersCard(props){
     }
 
     useEffect(() => {
-        console.log('inUseEffect')
         if(usersState.length == 0){
-            console.log('Array is empty')
             initializeUsersStatus()
-            setUsersState(usersStateTemp)    
             createTabContent()
             console.log(tabContent)
             setLoaded(true)
         }
     }, [])
 
-    const updateUsersStatus = (idx, newState) => {
-        let usersStateTemp = []
-        for(let i = 0; i < props.results.length; i++){
-            if(i == idx){
-                usersStateTemp.push(newState);
-            }else{
-                usersStateTemp.push(props.results[i].isPending);
-            }
-        }
-        setUsersState(usersStateTemp)
-        createTabContent()
+    const updateUsersStatus = () => {
+        setLoaded(false)
+        props.callback(false)
         setLoaded(true)
     }
 
     return(
         <>
         {loaded ? <>
-                <Tab.Container>
+                <Tab.Container activeKey={props.activeTab} onSelect={(tab) => props.setActiveTab(tab)}>
                     <Row>
                         <Col xs={4}>
                             <ListGroup>
@@ -111,7 +103,7 @@ function UserInfo(props){
             'isPending': false
         }
         axios.patch(`http://localhost:8000/users/${props.result.username}/`, data, { headers })
-            .then(() => {setIsPending(false); props.callback(props.idx, false)})
+            .then(() => {setIsPending(false); props.callback()})
             .catch(err => console.log(err)) 
     }
 

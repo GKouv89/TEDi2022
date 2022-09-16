@@ -3,6 +3,7 @@ import {Navbar, Container, Nav} from 'react-bootstrap'
 import LinkContainer from 'react-router-bootstrap/LinkContainer'
 import AuthContext from '../context/AuthContext';
 import { AlertContext } from "../context/VisibleAlert"; 
+import { Divider } from '@mui/material'
 
 function Header(){
     let {user} = useContext(AuthContext)
@@ -38,12 +39,26 @@ function NotLoggedInNav(){
 }
 
 function LoggedInNav(){
-    let {user, logoutUser} = useContext(AuthContext)
+    let {user, logoutUser, isAdmin, isPending} = useContext(AuthContext)
+    // console.log(isAdmin)
+    // console.log(typeof isAdmin)
 
     return(
         <>
             <Nav>
                 <Navbar.Text>{user}</Navbar.Text>
+                {isAdmin === 'true' ? 
+                    <LinkContainer to="/admin">
+                        <Nav.Link>Σελίδα διαχείρισης χρηστών</Nav.Link>
+                    </LinkContainer>                
+                :
+                    isPending === 'false' ? 
+                    <LinkContainer to="/auctionmanagement">
+                        <Nav.Link>Οι δημοπρασίες μου</Nav.Link>
+                    </LinkContainer>
+                    : null
+                }
+                <Divider orientation="vertical" />
                 <LinkContainer to="/">
                     <Nav.Link onClick={logoutUser}>Αποσύνδεση</Nav.Link>
                 </LinkContainer>

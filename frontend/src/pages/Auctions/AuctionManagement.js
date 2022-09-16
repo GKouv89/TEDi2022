@@ -31,11 +31,8 @@ function AuctionManagement(){
             'Content-Type': 'application/json',
         }
         const data = {}
-        const url = 'http://localhost:8000/auctions/'
-        const params = {
-            username: `${localStorage.getItem('username')}`
-        }
-        axios.get(url, {headers}, data, params) //get all the auctions of the user
+        const url = `http://localhost:8000/auctions/${localStorage.getItem('username')}/`
+        axios.get(url, {headers})
             .then((r) => {
                 console.log(r.data.results)
 

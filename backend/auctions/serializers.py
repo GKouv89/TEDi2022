@@ -92,11 +92,11 @@ class ItemCreationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
-        address, _ = Address.objects.get_or_create(address_name=address_data['address_name'], Street_number=address_data['Street_number'], Street_name=address_data['Street_name'], Postal_code=address_data['Postal_code'], City=address_data['City'], Country=address_data['Country'])
+        address = Address.objects.create(**address_data)
         images = {}
         if('items_images' in validated_data.keys()):
             images = validated_data.pop('items_images')    
-        item = Item.objects.create(address=address, seller=self.context['request'].user,  **validated_data)        
+        item = Item.objects.create(address=address, seller=self.context['request'].user, **validated_data)        
         if len(images) != 0:
             for image_data in images:
                 ItemImage.objects.create(item=item, **image_data)

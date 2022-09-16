@@ -6,6 +6,7 @@ import MyPagination from '../../components/MyPagination'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Sidebar from '../../components/Auctions/Browsing/Sidebar'
+import { Breadcrumbs, Link, Typography } from '@mui/material'
 
 import { SearchContext } from '../../context/SearchContext'
 
@@ -16,6 +17,10 @@ function AuctionSearch(){
 
     return(
         <>
+            <Breadcrumbs sx={{paddingTop: '1vh', paddingLeft: '1vw'}}>
+                <Link variant="button" href="/index">Αρχική</Link>
+                <Typography variant="button"></Typography>
+            </Breadcrumbs>
             <Stack direction="row" alignItems="flex-start" spacing={1}>
                 <Sidebar />
                 <Stack spacing={2} sx={{flex: 1}}>

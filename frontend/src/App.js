@@ -28,6 +28,8 @@ import AdminRoute from './utils/AdminRoute';
 import { SearchProvider } from './context/SearchContext';
 import ItemPage from './pages/Auctions/ItemPage'
 
+import '@fontsource/roboto/400.css';
+
 class App extends Component {
   render() {
     return (
@@ -42,6 +44,8 @@ class App extends Component {
                   <Route path="/" element={<WelcomePage />}/>
                   <Route path="/login" element={<SigninPage />}/>
                   <Route path="/signup" element={<SignupPage />}/>
+                  <Route path="/auctions" element={<AuctionSearch />} />
+                    <Route path="/auctions/:auctionid" element={<ItemPage />} />
                   <Route element={<PrivateRoute />}>
                     <Route element={<AdminRoute />}>
                       <Route path="/admin" element={<AdminPage />}/>
@@ -51,8 +55,6 @@ class App extends Component {
                       <Route path="/auctionmanagement" element={<AuctionManagement />} />
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       {/* <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} /> */}
-                      <Route path="/auctions" element={<AuctionSearch />} />
-                      <Route path="/auctions/:auctionid" element={<ItemPage />} />
                     </Route>
                     <Route path="/pending" element={<PendingPage />} />
                   </Route>

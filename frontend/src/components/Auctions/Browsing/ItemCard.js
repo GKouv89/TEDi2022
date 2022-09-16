@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 
-function calcRemTime(ended){
+export function calcRemTime(ended){
     const now = dayjs()
     const endedDate = dayjs(ended, "DD-MM-YYYY HH:mm:ss")
     if(endedDate.diff(now, 'day') == 1){

@@ -8,7 +8,7 @@ export default function WelcomePage(){
             <h1 style={{paddingTop: "100px"}}>Καλώς ήρθατε!</h1>
             
             <div className="d-grid gap-2" style={{paddingTop: "100px"}}>
-                <Button variant="primary" size="lg" style={{width: "80%", margin: "auto"}}>
+                <Button href="/auctions" variant="primary" size="lg" style={{width: "80%", margin: "auto"}}>
                     Πλοηγήσου ως επισκέπτης
                 </Button>
                 <Button href="/signup" variant="secondary" size="lg" style={{width: "80%", margin: "auto"}}>

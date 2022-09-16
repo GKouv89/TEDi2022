@@ -118,7 +118,10 @@ class SellersItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        return user.sold_items.all()
+        queryset = user.sold_items.all()
+        q = Q(status=Item.INACTIVE) | (Q(status=Item.RUNNING) & Q(number_of_bids = 0))
+        queryset = queryset.filter(Q(status=Item.INACTIVE) | q)
+        return queryset
 
     def list(self, request, username):
         req_user = request.user # Only the seller can view these items

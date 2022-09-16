@@ -25,9 +25,9 @@ export function AuthProvider({children}){
         }
         if(!user){
             navigate('../', {replace: true})
-        }else if(isAdmin){
+        }else if(isAdmin === 'true'){
             navigate('../admin', {replace: true})
-        }else if(isPending == 'true'){
+        }else if(isPending === 'true'){
             navigate('../pending', {replace: true})
         }else{
             navigate('../index', {replace: true})
@@ -38,8 +38,8 @@ export function AuthProvider({children}){
         console.log('signupUser')
         setUser(username)
         setToken(token)
-        setIsAdmin(is_staff)
-        setIsPending(isPending)
+        setIsAdmin(is_staff.toString())
+        setIsPending(isPending.toString())
 
         window.localStorage.setItem("token", token)
         window.localStorage.setItem("username", username)
@@ -60,7 +60,7 @@ export function AuthProvider({children}){
                 //keep username and token in local storage and states 'user' and 'token'
                 setUser(r.data.user_data.username)
                 setToken(r.data.token)
-                setIsAdmin(r.data.user_data.is_staff)
+                setIsAdmin(r.data.user_data.is_staff.toString())
                 setIsPending(r.data.user_data.isPending.toString())
                 window.localStorage.setItem("token", r.data.token)
                 window.localStorage.setItem("username", r.data.user_data.username)
