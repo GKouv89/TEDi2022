@@ -11,22 +11,16 @@ import axios from 'axios'
 import { PaginationContext } from '../context/PaginationContext'
 
 export default function AdminPage(){
-    const page_size = 10; // fixed value to paginate
+    const page_size = 12; // fixed value to paginate
     const [page_count, setPageCount] = useState(null)
     console.log(page_count)
-    // const results = [ // dummy data atm, will come from request
-    //     {"username": "gina", "isPending": true},
-    //     {"username": "takis", "isPending": true},
-    //     {"username": "voula", "isPending": false},
-    //     {"username": "marina", "isPending": false},
-    //     {"username": "dimitris", "isPending": true},
-    // ]
 
     const { active, setActive } = useContext(PaginationContext);
 
     const [fetchResults, setFetchResults] = useState(null)
     const [count, setCount] = useState(null)
     const [loaded, setloaded] = useState(false)
+    const [activeTab, setActiveTab] = useState(0)
 
     const headers = {
         'Content-Type': 'application/json',
@@ -34,7 +28,7 @@ export default function AdminPage(){
     }
 
     const fetchData = () => {
-        axios.get('http://localhost:8000/users/', { headers })
+        axios.get('http://localhost:8000/users/?page=' + active, { headers })
             .then((response) => {
                 console.log(response.data)
                 console.log(response.data.results)
@@ -46,7 +40,7 @@ export default function AdminPage(){
             .catch(err => console.log(err))
     }
 
-    useEffect(() => {fetchData()}, [])
+    useEffect(() => {fetchData()}, [loaded])
 
     useEffect(() => {
         console.log("active is " + active)
@@ -72,7 +66,7 @@ export default function AdminPage(){
                     <Row>
                         <Col>
                             <ListGroup>
-                                <UsersCard results={fetchResults}/>
+                                <UsersCard results={fetchResults} callback={setloaded} activeTab={activeTab} setActiveTab={setActiveTab}/>
                             </ListGroup>
                         </Col>
                     </Row>

@@ -25,43 +25,48 @@ import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
-import EditAuction from './pages/Auctions/EditAuction';
+// import EditAuction from './pages/Auctions/EditAuction';
+import { SearchProvider } from './context/SearchContext';
+import ItemPage from './pages/Auctions/ItemPage'
+
+import '@fontsource/roboto/400.css';
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        {/* <LocalizationProvider dateAdapter={AdapterMoment}>         */}
         <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
-              <PaginationProvider>
-              <Header />
-              <Routes>
-                <Route path="/" element={<HomePage />}/>
-                <Route path="/login" element={<SigninPage />}/>
-                <Route path="/signup" element={<SignupPage />}/>
-                <Route element={<PrivateRoute />}>
-                  <Route element={<AdminRoute />}>
-                    <Route path="/admin" element={<AdminPage />}/>
+              <SearchProvider>
+                <PaginationProvider>
+                <Header />
+                <Routes>
+                  <Route path="/" element={<HomePage />}/>
+                  <Route path="/login" element={<SigninPage />}/>
+                  <Route path="/signup" element={<SignupPage />}/>
+                  <Route path="/auctions" element={<AuctionSearch />} />
+                    <Route path="/auctions/:auctionid" element={<ItemPage />} />
+                  <Route element={<PrivateRoute />}>
+                    <Route element={<AdminRoute />}>
+                      <Route path="/admin" element={<AdminPage />}/>
+                    </Route>
+                    <Route element={<ApprovedUserRoute />}>
+                      <Route path="/index" element={<IndexPage />}/>
+                      <Route path="/auctionmanagement" element={<AuctionManagement />} />
+                      <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
+                      <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
+                    </Route>
+                    <Route path="/pending" element={<PendingPage />} />
                   </Route>
-                  <Route element={<ApprovedUserRoute />}>
-                    <Route path="/index" element={<IndexPage />}/>
-                    <Route path="/auctionmanagement" element={<AuctionManagement />} />
-                    <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
-                    <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
-                    <Route path="/auctions" element={<AuctionSearch />} />
-                  </Route>
-                  <Route path="/pending" element={<PendingPage />} />
-                </Route>
-                <Route path="/warning" element={<UnauthorizedPage />} />
-                <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
-              </Routes>
-              </PaginationProvider>
+                  <Route path="/warning" element={<UnauthorizedPage />} />
+                  <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
+                </Routes>
+                </PaginationProvider>
+              </SearchProvider>
             </AuthProvider>
           </BrowserRouter>
-          </AlertProvider>
-        {/* </LocalizationProvider> */}
+        </AlertProvider>
       </div>
     );
   }

@@ -14,7 +14,8 @@ export default function MultiAutocomplete(props){
             axios.get('http://localhost:8000/auctions/categories/')
                 .then((response) => {
                     let opts = []
-                    response.data.results.forEach(category => opts.push({ label: category.name }))
+                    // response.data.results.forEach(category => opts.push({ label: category.name }))
+                    response.data.forEach(category => opts.push({ label: category.name }))
                     setOptions(opts)
                 })
         }

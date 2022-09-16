@@ -6,6 +6,7 @@ import { AlertContext } from "../context/VisibleAlert";
 import AuctionManagement from '../pages/Auctions/AuctionManagement';
 import WelcomePage from '../pages/WelcomePage';
 import { useNavigate } from "react-router-dom";
+import { Divider } from '@mui/material'
 
 function Header(){
     let {user} = useContext(AuthContext)
@@ -56,6 +57,18 @@ function LoggedInNav(){
         <>
             <Nav>
                 <Navbar.Text>{user}</Navbar.Text>
+                {isAdmin === 'true' ? 
+                    <LinkContainer to="/admin">
+                        <Nav.Link>Σελίδα διαχείρισης χρηστών</Nav.Link>
+                    </LinkContainer>                
+                :
+                    isPending === 'false' ? 
+                    <LinkContainer to="/auctionmanagement">
+                        <Nav.Link>Οι δημοπρασίες μου</Nav.Link>
+                    </LinkContainer>
+                    : null
+                }
+                <Divider orientation="vertical" />
                 <LinkContainer to="/">
                     <Nav.Link onClick={logoutUser}>Αποσύνδεση</Nav.Link>
                 </LinkContainer>

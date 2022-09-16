@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.generics import ListAPIView, ListCreateAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView
 from rest_framework.parsers import FormParser
 from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
@@ -63,8 +63,32 @@ class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
     serializer_class = ItemSerializer
-    queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') # Should probably return all active ones only
     parser_classes = (NestedMultiPartParser, FormParser)
+
+    def get_queryset(self):
+        # queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
+        queryset = Item.objects.all().order_by('id')
+        category_list = self.request.query_params.getlist('category', '')
+        if category_list is not None:
+            q = Q()
+            for category in category_list:
+                q = q | Q(category__name = category)
+            queryset = queryset.filter(q).distinct()
+        search_string = self.request.query_params.get('search')
+        if search_string is not None:
+            print(type(search_string))
+            q = Q(name__icontains=search_string) | Q(description__icontains=search_string)
+            queryset = queryset.filter(q)    
+        price_from = self.request.query_params.get('from')
+        price_to = self.request.query_params.get('to')
+        if price_from is not None:
+            q = Q(currently__gte = price_from)
+            queryset = queryset.filter(q)
+        if price_to is not None:
+            q = Q(currently__lte = price_to)
+            queryset = queryset.filter(q)
+        return queryset
+
     def list(self, request): 
         update_auctions_status()
         page = self.paginate_queryset(self.get_queryset())
@@ -77,6 +101,9 @@ class AllItems(ListCreateAPIView):
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             item = serializer.save()
+            item.currently = item.first_bid
+            print(item.currently)
+            item.save()
             for name in request.data['categories']:
                 category, _ = Category.objects.get_or_create(name=name)
                 item.category.add(category)
@@ -91,7 +118,10 @@ class SellersItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        return user.sold_items.all()
+        queryset = user.sold_items.all()
+        q = Q(status=Item.INACTIVE) | (Q(status=Item.RUNNING) & Q(number_of_bids = 0))
+        queryset = queryset.filter(Q(status=Item.INACTIVE) | q)
+        return queryset
 
     def list(self, request, username):
         req_user = request.user # Only the seller can view these items
@@ -153,3 +183,4 @@ class ItemsBids(ListAPIView):
 class Categories(ListAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
+    pagination_class = None
