@@ -51,7 +51,7 @@ function NotLoggedInNav(){
 }
 
 function LoggedInNav(){
-    let {user, logoutUser} = useContext(AuthContext)
+    let {user, logoutUser, isAdmin, isPending} = useContext(AuthContext)
 
     return(
         <>

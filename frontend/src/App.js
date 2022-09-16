@@ -25,7 +25,7 @@ import AuctionManagement from './pages/Auctions/AuctionManagement';
 import AuctionSearch from './pages/Auctions/AuctionSearch';
 import NewAuction from './pages/Auctions/NewAuction';
 import AdminRoute from './utils/AdminRoute';
-// import EditAuction from './pages/Auctions/EditAuction';
+import EditAuction from './pages/Auctions/EditAuction';
 import { SearchProvider } from './context/SearchContext';
 import ItemPage from './pages/Auctions/ItemPage'
 
