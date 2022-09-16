@@ -3,14 +3,26 @@ import {Navbar, Container, Nav} from 'react-bootstrap'
 import LinkContainer from 'react-router-bootstrap/LinkContainer'
 import AuthContext from '../context/AuthContext';
 import { AlertContext } from "../context/VisibleAlert"; 
+import AuctionManagement from '../pages/Auctions/AuctionManagement';
+import WelcomePage from '../pages/WelcomePage';
+import { useNavigate } from "react-router-dom";
 
 function Header(){
     let {user} = useContext(AuthContext)
+    const navigate = useNavigate();
     return(
         <Navbar bg="dark" variant="dark">
             <Container>
                 <LinkContainer to="/">
-                    <Navbar.Brand className="justify-content-start">
+                    <Navbar.Brand className="justify-content-start" onClick={(e)=> {
+                        e.preventDefault();
+                        if(user === null) {
+                            navigate("/")
+                        } else {
+                            console.log("logged in user")
+                            navigate("/index");
+                        }
+                    }}>
                         E-Auction
                     </Navbar.Brand>
                 </LinkContainer>

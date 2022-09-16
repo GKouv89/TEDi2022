@@ -9,18 +9,23 @@ import axios from 'axios';
 import AccordionBody from "react-bootstrap/esm/AccordionBody";
 import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
+const ConditionalWrapper = ({
+    condition,
+    wrapper,
+    children,
+}) => (condition ? wrapper(children) : children);
 
 function AuctionManagement(){
     const [Items, setItems] = useState([])
     const navigate = useNavigate();
     const handleGoToNewAuction = () => navigate("/NewAuction");
     const handleGoToItemBids = (id) => {
-        alert(id)/////////////////////
         navigate("/auctionmanagement/ItemBids", { state: {id} })
     }
     const handleGoToEditAuction = (item) => {
-        // alert(id)
         navigate("/auctionmanagement/EditAuction", { state: {item} });
     }
     
@@ -64,17 +69,52 @@ function AuctionManagement(){
 
                                     <ListGroup.Item>Έναρξη δημοπρασίας: {item.started}</ListGroup.Item>
                                     <ListGroup.Item>Λήξη δημοπρασίας: {item.ended}</ListGroup.Item>
-                                    <ListGroup.Item>Διεύθυνση: {item.address_name} {item.address.Country}</ListGroup.Item>
+                                    <ListGroup.Item>Διεύθυνση: {item.address.address_name} { item.address.Street_name } { item.address.Street_number } { item.address.Postal_code } { item.address.City } {item.address.Country}</ListGroup.Item>
                                     <ListGroup.Item>
                                         <div className="mb-2">
-                                            
-                                            <Button variant="primary" size="sm" onClick={() => handleGoToItemBids(item.id)}>
+                                        <ConditionalWrapper condition={!item.number_of_bids}
+                                            wrapper={children => (
+                                                <OverlayTrigger key={1} placement='top'
+                                                    overlay={
+                                                        <Tooltip id={'tooltip-bottom0'}>
+                                                        Δεν υπάρχουν προσφορές για τη συγκεκριμένη δημοπρασία.
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    
+                                                    {children}
+                                                </OverlayTrigger>
+                                            )}
+                                        >
+                                            <span>
+                                            <Button variant="primary" size="sm" onClick={() => handleGoToItemBids(item.id)} disabled={item.number_of_bids ? false : true} >
                                                 Προβολή προσφορών
                                             </Button>
-                                            {' '}
-                                            <Button variant="primary" size="sm" onClick={() => handleGoToEditAuction(item)}>
+                                            </span>
+                                        </ConditionalWrapper>
+                                        
+                                        {' '}
+                                        
+                                        <ConditionalWrapper condition={item.number_of_bids}
+                                            wrapper={children => (
+                                                <OverlayTrigger key={1} placement='top'
+                                                    overlay={
+                                                        <Tooltip id={'tooltip-bottom0'}>
+                                                        Υπάρχουν ήδη προσφορές για τη συγκεκριμένη δημοπρασία.
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    
+                                                    {children}
+                                                </OverlayTrigger>
+                                            )}
+                                        >         
+                                            <span>
+                                            <Button variant="primary" size="sm" onClick={() => handleGoToEditAuction(item)} disabled={item.number_of_bids ? true : false} >
                                                 Επεξεργασία δημοπρασίας
-                                            </Button>
+                                            </Button> 
+                                            </span>
+                                        </ConditionalWrapper>    
                                         </div>
                                     </ListGroup.Item>
                                 </ListGroup>
@@ -91,13 +131,13 @@ function AuctionManagement(){
 
     return(
         <>
-            <Container fluid style={{marginTop: "25px", justifyContent: "center", display: "flex", border: "5px dotted green"}}>
+            <Container fluid style={{marginTop: "25px", justifyContent: "center", display: "flex", border: "5px dotted green", marginBottom: "50px"}}>
                 <Row>
                     <Col md={1}>
                     <h1> <IoIosAddCircle style={{color: 'green', cursor: 'pointer'}} onClick={handleGoToNewAuction}/> </h1>
                     </Col>
                     <Col md={10}>
-                        <h3>Δημιουργείστε νέα δημοπρασία!</h3>
+                        <h3>Δημιουργήστε νέα δημοπρασία!</h3>
                     </Col>
                 </Row>
 

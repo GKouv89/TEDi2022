@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, useContext } from 'react';
 import './App.css';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import {BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import Header from './components/Header'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import WelcomePage from './pages/WelcomePage';
@@ -13,6 +13,7 @@ import PendingPage from './pages/PendingPage'
 import AdminPage from './pages/AdminPage'
 import IndexPage from './pages/IndexPage'
 import ItemBids from './pages/Auctions/ItemBids'
+import HomePage from './pages/HomePage';
 
 import { AuthProvider } from './context/AuthContext';
 import { AlertProvider } from './context/VisibleAlert';
@@ -37,7 +38,7 @@ class App extends Component {
               <PaginationProvider>
               <Header />
               <Routes>
-                <Route path="/" element={<WelcomePage />}/>
+                <Route path="/" element={<HomePage />}/>
                 <Route path="/login" element={<SigninPage />}/>
                 <Route path="/signup" element={<SignupPage />}/>
                 <Route element={<PrivateRoute />}>

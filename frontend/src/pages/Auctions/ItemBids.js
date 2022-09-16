@@ -15,9 +15,9 @@ function BidCards(props) {
             <Card className="text-center" style={{marginTop: "13px"}}>
                 <Card.Body>
                     <Card.Title>{bid.amount}</Card.Title>
-                    <Card className="text-center">
-                        <Card.Header>Προσφοροδότης:</Card.Header>
+                    <Card className="text-center">  
                         <Card.Body>
+                        <Card.Title>Πληροφορίες προσφοροδότη:</Card.Title>
                         <ListGroup variant="flush">
                             <ListGroup.Item>Όνομα χρήστη: {bid.bidder.username}</ListGroup.Item>
                             <ListGroup.Item>Αξιολόγηση αγοραστή: {bid.bidder.buyer_rating}</ListGroup.Item> 

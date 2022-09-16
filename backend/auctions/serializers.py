@@ -62,7 +62,8 @@ class ItemSerializer(serializers.ModelSerializer):
     ended = serializers.DateTimeField(format=fmt)
     seller = SellerSerializer()
     items_bids = BidSerializer(many=True, required=False, read_only=True)
-    address = ItemLocationSerializer()
+    # address = ItemLocationSerializer() 
+    address = AddressSerializer()
     status = serializers.ChoiceField(choices=Item.STATUS_CHOICES)
     category = CategorySerializer(many=True)
     class Meta:
