@@ -119,8 +119,8 @@ class SellersItems(ListAPIView):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
-        q = Q(status=Item.INACTIVE) | (Q(status=Item.RUNNING) & Q(number_of_bids = 0))
-        queryset = queryset.filter(Q(status=Item.INACTIVE) | q)
+        q = Q(status=Item.INACTIVE) | Q(status=Item.RUNNING)
+        queryset = queryset.filter(q)
         return queryset
 
     def list(self, request, username):
