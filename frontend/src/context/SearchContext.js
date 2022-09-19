@@ -4,7 +4,7 @@ import axios from 'axios';
 export const SearchContext = createContext();
 
 export function SearchProvider({children}){
-    const base_url = 'http://localhost:8000/auctions/'
+    const base_url = 'https://localhost:8000/auctions/'
     const pageSize = 12; // Fixed number, same as backend
 
     const [url, setUrl] = useState(base_url)

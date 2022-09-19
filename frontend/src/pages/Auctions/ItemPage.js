@@ -33,7 +33,7 @@ function MyCarousel(props){
                         props.images.map((image, idx) => 
                         <Carousel.Item key={idx}>
                             <img
-                                src={`http://localhost:8000${image.image}`}
+                                src={`https://localhost:8000${image.image}`}
                                 alt="Item image"
                             />
                         </Carousel.Item>)
@@ -55,7 +55,7 @@ export default function ItemPage(){
         const headers = {
             'Content-Type': 'application/json',
         }
-        axios.get(`http://localhost:8000/auctions/${auctionid}/`, {headers})
+        axios.get(`https://localhost:8000/auctions/${auctionid}/`, {headers})
             .then((response) => {console.log(response.data); setData(response.data); setLoaded(true) })
             .catch((err) => console.log(err))
     }

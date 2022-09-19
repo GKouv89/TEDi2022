@@ -85,7 +85,7 @@ export default function BidCreation(props){
         const data = {
             'amount': parseFloat(value)
         }
-        axios.post(`http://localhost:8000/auctions/${auctionid}/bids/`, data, { headers })
+        axios.post(`https://localhost:8000/auctions/${auctionid}/bids/`, data, { headers })
             .then((response) => console.log(response))
             .then(() => props.confirmation())
             .catch((err) => console.log(err))

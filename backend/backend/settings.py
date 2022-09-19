@@ -18,7 +18,7 @@ KNOX_TOKEN_MODEL = 'knox.AuthToken'
 REST_KNOX = {
 #   'SECURE_HASH_ALGORITHM': 'hashlib.sha512',
 #   'AUTH_TOKEN_CHARACTER_LENGTH': 64,
-#   'TOKEN_TTL': timedelta(hours=10),
+  'TOKEN_TTL': None,
 #   'USER_SERIALIZER': 'knox.serializers.UserSerializer',
 #   'TOKEN_LIMIT_PER_USER': None,
 #   'AUTO_REFRESH': False,
@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     ######
     'corsheaders',
     'rest_framework',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +105,7 @@ AUTH_USER_MODEL = "base.MyUser"
 ROOT_URLCONF = 'backend.urls'
 
 CORS_ALLOWED_ORIGINS = ( 
-    'http://localhost:3000',
+    'https://localhost:3000',
 )
 
 TEMPLATES = [

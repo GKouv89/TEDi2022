@@ -11,7 +11,7 @@ export default function MultiAutocomplete(props){
    
     useEffect(() => {
         async function fetchCategories(){
-            axios.get('http://localhost:8000/auctions/categories/')
+            axios.get('https://localhost:8000/auctions/categories/')
                 .then((response) => {
                     let opts = []
                     // response.data.results.forEach(category => opts.push({ label: category.name }))

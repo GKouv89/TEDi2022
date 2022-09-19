@@ -104,7 +104,7 @@ export default function SignupPage(){
                                 'Content-Type': 'application/json',
                             }
 
-                            axios.post('http://localhost:8000/register/', data, {headers})
+                            axios.post('https://localhost:8000/register/', data, {headers})
                                 .then((r) => {
                                     console.log(r.data)
                                     //store username and token to local storage

@@ -102,7 +102,7 @@ function UserInfo(props){
             'username': `${props.result.username}`,
             'isPending': false
         }
-        axios.patch(`http://localhost:8000/users/${props.result.username}/`, data, { headers })
+        axios.patch(`https://localhost:8000/users/${props.result.username}/`, data, { headers })
             .then(() => {setIsPending(false); props.callback()})
             .catch(err => console.log(err)) 
     }

@@ -55,7 +55,7 @@ function Categories(){
             'Content-Type': 'application/json',
         }
 
-        axios.get('http://localhost:8000/auctions/categories/', { headers })
+        axios.get('https://localhost:8000/auctions/categories/', { headers })
             .then((response) => {
                 console.log(response.data)
                 setCategories(response.data)
