@@ -66,7 +66,12 @@ function AuctionManagement(){
 
                                     <ListGroup.Item>Έναρξη δημοπρασίας: {item.started}</ListGroup.Item>
                                     <ListGroup.Item>Λήξη δημοπρασίας: {item.ended}</ListGroup.Item>
-                                    <ListGroup.Item>Διεύθυνση: {item.address.address_name} { item.address.Street_name } { item.address.Street_number } { item.address.Postal_code } { item.address.City } {item.address.Country}</ListGroup.Item>
+                                    <ListGroup.Item>Διεύθυνση: { item.address.Street_name } { item.address.Street_number } { item.address.Postal_code } { item.address.City } {item.address.Country}</ListGroup.Item>
+                                    { item.address.address_name ? 
+                                        <ListGroup.Item>Επωνυμία Επιχείρησης:  {item.address.address_name} </ListGroup.Item>
+                                        :
+                                        <></>
+                                    }
                                     <ListGroup.Item>
                                         <div className="mb-2">
                                         <ConditionalWrapper condition={!item.number_of_bids}

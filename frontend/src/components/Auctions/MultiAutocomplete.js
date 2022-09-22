@@ -6,7 +6,7 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 const filter = createFilterOptions();
 
 export default function MultiAutocomplete(props){
-    const [values, setValues] = useState([])
+    const [values, setValues] = useState(props.value ? props.value : [])
     const [options, setOptions] = useState(null)
    
     useEffect(() => {

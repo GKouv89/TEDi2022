@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'base.apps.BaseConfig',
     'auctions.apps.AuctionsConfig',
+    'myMessages.apps.MymessagesConfig',
     ######
     'corsheaders',
     'rest_framework',
