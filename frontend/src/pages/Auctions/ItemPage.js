@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext} from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { Modal } from 'react-bootstrap'
+import { Alert, Tooltip } from '@mui/material'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
@@ -12,6 +14,7 @@ import { Breadcrumbs } from '@mui/material'
 
 import { calcRemTime } from '../../components/Auctions/Browsing/ItemCard'
 import AuthContext from '../../context/AuthContext'
+import BidCreation from '../../components/Auctions/BidCreation'
 
 function MyCarousel(props){
     const [index, setIndex] = useState(0)
@@ -30,7 +33,7 @@ function MyCarousel(props){
                         props.images.map((image, idx) => 
                         <Carousel.Item key={idx}>
                             <img
-                                src={`http://localhost:8000${image.image}`}
+                                src={`https://localhost:8000${image.image}`}
                                 alt="Item image"
                             />
                         </Carousel.Item>)
@@ -45,19 +48,38 @@ export default function ItemPage(){
     let { auctionid } = useParams()
     const [loaded, setLoaded] = useState(false)
     const [data, setData] = useState(null)
+    const [openDialog, setOpenDialog] = useState(false)
+    const [openModal, setOpenModal] = useState(false)
 
     const fetchData = () => {
         const headers = {
             'Content-Type': 'application/json',
         }
-        axios.get(`http://localhost:8000/auctions/${auctionid}/`, {headers})
+        axios.get(`https://localhost:8000/auctions/${auctionid}/`, {headers})
             .then((response) => {console.log(response.data); setData(response.data); setLoaded(true) })
             .catch((err) => console.log(err))
     }
 
-    useEffect(() => fetchData(), [])
+    useEffect(() => fetchData(), [loaded])
 
     const { user } = useContext(AuthContext)
+
+    const confirmCreation = () => {
+        setOpenDialog(false)
+        setOpenModal(true)
+    }
+
+    const tooltipWarning = () => {
+        if(!user){
+            console.log('first')
+            return "Συνδεθείτε για να πραγματοποιήσετε αυτή την ενέργεια"
+        }else if(user == data.seller.username){
+            console.log('second')
+            return "Ως πωλητής, δεν μπορείτε να υποβάλλετε προσφορές."
+        }
+        console.log('third, user ', user)
+        return ""
+    }
 
     return(
         <>
@@ -154,11 +176,23 @@ export default function ItemPage(){
                                 {data.category.map((cat, idx) => <Grid key={idx} item xs={3}><Chip label={cat.name}/></Grid>)}
                             </Grid>
                             <Grid item xs={12}>
-                                <Button href={user ? null : "/signup"}variant="contained" size="large">Κάντε μία προσφορά</Button>
+                                <Tooltip title={tooltipWarning()}>
+                                    <span>
+                                        <Button onClick={() => setOpenDialog(true)} variant="contained" size="large" disabled={!user || data.seller.username == user}>Κάντε μία προσφορά</Button>
+                                    </span>
+                                </Tooltip>
                             </Grid>
                         </Grid>
                     </Grid>
-
+                    <BidCreation name={data.name} currently={data.currently} open={openDialog} setOpenDialog={setOpenDialog} confirmation={confirmCreation}/>
+                    <Modal show={openModal} onHide={() => {setOpenModal(false);  setLoaded(false)}}>
+                        <Modal.Header closeButton/>
+                        <Modal.Body>
+                            <Alert severity="success">
+                                Η δημιουργία της προσφοράς ολοκληρώθηκε με επιτυχία!
+                            </Alert>
+                        </Modal.Body>
+                    </Modal>
                 </>
             : <></>}
         </>

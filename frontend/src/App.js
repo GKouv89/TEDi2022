@@ -30,6 +30,7 @@ import { SearchProvider } from './context/SearchContext';
 import ItemPage from './pages/Auctions/ItemPage'
 
 import '@fontsource/roboto/400.css';
+import MessagingPage from './pages/Messages/MessagingPage';
 
 class App extends Component {
   render() {
@@ -56,6 +57,7 @@ class App extends Component {
                       <Route path="/auctionmanagement" element={<AuctionManagement />} />
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
+                      <Route path="/messages" element={<MessagingPage />} />
                     </Route>
                     <Route path="/pending" element={<PendingPage />} />
                   </Route>

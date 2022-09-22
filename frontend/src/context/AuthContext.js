@@ -52,7 +52,7 @@ export function AuthProvider({children}){
         console.log(e.target.username.value)
         console.log(e.target.password.value)
 
-        axios.post('http://localhost:8000/login/', 
+        axios.post(`https://localhost:8000/login/`, 
             {"username": e.target.username.value, "password": e.target.password.value}, 
             {Headers: {'Content-Type': 'application/json'}})
             .then((r) => {
@@ -96,7 +96,7 @@ export function AuthProvider({children}){
             'Authorization': `Token ${authtoken}`
         }
 
-        axios.post('http://localhost:8000/logout/', data, {headers})
+        axios.post('https://localhost:8000/logout/', data, {headers})
             .then(() => {
                 setToken(null)
                 setUser(null)

@@ -53,7 +53,7 @@ function ItemBids(props) {
         'Content-Type': 'application/json',
     }
     const data = {}
-    const url = 'http://localhost:8000/auctions/' + `${location.state.id}` +'/bids/'
+    const url = 'https://localhost:8000/auctions/' + `${location.state.id}` +'/bids/'
 
     useEffect(() => {
         axios.get(url, {headers}, data) //get bids for an item with a certain id

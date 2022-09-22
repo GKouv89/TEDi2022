@@ -57,7 +57,7 @@ function EditAuction() {
                     onSubmit={(values, actions) => {
                         const data = {}
                         console.log(values)
-                        const url = 'http://localhost:8000/auctions/' + bid.id + '/'
+                        const url = 'https://localhost:8000/auctions/' + bid.id + '/'
                         axios.patch(url, values,
                             {
                                 headers: {

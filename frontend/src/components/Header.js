@@ -6,7 +6,7 @@ import { AlertContext } from "../context/VisibleAlert";
 import AuctionManagement from '../pages/Auctions/AuctionManagement';
 import WelcomePage from '../pages/WelcomePage';
 import { useNavigate } from "react-router-dom";
-import { Divider } from '@mui/material'
+import { Divider, Badge,Button } from '@mui/material'
 
 function Header(){
     let {user} = useContext(AuthContext)
@@ -52,7 +52,7 @@ function NotLoggedInNav(){
 
 function LoggedInNav(){
     let {user, logoutUser, isAdmin, isPending} = useContext(AuthContext)
-
+    const newMessages = true; // hardcoded ATM, we'll have to figure out where this belongs
     return(
         <>
             <Nav>
@@ -63,9 +63,22 @@ function LoggedInNav(){
                     </LinkContainer>                
                 :
                     isPending === 'false' ? 
-                    <LinkContainer to="/auctionmanagement">
-                        <Nav.Link>Οι δημοπρασίες μου</Nav.Link>
-                    </LinkContainer>
+                    <>
+                        {/* <LinkContainer to="/auctionmanagement">
+                            <Nav.Link>Οι δημοπρασίες μου</Nav.Link>
+                        </LinkContainer> */}
+                        <Button href="/auctionmanagement" variant="text">
+                            Οι δημοπρασίες μου
+                        </Button>
+                        <Badge color="primary" overlap="rectangular" invisible={!newMessages} variant="dot">
+                            {/* <LinkContainer to="/messages"> */}
+                                {/* <Nav.Link>Τα μηνύματά μου</Nav.Link> */}
+                            {/* </LinkContainer> */}
+                            <Button href="/messages" variant="text">
+                                Τα μηνύματά μου
+                            </Button>
+                        </Badge>
+                    </>
                     : null
                 }
                 <Divider orientation="vertical" />

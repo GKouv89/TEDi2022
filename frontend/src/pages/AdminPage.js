@@ -28,7 +28,7 @@ export default function AdminPage(){
     }
 
     const fetchData = () => {
-        axios.get('http://localhost:8000/users/?page=' + active, { headers })
+        axios.get('https://localhost:8000/users/?page=' + active, { headers })
             .then((response) => {
                 console.log(response.data)
                 console.log(response.data.results)
@@ -44,7 +44,7 @@ export default function AdminPage(){
 
     useEffect(() => {
         console.log("active is " + active)
-        axios.get('http://localhost:8000/users/?page=' + active, { headers })
+        axios.get('https://localhost:8000/users/?page=' + active, { headers })
             .then((response) => {
                 console.log(response.data)
                 console.log(response.data.results)
