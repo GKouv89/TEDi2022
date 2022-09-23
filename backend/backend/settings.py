@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'base.apps.BaseConfig',
     'auctions.apps.AuctionsConfig',
     'matrixFactorization.apps.MatrixfactorizationConfig',
+    'myMessages.apps.MymessagesConfig',
     ######
     'corsheaders',
     'rest_framework',

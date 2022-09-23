@@ -76,3 +76,7 @@ class MyUserSerializer(serializers.HyperlinkedModelSerializer):
         model = MyUser
         fields = ['username', 'email', 'first_name', 'last_name', 'phone_number', 'tin', 'isPending', 'Address']
 
+class MyUserMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields = ['username', 'id'] #ISWS NA EPISTREFEI MONO TO ONOMAAA???

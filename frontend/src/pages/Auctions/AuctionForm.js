@@ -7,6 +7,8 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import dayjs from 'dayjs'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import Chip from '@mui/material/Chip';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
 import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
@@ -61,29 +63,17 @@ const started_ended_validation = (started, ended) => {
     return d1.isBefore(d2)
 }
 
+const handleClick = () => {}
+const handleDelete = () => {}
+
 function AuctionCreationForm(props){
     const [invalidStartedDate, setInvalidStartedDate] = useState(false)
     const [invalidDates, setInvalidDates] = useState(false)
     const [options, setOptions] = useState(null)
     const [started, setStarted] = useState(props.values.started ? dayjs(props.values.started, "DD-MM-YYYY HH:mm:ss") : null)
     const [ended, setEnded] = useState(props.values.ended ? dayjs(props.values.ended, "DD-MM-YYYY HH:mm:ss") : null)
-    const [image_url, setImage_url] = useState(null)
-    // console.log(props.values.started)
-    // console.log(props)
-    // console.log(started)
-    // let a = moment(started.$d)
-    // // let a = moment('2022.09.16', 'YYYY.MM.DD')
-    // console.log(a)
-    // console.log(a.isValid())
-    // console.log(started)
-
-    // console.log("current moment")
-    // let b = moment()
-    // console.log(b)
-
-    // console.log("comparing...")
-    // console.log(a.isAfter(b))
-    
+    const [image_url, setImage_url] = useState(null)    
+    const [selectedImages, setSelectedImages] = useState([])
     
     const [ startedError, setStartedError ] = useState("")
     const [ endedError, setEndedError ] = useState("")
@@ -99,8 +89,12 @@ function AuctionCreationForm(props){
     }
 
     const handleImage = (e) => {
+        console.log(e.target.files)
         setImage_url(e.target.files);
         props.setFieldValue('image_url', e.target.files);
+        let newImages = Array.from(e.target.files).map((file)=> {return file.name})
+        console.log(newImages)
+
     }
 
     //check dates
@@ -131,13 +125,15 @@ function AuctionCreationForm(props){
                 })
         }
         fetchCountries()
+
+        setInvalidDates(true)
+        setInvalidStartedDate(true)
     }, []);
 
     useEffect(() => {
         
     }, [ startedError, endedError ]);
 
-    console.log(props.getFieldProps('categories'))
 
     return(
         <Container>
@@ -342,6 +338,13 @@ function AuctionCreationForm(props){
                     <Form.Label column xs={3}>Επιλογή Εικόνας: </Form.Label>
                     <Col>
                         <FormControl type="file" multiple onChange={handleImage}/>
+                        <Chip
+                        label="Custom delete icon"
+                        onClick={handleClick}
+                        onDelete={handleDelete}
+                        deleteIcon={<DeleteIcon />}
+                        variant="outlined"
+                        />
                     </Col>
                 </Form.Group>
                 <Button variant="primary" type="submit">
