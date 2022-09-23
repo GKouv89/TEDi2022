@@ -8,6 +8,8 @@ from rest_framework import status
 from base.models import MyUser
 from auctions.models import Item
 
+import time
+
 # Create your views here.
 class MatrixFactorization():
     def __init__(self):
@@ -71,13 +73,13 @@ class MatrixFactorization():
         R_new = np.dot(self.V, self.F)
         threshold = 1.3
         for item in self.items:
-            if item.status == Item.RUNNING:
-                i_index = self.item_dict[item.id]
-                for user in self.users:
-                    u_index = self.user_dict[user.id]
-                    if self.R[u_index][i_index] == 0 and R_new[u_index][i_index] > threshold:
-                        item.recommended_to.add(user)
-                item.save()
+            # if item.status == Item.RUNNING:
+            i_index = self.item_dict[item.id]
+            for user in self.users:
+                u_index = self.user_dict[user.id]
+                if self.R[u_index][i_index] == 0 and R_new[u_index][i_index] > threshold:
+                    item.recommended_to.add(user)
+            item.save()
         for user in self.users:
             print('For user ', user.username)
             print('Recommended ', user.recommended_items.all())
@@ -85,10 +87,19 @@ class MatrixFactorization():
 
 class FactorizeView(APIView):
     def post(self, request):
+        start_time = time.time()
         instance = MatrixFactorization()
+        end_time = time.time()
+        print('Initialization: ', end_time - start_time)
         print(instance.R)
+        start_time = time.time()
         instance.factorize(k=3, eta=0.001)
+        end_time = time.time()
+        print('Factorization: ', end_time - start_time)
         new_R = np.dot(instance.V, instance.F)
-        print(np.dot(instance.V, instance.F))
+        print(new_R)
+        start_time = time.time()
         instance.make_recommendations()
+        end_time = time.time()
+        print('Recommendation creation: ', end_time - start_time)
         return Response(status=status.HTTP_200_OK)
