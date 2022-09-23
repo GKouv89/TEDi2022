@@ -50,17 +50,43 @@ export default function ItemPage(){
     const [data, setData] = useState(null)
     const [openDialog, setOpenDialog] = useState(false)
     const [openModal, setOpenModal] = useState(false)
+    const [visited, setVisited] = useState(false)
+
+    const visitAuction = () => {
+        let headers
+        if(localStorage.getItem('token')){
+            console.log('token exists')
+            headers = { 
+                'Authorization': `Token ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        }else{
+            console.log('token does not exist')
+            headers = { 
+                'Content-Type': 'application/json'
+            }
+        }
+        axios.post(`https://localhost:8000/auctions/${data.id}/visitors/`, {}, {headers})
+            .then((response) => console.log(response))
+            .then(() => setVisited(true))
+            .catch((error) => console.log(error))
+    }
 
     const fetchData = () => {
         const headers = {
             'Content-Type': 'application/json',
         }
         axios.get(`https://localhost:8000/auctions/${auctionid}/`, {headers})
-            .then((response) => {console.log(response.data); setData(response.data); setLoaded(true) })
+            .then((response) => {console.log(response.data); setData(response.data); setLoaded(true);})
             .catch((err) => console.log(err))
     }
 
     useEffect(() => fetchData(), [loaded])
+    useEffect(() => {
+        if(data !== null & !visited){
+            visitAuction()
+        }
+    }, [data, visited])
 
     const { user } = useContext(AuthContext)
 
@@ -71,13 +97,10 @@ export default function ItemPage(){
 
     const tooltipWarning = () => {
         if(!user){
-            console.log('first')
             return "Συνδεθείτε για να πραγματοποιήσετε αυτή την ενέργεια"
         }else if(user == data.seller.username){
-            console.log('second')
             return "Ως πωλητής, δεν μπορείτε να υποβάλλετε προσφορές."
         }
-        console.log('third, user ', user)
         return ""
     }
 

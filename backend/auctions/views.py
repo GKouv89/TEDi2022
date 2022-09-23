@@ -184,3 +184,18 @@ class Categories(ListAPIView):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     pagination_class = None
+
+class VisitorsView(APIView):
+    authentication_classes = (TokenAuthentication,)
+
+    def get_object(self, auction_id):
+        return Item.objects.get(id=auction_id)
+
+    def post(self, request, auction_id):
+        user = request.user
+        if user.is_authenticated == True:
+            item = self.get_object(auction_id)
+            item.visitors.add(user)
+            item.save()
+        return Response(status=status.HTTP_200_OK)
+
