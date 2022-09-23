@@ -40,6 +40,11 @@ class Item(models.Model):
         related_name='visited_items',
     )
 
+    recommended_to = models.ManyToManyField(
+        'base.MyUser',
+        related_name='recommended_items',
+    )
+
     address = models.ForeignKey(
         'base.Address',
         on_delete = models.CASCADE,

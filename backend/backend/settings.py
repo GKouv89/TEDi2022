@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'base.apps.BaseConfig',
     'auctions.apps.AuctionsConfig',
+    'matrixFactorization.apps.MatrixfactorizationConfig',
     ######
     'corsheaders',
     'rest_framework',
