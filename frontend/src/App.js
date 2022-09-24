@@ -31,6 +31,7 @@ import ItemPage from './pages/Auctions/ItemPage'
 
 import '@fontsource/roboto/400.css';
 import MessagingPage from './pages/Messages/MessagingPage';
+import { RecommendedPage } from './pages/RecommendedPage';
 
 class App extends Component {
   render() {
@@ -58,6 +59,7 @@ class App extends Component {
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
                       <Route path="/messages" element={<MessagingPage />} />
+                      <Route path="/recommendations" element={<RecommendedPage />} />
                     </Route>
                     <Route path="/pending" element={<PendingPage />} />
                   </Route>

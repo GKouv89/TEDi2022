@@ -49,6 +49,7 @@ function AuctionSearch(){
                             </Grid>
                         <Grid item xs={4}></Grid>
                     </Grid>
+                    <Typography variant="h4" component="body1">Εναλλακτικά, δείτε προτεινόμενες για εσάς δημοπρασίες πατώντας <Link href="/recommendations">εδώ.</Link></Typography>
                 </Stack>
             </Stack>
         </>

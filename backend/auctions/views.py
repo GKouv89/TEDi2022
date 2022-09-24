@@ -199,3 +199,20 @@ class VisitorsView(APIView):
             item.save()
         return Response(status=status.HTTP_200_OK)
 
+class RecommendedItems(ListAPIView):
+    page_size = 10
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ItemSerializer
+
+    def get_queryset(self):
+        return self.request.user.recommended_items.all().order_by('id')
+
+    def list(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+
+

@@ -22,6 +22,11 @@ export default function IndexPage(){
                     Διαχείριση Δημοπρασιών
                 </Button>
             </Row>
+            <Row className="mt-3">
+                <Button size="lg" variant="primary" href="/recommendations">
+                    Προτεινόμενες Δημοπρασίες
+                </Button>
+            </Row>
         </Container>
     )
 }
