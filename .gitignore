@@ -6,4 +6,7 @@ backend/auctions/__pycache__/
 backend/auctions/management/commands/__pycache__/
 backend/matrixFactorization/__pycache__/
 backend/matrixFactorization/migrations/__pycache__/
+backend/myMessages/__pycache__/
+backend/myMessages/migrations/__pycache__/
 mediafiles/images/
+backend/items-*
