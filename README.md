@@ -11,6 +11,9 @@
 `$ cd backend
 $ python --noreload manage.py runserver_plus --cert-file ../cert.pem --key-file ../key.pem`
 
+ΠΡΟΣΟΧΗ: ΤΡΕΞΤΕ ΜΕ ΤΟ --noreload flag ΜΟΝΟ οταν έχετε τελειώσει με το debugging
+αλλιώς δεν θα επαναφορτώνεται άμεσα ο server και θα θέλει επανεκκίνηση
+
 # Εκκίνηση frontend
 `$ cd frontend
 $ npm start`
