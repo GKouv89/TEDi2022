@@ -16,7 +16,7 @@ from knox.auth import AuthToken, TokenAuthentication
 import datetime
 
 from .serializers import BidCreationSerializer, BidSerializer, CategorySerializer, ItemSerializer, ItemCreationSerializer
-from .models import Category, Item
+from .models import Category, Item, ItemImage
 
 # Create your views here.
 
@@ -213,6 +213,20 @@ class RecommendedItems(ListAPIView):
         if page is not None:
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
+
+class ImageView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def delete(self, request, image_id, item_id):
+        to_del_item = Item.objects.get(id=item_id)
+        to_del = ItemImage.objects.get(id=image_id)
+        if to_del_item==to_del.item and request.user == to_del.item.seller:
+            to_del.image.delete()
+            to_del.delete()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+        
 
 
 
