@@ -8,9 +8,9 @@
 τώρα εγκαταστάθηκε σωστά το authority και το certificate/κλειδί είναι έγκυρο
 
 # Εκκίνηση backend
-cd backend
-python manage.py runserver_plus --cert-file ../cert.pem --key-file ../key.pem
+`$ cd backend
+$ python --noreload manage.py runserver_plus --cert-file ../cert.pem --key-file ../key.pem`
 
 # Εκκίνηση frontend
-cd frontend
-npm start
+`$ cd frontend
+$ npm start`
