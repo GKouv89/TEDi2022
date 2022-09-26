@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import {Navbar, Container, Nav} from 'react-bootstrap'
 import LinkContainer from 'react-router-bootstrap/LinkContainer'
 import AuthContext from '../context/AuthContext';
@@ -7,6 +7,8 @@ import AuctionManagement from '../pages/Auctions/AuctionManagement';
 import WelcomePage from '../pages/WelcomePage';
 import { useNavigate } from "react-router-dom";
 import { Divider, Badge,Button } from '@mui/material'
+import { UnreadMessagesContext } from '../context/UnreadMessages';
+import axios from 'axios';
 
 function Header(){
     let {user} = useContext(AuthContext)
@@ -52,7 +54,23 @@ function NotLoggedInNav(){
 
 function LoggedInNav(){
     let {user, logoutUser, isAdmin, isPending} = useContext(AuthContext)
-    const newMessages = true; // hardcoded ATM, we'll have to figure out where this belongs
+    const { unread, setUnread} = useContext(UnreadMessagesContext);
+    useEffect(()=>{
+        //check if there is at least one unread message
+        if(user){
+            const headers = {
+                "Authorization": `Token ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            }
+            axios.get('https://localhost:8000/messages/inbox/unreadmessages/', {headers})  
+                .then((r)=> {
+                    console.log(r.data.unread)
+                    setUnread(r.data.unread)
+                })
+        }
+    }, [user])
+    
+
     return(
         <>
             <Nav>
@@ -70,7 +88,7 @@ function LoggedInNav(){
                         <Button href="/auctionmanagement" variant="text">
                             Οι δημοπρασίες μου
                         </Button>
-                        <Badge color="primary" overlap="rectangular" invisible={!newMessages} variant="dot">
+                        <Badge color="primary" overlap="rectangular" invisible={!unread} variant="dot">
                             {/* <LinkContainer to="/messages"> */}
                                 {/* <Nav.Link>Τα μηνύματά μου</Nav.Link> */}
                             {/* </LinkContainer> */}

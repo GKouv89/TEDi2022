@@ -5,7 +5,8 @@ import { useContext } from "react";
 
 export default function HomePage() {
     let {user} = useContext(AuthContext);
-    if(user) {
+    let {isPending} = useContext(AuthContext);
+    if(user && !isPending) {
         return <IndexPage/>
     } else {
         return <WelcomePage />

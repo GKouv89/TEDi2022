@@ -50,8 +50,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        #search if this address already exists in the database
-        #if there is nowhere to be found create a new one
         
         addr_data = validated_data.pop("Address")
         addr = Address.objects.create(**addr_data)
@@ -79,4 +77,4 @@ class MyUserSerializer(serializers.HyperlinkedModelSerializer):
 class MyUserMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MyUser
-        fields = ['username', 'id'] #ISWS NA EPISTREFEI MONO TO ONOMAAA???
+        fields = ['username']####

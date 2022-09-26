@@ -1,6 +1,6 @@
 import {Stack, Grid, Tabs, Tab, Typography, Button, TextField } from '@mui/material'
 import AuthContext from '../../context/AuthContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import {Badge, Paper, Table, TableContainer, TableHead, TableRow, TableCell, TableBody, Alert} from '@mui/material'
 import MyPagination from '../../components/MyPagination'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -10,38 +10,27 @@ import * as Yup from 'yup'
 import { Formik } from 'formik'
 import Form from 'react-bootstrap/Form'
 import { InputBase } from '@mui/material'
-
-const received = {
-    count: 3,
-    results: [
-        {sender: 'dimitris', subject: 'geia', date: '19-08-2022 07:28', read: true, body: "Τρία πουλάκια κάθονταν"},
-        {sender: 'dimitris', subject: 'antio', date: '19-08-2022 07:29', read: false, body: "Και πλέκανε πουλόβερ"},
-        {sender: 'marika', subject: 'iaso kokla', date: '18-09-2022 18:09', read: true, body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam aliquam, urna ut pellentesque tincidunt, felis urna interdum enim, eget accumsan nunc leo pulvinar odio. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Vestibulum at turpis et mi condimentum malesuada vitae eget eros. In et elit pretium, maximus risus nec, scelerisque nunc. Duis vel imperdiet ex. Curabitur aliquam est elit, quis sollicitudin leo lobortis sit amet. Duis aliquam lorem ut ante facilisis luctus. Nam eros justo, dignissim vel auctor eget, scelerisque vel magna. Sed bibendum volutpat risus ac tristique. Aenean egestas rhoncus augue id ornare. Nunc cursus vel tortor id lacinia. \
-        Cras placerat semper arcu, nec scelerisque lacus ultricies vitae. \
-        Vestibulum ullamcorper, purus et tempus accumsan, tortor nibh semper lectus, id ullamcorper justo metus a sapien. In pulvinar, ante vel molestie aliquet, sapien urna cursus quam, ut malesuada nisi justo ac dui. Etiam ac vestibulum eros. Nulla dignissim ultrices dolor. Nunc ante ipsum, faucibus vehicula leo eget, porttitor condimentum sem. Vivamus eu lacinia ipsum. Vivamus at tortor magna. Ut porta neque eu mauris efficitur, sed ornare lectus consequat. Praesent erat ante, malesuada in libero ut, porta gravida lacus. Mauris malesuada lacus a elit tempor placerat. Aliquam scelerisque ut augue quis bibendum. \
-        Pellentesque in euismod turpis. In et justo fringilla, blandit dolor sit amet, efficitur risus. Aenean sit amet laoreet arcu. Duis sollicitudin nisi dui, ut finibus tortor molestie quis. Aliquam facilisis eleifend sem ac volutpat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas et neque a ante feugiat efficitur. Donec et orci porttitor, porttitor augue vel, accumsan nunc. Nullam dignissim dui sit amet sem tincidunt gravida. Donec imperdiet, neque at dapibus pharetra, odio tortor ullamcorper sem, sed volutpat ex odio sed libero. Cras sodales tincidunt elit, et aliquet sem lacinia eu. \
-        Morbi aliquam nunc in dui faucibus mattis. Suspendisse sed tristique nulla. Suspendisse quis dui ut turpis pulvinar blandit quis sed nibh. Duis tristique consequat luctus. Sed risus libero, cursus at nunc ac, fringilla varius ex. Donec pellentesque lorem eget elit finibus, vel laoreet dolor venenatis. Nullam vitae quam sed dolor volutpat commodo. Ut purus massa, finibus sit amet consequat semper, vestibulum dictum lectus. Cras justo diam, convallis non dolor vitae, porttitor rhoncus erat. Ut fermentum semper laoreet. \
-        Phasellus mi turpis, dictum quis suscipit eu, rhoncus eget augue. Pellentesque molestie feugiat leo vel tincidunt. Curabitur pellentesque lobortis purus, vel tristique odio semper vitae. Nunc consequat, elit vitae semper convallis, mauris massa placerat felis, id tempus magna est id libero. Aliquam quis ipsum ac risus consectetur pretium. Nam pulvinar cursus libero, sit amet commodo eros varius et. Fusce posuere in nunc eu lobortis. Nulla efficitur mi eget diam luctus feugiat. Suspendisse condimentum ultricies purus et posuere. Vestibulum sagittis hendrerit iaculis. Suspendisse eget scelerisque felis, id volutpat eros. Nunc varius sem eget odio eleifend commodo. Curabitur varius, ex eget tristique gravida, diam ante vestibulum arcu, eu facilisis velit lectus eget elit. In hac habitasse platea dictumst. Mauris commodo dui at leo dictum, quis dapibus massa luctus. "}    
-    ]    
-}
-
-const sent = {
-    count: 3,
-    results: [
-        {receiver: 'dimitris', subject: 'kokle', date: '19-08-2022 07:30', read: true},
-        {receiver: 'dimitris', subject: 'pame volta', date: '19-08-2022 07:39', read: false},
-        {receiver: 'marika', subject: 'kane at ime plok', date: '18-09-2022 19:08', read: true}    
-    ]    
-}
+import axios from 'axios';
+import moment from 'moment';
+import { PaginationContext } from '../../context/PaginationContext'
+import { UnreadMessagesContext } from '../../context/UnreadMessages'
 
 function MessagePreview(props){
     const [type, setType] = useState(props.type)
 
+    let folder = getFolder(props.message)
+    let bold
+    if (folder === 'sent/') {
+        bold = false
+    } else {
+        bold = !props.message.read
+    }
+
     return(
         <TableRow onClick={() => {props.clickOnMessage(true, props.message)}}>
-            <TableCell sx={{fontSize: 'large', fontWeight: !props.message.read ? '900' : 'normal'}}>{type == 'Sent' ? `To ${props.message.receiver}` : props.message.sender}</TableCell>
-            <TableCell sx={{fontSize: 'large', fontWeight: !props.message.read ? '900' : 'normal'}} align="right">{props.message.subject}</TableCell>
-            <TableCell sx={{fontSize: 'large', fontWeight: !props.message.read ? '900' : 'normal'}} align="right">{props.message.date}</TableCell>
+            <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}}>{type == 'Sent' ? `To ${props.message.receiver.username}` : props.message.sender.username}</TableCell>
+            <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}} align="right">{props.message.subject}</TableCell>
+            <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}} align="right">{props.message.date}</TableCell>
         </TableRow>
     )
 }
@@ -51,19 +40,49 @@ function MessageFolder(props){
     const [folder, setFolder] = useState(props.value)
     const [data, setData] = useState(null)
     const [loaded, setLoaded] = useState(false)
-    
+    const { active, setActive,} = useContext(PaginationContext);
+    const { unread, setUnread} = useContext(UnreadMessagesContext);
+
+    const headers = {
+        "Authorization": `Token ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+    }
+    const d = {}
+    const url = 'https://localhost:8000/messages/'
+
     useEffect(() => {
-        setLoaded(false)
         setFolder(props.value)
+        setActive(1)
+
+        axios.get(url + 'inbox/unreadmessages/', {headers}, d)
+            .then((r)=> {
+                console.log(r.data.unread)
+                setUnread(r.data.unread)
+            })
     }, [props])
 
     useEffect(() => {
-        if(folder == 'Inbox') // replace with proper axios calls when API is ready
-            setData(received)
-        else
-            setData(sent)
-        setLoaded(true)
-    }, [folder])
+         
+        if(folder == 'Inbox') {
+            axios.get(url + 'inbox/'+ '?page=' + active, {headers}, d)
+            .then((r) => {
+                console.log(r.data)
+                setData(r.data)
+                setLoaded(true)
+                console.log(loaded)
+            })
+            .catch(() => {})
+        }else{
+            axios.get(url + 'sent/'+ '?page=' + active, {headers}, d) 
+            .then((r) => {
+                console.log(r.data)
+                setData(r.data)
+                setLoaded(true)
+            })
+            .catch(() => {})
+        }
+        
+    }, [folder, active])
 
     return(
         <>{
@@ -89,6 +108,39 @@ function MessageFolder(props){
     )
 }
 
+const isReceiver = (message) => {
+    let username = localStorage.getItem('username')
+    if(message.receiver.username === username) {
+        return true
+    }else {
+        return false
+    }
+}
+
+const getFolder = (message) => {
+    let folder 
+    let username = localStorage.getItem('username')
+    if(message.receiver.username === username) {
+        folder = "inbox/"
+    }else if (message.sender.username === username) {
+        folder = "sent/"
+    }
+    return folder
+} 
+
+const handleDeleteMessage = (message) => {
+    const url = 'https://localhost:8000/messages/'
+    let folder = getFolder(message)
+
+    axios.delete(url + folder + message.id + '/delete/',
+        {
+            headers: {
+                "Authorization": `Token ${localStorage.getItem('token')}`,
+                "Content-Type": "application/json"
+            }
+        })
+}
+
 function Message(props){
     return(
         <Grid container spacing={2}>
@@ -99,10 +151,10 @@ function Message(props){
                 <Typography variant="h2">{props.message.subject}</Typography>
             </Grid>
             <Grid item xs={2}>
-                <Button variant="outlined" startIcon={<DeleteIcon />}>Διαγραφή Μηνύματος</Button>
+                <Button variant="outlined" startIcon={<DeleteIcon />} onClick={()=>handleDeleteMessage(props.message)}>Διαγραφή Μηνύματος</Button>
             </Grid>
             <Grid item xs>
-                <Typography variant="button">{props.fromFolder == 'Inbox' ? `Από ${props.message.sender}`: `Πρός ${props.message.receiver}`}</Typography>
+                <Typography variant="button">{props.fromFolder == 'Inbox' ? `Από ${props.message.sender.username}`: `Πρός ${props.message.receiver.username}`}</Typography>
             </Grid>
             <Grid item xs>
                 <Typography variant="button">{props.message.date}</Typography>
@@ -134,8 +186,7 @@ const initialValues = {
 }
 
 function MessageCreation(props){
-    const [receiverExists, setReceiverExists] = useState(true) // After proper API call, in case receiver is invalid, we must let the sender know. controls visibility of alert.
-    // This can happen either after submit, or after leaving the receiver field (onBlur), an API call can be made in the background. 
+    const [receiverExists, setReceiverExists] = useState(true)  
 
     return(
         <>
@@ -147,6 +198,31 @@ function MessageCreation(props){
                         (values) => {
                             console.log('submitted')
                             console.log(values)
+                            let myobject = values
+                            let current_date = moment()._d
+                            myobject.date = current_date
+                            myobject.sender = { "username": localStorage.getItem('username')}
+                            myobject.receiver = { "username": myobject.receiver }
+                            console.log(myobject)
+
+                            axios.post(
+                                'https://localhost:8000/messages/sent/1/',
+                                myobject,
+                                {
+                                    headers: {
+                                        "Authorization": `Token ${localStorage.getItem('token')}`,
+                                        "Content-Type": "application/json"
+                                    }
+                                }
+                            )
+                            .then((r)=> {setReceiverExists(true)})
+                            .catch((e) => {
+                                if (e.response.status === 400) {
+                                    setReceiverExists(false)
+                                } else {
+                                    setReceiverExists(true)
+                                }
+                            })
                         }
                     }
                     initialValues={initialValues}
@@ -195,6 +271,7 @@ export default function MessagingPage(){
     const [messageViewing, setMessageViewing] = useState(false)
     const [currMessage, setCurrMessage] = useState(null)
     const [msgCreation, setMsgCreation] = useState(false)
+    const { unread, setUnread} = useContext(UnreadMessagesContext)
 
     const handleChange = (event, newValue) => {
         setTabName(newValue);
@@ -207,7 +284,23 @@ export default function MessagingPage(){
     const clickOnMessage = (boolval, msg) =>{
         setMessageViewing(boolval)
         setCurrMessage(msg)
-        msg.read = true // This will later make a PATCH API call.
+        
+        if(isReceiver(msg)) {   //if user views an inbox message check this message as read
+            let url = 'https://localhost:8000/messages/'
+            let folder = getFolder(msg)
+            const headers = {
+                "Authorization": `Token ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            }
+            axios.patch(url + folder + msg.id +'/', {}, {headers})
+            let d = {}
+            //check if there is at least one unread message
+            axios.get(url + 'inbox/unreadmessages/', {headers}, d)
+            .then((r)=> {
+                console.log(r.data.unread)
+                setUnread(r.data.unread)
+            })
+        }
     }
 
     const escapeMsgCreation = (newValue) => {

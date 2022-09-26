@@ -18,6 +18,7 @@ import HomePage from './pages/HomePage';
 import { AuthProvider } from './context/AuthContext';
 import { AlertProvider } from './context/VisibleAlert';
 import { PaginationProvider } from './context/PaginationContext';
+import { UnreadMessagesProvider } from './context/UnreadMessages';
 import PrivateRoute from './utils/PrivateRoute'
 import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
@@ -39,6 +40,7 @@ class App extends Component {
         <AlertProvider>
           <BrowserRouter>
             <AuthProvider>
+              <UnreadMessagesProvider>
               <SearchProvider>
                 <PaginationProvider>
                 <Header />
@@ -66,6 +68,7 @@ class App extends Component {
                 </Routes>
                 </PaginationProvider>
               </SearchProvider>
+              </UnreadMessagesProvider>
             </AuthProvider>
           </BrowserRouter>
         </AlertProvider>
