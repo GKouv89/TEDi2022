@@ -41,7 +41,7 @@ export function calcRemTime(ended){
 
 function ItemCard(props){
     return(
-        <Card>
+        <Card sx={{height: '100%'}}>
             <CardActionArea component={Link} to={`${props.data.id}`}>
                     {
                         props.loaded ? 

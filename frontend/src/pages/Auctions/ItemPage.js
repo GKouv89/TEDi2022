@@ -44,23 +44,79 @@ function MyCarousel(props){
     )
 }
 
+const createAndDownloadJSON = (data) => {
+    const dtdData = {
+        'id': data.id,
+        'name': data.name,
+        'category': data.category.map((cat) => (cat.name)),
+        'currently': data.currently,
+        'first_bid': data.first_bid,
+        'buy_price': data.buy_price,
+        'number_of_bids': data.number_of_bids,
+        'bids': (data.items_bids.map((bid) => ({'bidder': {'userID': bid.bidder.username, 'rating': bid.bidder.bidder_rating, 'location': bid.bidder.Address.address_name, 'country': bid.bidder.Address.Country}, 'time': bid.time, 'amount': bid.amount}))),
+        'location': data.address.address_name,
+        'country': data.address.Country,
+        'started': data.started,
+        'ends': data.ended,
+        'seller': {
+            'userID': data.seller.username,
+            'rating': data.seller.seller_rating
+        },
+        'description': data.description
+    }
+    let DTDdataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dtdData))
+    let downloadAnchorNode = document.createElement('a')
+    downloadAnchorNode.setAttribute("href", DTDdataStr)
+    let fileName = `item${data.id}.json`
+    downloadAnchorNode.setAttribute("download", fileName)
+    document.body.appendChild(downloadAnchorNode)
+    downloadAnchorNode.click()
+    downloadAnchorNode.remove()
+}
+
 export default function ItemPage(){
     let { auctionid } = useParams()
     const [loaded, setLoaded] = useState(false)
     const [data, setData] = useState(null)
     const [openDialog, setOpenDialog] = useState(false)
     const [openModal, setOpenModal] = useState(false)
+    const [visited, setVisited] = useState(false)
+
+    const visitAuction = () => {
+        let headers
+        if(localStorage.getItem('token')){
+            console.log('token exists')
+            headers = { 
+                'Authorization': `Token ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+            }
+        }else{
+            console.log('token does not exist')
+            headers = { 
+                'Content-Type': 'application/json'
+            }
+        }
+        axios.post(`https://localhost:8000/auctions/${data.id}/visitors/`, {}, {headers})
+            .then((response) => console.log(response))
+            .then(() => setVisited(true))
+            .catch((error) => console.log(error))
+    }
 
     const fetchData = () => {
         const headers = {
             'Content-Type': 'application/json',
         }
         axios.get(`https://localhost:8000/auctions/${auctionid}/`, {headers})
-            .then((response) => {console.log(response.data); setData(response.data); setLoaded(true) })
+            .then((response) => {console.log(response.data); setData(response.data); setLoaded(true);})
             .catch((err) => console.log(err))
     }
 
     useEffect(() => fetchData(), [loaded])
+    useEffect(() => {
+        if(data !== null & !visited){
+            visitAuction()
+        }
+    }, [data, visited])
 
     const { user } = useContext(AuthContext)
 
@@ -71,13 +127,12 @@ export default function ItemPage(){
 
     const tooltipWarning = () => {
         if(!user){
-            console.log('first')
             return "Συνδεθείτε για να πραγματοποιήσετε αυτή την ενέργεια"
         }else if(user == data.seller.username){
-            console.log('second')
             return "Ως πωλητής, δεν μπορείτε να υποβάλλετε προσφορές."
+        }else if(localStorage.getItem('isAdmin') == 'true'){
+            return "Ως διαχειριστής, δεν μπορείτε να υποβάλλετε προσφορές."
         }
-        console.log('third, user ', user)
         return ""
     }
 
@@ -148,16 +203,16 @@ export default function ItemPage(){
                                     </>
                                 : null
                             }
-                            <Grid item xs={6}>
+                            <Grid item xs={12}>
                                 <Typography variant="h6" component="h3">Περιγραφή:</Typography>                            
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12}>
                                 <Typography variant="body">{data.description}</Typography>                            
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={6} sx={{paddingTop: '2vh'}}>
                                 <Typography variant="h6" component="h3">Ημερομηνία αφετηρίας:</Typography>                            
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={6} sx={{paddingTop: '2vh'}}>
                                 <Typography variant="body">{data.started}</Typography>                            
                             </Grid>
                             <Grid item xs={6}>
@@ -167,21 +222,36 @@ export default function ItemPage(){
                                 <Typography variant="body">{data.ended}</Typography>                            
                             </Grid>
                             <Grid item xs={12}>
-                                <Typography>{calcRemTime(data.ended)}</Typography> 
+                                <Typography variant="h6" component="body1">{calcRemTime(data.ended)}</Typography> 
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} sx={{paddingTop: '2vh'}}>
                                 <Typography variant="h6" component="h3">Κατηγορίες</Typography>
                             </Grid>
                             <Grid item container justifyContent="center">
-                                {data.category.map((cat, idx) => <Grid key={idx} item xs={3}><Chip label={cat.name}/></Grid>)}
+                                {data.category.map((cat, idx) => <Grid key={idx} item><Chip label={cat.name}/></Grid>)}
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} sx={{paddingTop: '2vh'}}>
                                 <Tooltip title={tooltipWarning()}>
                                     <span>
                                         <Button onClick={() => setOpenDialog(true)} variant="contained" size="large" disabled={!user || data.seller.username == user}>Κάντε μία προσφορά</Button>
                                     </span>
                                 </Tooltip>
                             </Grid>
+                            {
+                                localStorage.getItem("isAdmin") == "true" ?
+                                    <>
+                                        <Grid item xs={12} sx={{paddingTop: '2vh'}}>
+                                            <Typography variant="h6" component="body1">Εξαγωγή πληροφοριών δημοπρασίας ως:</Typography>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Button>XML</Button>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <Button onClick={() => createAndDownloadJSON(data)}>JSON</Button>
+                                        </Grid>
+                                    </>
+                                : null
+                            }
                         </Grid>
                     </Grid>
                     <BidCreation name={data.name} currently={data.currently} open={openDialog} setOpenDialog={setOpenDialog} confirmation={confirmCreation}/>

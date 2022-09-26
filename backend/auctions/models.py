@@ -32,7 +32,17 @@ class Item(models.Model):
         'base.MyUser',
         through='Bid',
         through_fields=('item', 'bidder'),
-        related_name='bidded_items', # Clashes
+        related_name='bidded_items',
+    )
+
+    visitors = models.ManyToManyField(
+        'base.MyUser',
+        related_name='visited_items',
+    )
+
+    recommended_to = models.ManyToManyField(
+        'base.MyUser',
+        related_name='recommended_items',
     )
 
     address = models.ForeignKey(
