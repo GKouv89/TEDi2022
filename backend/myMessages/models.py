@@ -17,8 +17,8 @@ class Message(models.Model):
         on_delete = models.CASCADE,
         related_name = 'sender'
     )
-    sent_on = models.DateTimeField(null=True)
-    text = models.TextField(max_length=5000)
+    date = models.DateTimeField(null=True)
+    body = models.TextField(max_length=5000)
     subject = models.TextField(blank=True, null=True, max_length=30)
     InSent = models.BooleanField(default=1)     #concerns the sender
     InInbox = models.BooleanField(default=1)    #concerns the receiver
