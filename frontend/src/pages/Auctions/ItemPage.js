@@ -74,6 +74,22 @@ const createAndDownloadJSON = (data) => {
     downloadAnchorNode.remove()
 }
 
+const createAndDownloadXML = (id) => {
+    axios.get(`https://localhost:8000/auctions/${id}/xml/`)
+        .then((response) => {
+            console.log(response.data)
+            let DTDdataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(response.data)
+            let downloadAnchorNode = document.createElement('a')
+            downloadAnchorNode.setAttribute("href", DTDdataStr)
+            let fileName = `item${id}.xml`
+            downloadAnchorNode.setAttribute("download", fileName)
+            document.body.appendChild(downloadAnchorNode)
+            downloadAnchorNode.click()
+            downloadAnchorNode.remove()
+        })
+        .catch((err) => console.log(err))
+}
+
 export default function ItemPage(){
     let { auctionid } = useParams()
     const [loaded, setLoaded] = useState(false)
@@ -233,7 +249,7 @@ export default function ItemPage(){
                             <Grid item xs={12} sx={{paddingTop: '2vh'}}>
                                 <Tooltip title={tooltipWarning()}>
                                     <span>
-                                        <Button onClick={() => setOpenDialog(true)} variant="contained" size="large" disabled={!user || data.seller.username == user}>Κάντε μία προσφορά</Button>
+                                        <Button onClick={() => setOpenDialog(true)} variant="contained" size="large" disabled={!user || data.seller.username == user || localStorage.getItem('isAdmin') == true}>Κάντε μία προσφορά</Button>
                                     </span>
                                 </Tooltip>
                             </Grid>
@@ -244,7 +260,7 @@ export default function ItemPage(){
                                             <Typography variant="h6" component="body1">Εξαγωγή πληροφοριών δημοπρασίας ως:</Typography>
                                         </Grid>
                                         <Grid item xs={6}>
-                                            <Button>XML</Button>
+                                            <Button onClick={() => createAndDownloadXML(data.id)}>XML</Button>
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Button onClick={() => createAndDownloadJSON(data)}>JSON</Button>

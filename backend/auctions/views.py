@@ -7,8 +7,8 @@ from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FormParser
 from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
@@ -58,7 +58,51 @@ class ItemView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
+
+def createXMLFromItem(item, single=True):
+    if single:
+        atStart ="\t"
+    else:
+        atStart = "\t\t"
+    dataStr = "<Item ItemID=\"" + str(item.id) + "\">\n"
+    dataStr += atStart + "<Name>" + item.name + "</Name>\n"
+    dataStr += atStart + "<Currently>$" + str(item.currently) + "</Currently>\n"
+    dataStr += atStart + "<First_Bid>$" + str(item.first_bid) + "</First_Bid>\n"
+    if item.buy_price is not None:
+        dataStr += atStart + "<Buy_Price>$" + str(item.buy_price) + "</Buy_Price>\n"
+    dataStr += atStart + "<Number_of_Bids>$" + str(item.number_of_bids) + "</Number_of_Bids>\n"
+    if item.items_bids.all().count() != 0:
+        dataStr += atStart + "<Bids>\n"
+        for bid in item.items_bids.all():
+            dataStr += atStart + "\t<Bid>\n"
+            dataStr += atStart + "\t\t<Bidder Rating=\"" + str(bid.bidder.buyer_rating) + "\" UserID=\"" + str(bid.bidder.username) + "\">\n"
+            if bid.bidder.Address.address_name is not None:
+                dataStr += atStart + "\t\t\t<Location>" + bid.bidder.Address.address_name + "</Location>\n"
+            dataStr += atStart + "\t\t\t<Country>" + bid.bidder.Address.Country + "</Country>\n"
+            dataStr += atStart + "\t\t</Bidder>\n"
+            dataStr += atStart + "\t\t<Time>" + str(bid.time) + "</Time>\n"
+            dataStr += atStart + "\t\t<Amount>$" + str(bid.amount) + "</Amount>\n"
+            dataStr += atStart + "\t</Bid>\n"
+        dataStr += atStart + "</Bids>\n"
+    if item.address.address_name is not None:
+        dataStr += atStart + "<Location>" + item.address.address_name + "</Location>\n"
+    dataStr += atStart + "<Country>" + item.address.Country + "</Country>\n"
+    dataStr += atStart + "<Started>" + str(item.started) + "</Started>\n"
+    dataStr += atStart + "<Ends>" + str(item.ended) + "</Ends>\n"
+    dataStr += atStart + "<Seller Rating=\"" + str(item.seller.seller_rating) + "\" UserID=\"" + item.seller.username + "\" />\n"
+    dataStr += atStart + "<Description>" + item.description + "</Description>\n"
+    dataStr += "</Item>"
+    return dataStr
+
+class ItemXMLView(RetrieveAPIView):
+    authentication_classes = (TokenAuthentication,)
+    perimission_classes = (IsAuthenticatedOrReadOnly, IsAdminUser,)
+
+    def get(self, request, item_id):
+        item = Item.objects.get(id=item_id)
+        response = createXMLFromItem(item)
+        return Response(response, status=status.HTTP_200_OK)
+
 class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticatedOrReadOnly, )
