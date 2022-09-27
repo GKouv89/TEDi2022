@@ -67,7 +67,11 @@ def createXMLFromItem(item, single=True):
     else:
         atStart = "\t\t"
         dataStr = "\t<Item ItemID=\"" + str(item.id) + "\">\n"
-    dataStr += atStart + "<Name>" + item.name + "</Name>\n"
+    escName = item.name.replace('&', '&amp;')
+    dataStr += atStart + "<Name>" + escName + "</Name>\n"
+    for category in item.category.all():
+        escCategory = category.name.replace('&', '&amp;')
+        dataStr += atStart + "<Category>" + escCategory + "</Category>\n"
     dataStr += atStart + "<Currently>$" + str(item.currently) + "</Currently>\n"
     dataStr += atStart + "<First_Bid>$" + str(item.first_bid) + "</First_Bid>\n"
     if item.buy_price is not None:
@@ -79,20 +83,25 @@ def createXMLFromItem(item, single=True):
             dataStr += atStart + "\t<Bid>\n"
             dataStr += atStart + "\t\t<Bidder Rating=\"" + str(bid.bidder.buyer_rating) + "\" UserID=\"" + str(bid.bidder.username) + "\">\n"
             if bid.bidder.Address.address_name is not None:
-                dataStr += atStart + "\t\t\t<Location>" + bid.bidder.Address.address_name + "</Location>\n"
-            dataStr += atStart + "\t\t\t<Country>" + bid.bidder.Address.Country + "</Country>\n"
+                escLoc = bid.bidder.Address.address_name.replace('&', '&amp;')
+                dataStr += atStart + "\t\t\t<Location>" + escLoc + "</Location>\n"
+            escCountry = bid.bidder.Address.Country.replace('&', '&amp;')
+            dataStr += atStart + "\t\t\t<Country>" + escCountry + "</Country>\n"
             dataStr += atStart + "\t\t</Bidder>\n"
             dataStr += atStart + "\t\t<Time>" + str(bid.time) + "</Time>\n"
             dataStr += atStart + "\t\t<Amount>$" + str(bid.amount) + "</Amount>\n"
             dataStr += atStart + "\t</Bid>\n"
         dataStr += atStart + "</Bids>\n"
     if item.address.address_name is not None:
-        dataStr += atStart + "<Location>" + item.address.address_name + "</Location>\n"
-    dataStr += atStart + "<Country>" + item.address.Country + "</Country>\n"
+        escLoc = item.address.address_name.replace('&', '&amp;')
+        dataStr += atStart + "<Location>" + escLoc + "</Location>\n"
+    escCountry = item.address.Country.replace('&', '&amp;')
+    dataStr += atStart + "<Country>" + escCountry + "</Country>\n"
     dataStr += atStart + "<Started>" + str(item.started) + "</Started>\n"
     dataStr += atStart + "<Ends>" + str(item.ended) + "</Ends>\n"
     dataStr += atStart + "<Seller Rating=\"" + str(item.seller.seller_rating) + "\" UserID=\"" + item.seller.username + "\" />\n"
-    dataStr += atStart + "<Description>" + item.description + "</Description>\n"
+    escDesc = item.description.replace('&', '&amp;')
+    dataStr += atStart + "<Description>" + escDesc + "</Description>\n"
     if single:
         dataStr += "</Item>\n"
     else:

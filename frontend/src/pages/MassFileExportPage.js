@@ -15,7 +15,6 @@ import axios from 'axios'
 const createAndDownloadXML = (limit, offset, number) => {
     axios.get(`https://localhost:8000/auctions/xml/?limit=${limit}&offset=${offset}`)
         .then((response) => {
-            // console.log(response.data)
             let DTDdataStr = "data:text/xml;charset=utf-8," + encodeURIComponent(response.data)
             let downloadAnchorNode = document.createElement('a')
             downloadAnchorNode.setAttribute("href", DTDdataStr)
