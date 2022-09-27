@@ -33,6 +33,7 @@ class Command(BaseCommand):
                     description = "abc"
                 user = users[randrange(user_count)]
                 new_item = Item.objects.create(name=name, first_bid=first_bid, currently=currently, description=description, seller=user, address=address, started=start_date, ended=end_date)
+                new_item.number_of_bids = int(item.find('Number_of_Bids').text)                
                 new_item.save()
                 for category in all_categories:
                     category_object, _ = Category.objects.get_or_create(name=category)
