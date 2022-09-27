@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FormParser
 from drf_nested_forms.parsers import NestedMultiPartParser
@@ -62,9 +63,10 @@ class ItemView(APIView):
 def createXMLFromItem(item, single=True):
     if single:
         atStart ="\t"
+        dataStr = "<Item ItemID=\"" + str(item.id) + "\">\n"
     else:
         atStart = "\t\t"
-    dataStr = "<Item ItemID=\"" + str(item.id) + "\">\n"
+        dataStr = "\t<Item ItemID=\"" + str(item.id) + "\">\n"
     dataStr += atStart + "<Name>" + item.name + "</Name>\n"
     dataStr += atStart + "<Currently>$" + str(item.currently) + "</Currently>\n"
     dataStr += atStart + "<First_Bid>$" + str(item.first_bid) + "</First_Bid>\n"
@@ -91,7 +93,10 @@ def createXMLFromItem(item, single=True):
     dataStr += atStart + "<Ends>" + str(item.ended) + "</Ends>\n"
     dataStr += atStart + "<Seller Rating=\"" + str(item.seller.seller_rating) + "\" UserID=\"" + item.seller.username + "\" />\n"
     dataStr += atStart + "<Description>" + item.description + "</Description>\n"
-    dataStr += "</Item>"
+    if single:
+        dataStr += "</Item>\n"
+    else:
+        dataStr += "\t</Item>\n"
     return dataStr
 
 class ItemXMLView(RetrieveAPIView):
@@ -102,6 +107,26 @@ class ItemXMLView(RetrieveAPIView):
         item = Item.objects.get(id=item_id)
         response = createXMLFromItem(item)
         return Response(response, status=status.HTTP_200_OK)
+
+class LargeResultsSetPagination(LimitOffsetPagination):
+    max_limit = 500
+
+class ItemsXMLView(ListAPIView):
+    authentication_classes = (TokenAuthentication,)
+    perimission_classes = (IsAuthenticatedOrReadOnly, IsAdminUser,)
+    queryset = Item.objects.all().order_by('id')
+    pagination_class = LargeResultsSetPagination
+
+    def get(self, request):
+        page = self.paginate_queryset(self.get_queryset())
+        if page is not None:
+            response = "<Items>\n"            
+            for item in page:
+                print(item.id)
+                itemXML = createXMLFromItem(item, single=False)
+                response += itemXML
+            response += "</Items>"
+            return Response(response, status=status.HTTP_200_OK)
 
 class AllItems(ListCreateAPIView):
     authentication_classes = (TokenAuthentication,)
@@ -153,6 +178,11 @@ class AllItems(ListCreateAPIView):
                 item.category.add(category)
             return Response(status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ItemsForJSONView(ListAPIView):
+    queryset = Item.objects.all().order_by('id')
+    pagination_class = LargeResultsSetPagination
+    serializer_class = ItemSerializer
 
 class SellersItems(ListAPIView):
     serializer_class = ItemSerializer

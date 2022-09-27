@@ -18,14 +18,26 @@ export default function IndexPage(){
                 </Button>
             </Row>
             <Row className="mt-3">
-                <Button size="lg" variant="primary" href="/auctionmanagement">
-                    Διαχείριση Δημοπρασιών
-                </Button>
+                {localStorage.getItem('isAdmin') == 'true' ? 
+                    <Button size="lg" variant="primary" href="/admin">
+                        Διαχείριση Χρηστών
+                    </Button>
+                :
+                    <Button size="lg" variant="primary" href="/auctionmanagement">
+                        Διαχείριση Δημοπρασιών
+                    </Button>
+                }
             </Row>
             <Row className="mt-3">
-                <Button size="lg" variant="primary" href="/recommendations">
-                    Προτεινόμενες Δημοπρασίες
-                </Button>
+                {localStorage.getItem('isAdmin') == 'true' ? 
+                    <Button size="lg" variant="primary" href="/massexport">
+                        Εξαγωγή Δεδομένων Δημοπρασίων
+                    </Button>
+                :
+                    <Button size="lg" variant="primary" href="/recommendations">
+                        Προτεινόμενες Δημοπρασίες
+                    </Button>
+                }
             </Row>
         </Container>
     )

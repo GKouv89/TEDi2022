@@ -33,6 +33,7 @@ import ItemPage from './pages/Auctions/ItemPage'
 import '@fontsource/roboto/400.css';
 import MessagingPage from './pages/Messages/MessagingPage';
 import { RecommendedPage } from './pages/RecommendedPage';
+import { MassFileExportPage } from './pages/MassFileExportPage';
 
 class App extends Component {
   render() {
@@ -54,6 +55,7 @@ class App extends Component {
                   <Route element={<PrivateRoute />}>
                     <Route element={<AdminRoute />}>
                       <Route path="/admin" element={<AdminPage />}/>
+                      <Route path="/massexport" element={<MassFileExportPage />} />
                     </Route>
                     <Route element={<ApprovedUserRoute />}>
                       <Route path="/index" element={<IndexPage />}/>
