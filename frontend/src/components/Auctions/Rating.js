@@ -22,13 +22,12 @@ function MyStar(props){
     )
 }
 
-export default function Rating(){
-    const [rating, setRating] = useState(0)
+export default function Rating(props){
 
     return(
         <>
             {
-                [...Array(5).keys()].map((number) => <MyStar key={number} value={number + 1} setRating={setRating} rating={rating}/>)
+                [...Array(5).keys()].map((number) => <MyStar key={number} value={number + 1} setRating={props.setRating} rating={props.rating}/>)
             }
         </>
     )

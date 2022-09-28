@@ -4,6 +4,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
 import Rating from './Rating'
 
@@ -96,6 +97,9 @@ function InterfaceForManagableAuctions(props){
 }
 
 function InterfaceForAcquiredAuctions(props){
+    const firstRating = props.item.rating
+    const [rating, setRating] = useState(props.item.rating)
+
     return(
         <>
             <ListGroup.Item>
@@ -112,16 +116,18 @@ function InterfaceForAcquiredAuctions(props){
                     :
                         ' τον αγοραστή: '
                 }
-                <Rating />
+                <Rating rating={rating} setRating={setRating}/>
             </ListGroup.Item>
             <ListGroup.Item>
-                <Button>Υποβολή Αξιολόγησης</Button>
+                <Button disabled={firstRating !== 0} onClick={() => props.callback(props.item.id, rating)}>Υποβολή Αξιολόγησης</Button>
             </ListGroup.Item>
         </>
     )
 }
 
 export function ItemAccordion(props){
+    console.log(props)
+    console.log(typeof props.ratingCallback)
     return(
         <>
             <Accordion>
@@ -155,7 +161,7 @@ export function ItemAccordion(props){
                                     <></>
                                 }
                                 {
-                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} callback={props.deleteCallback}/> : <InterfaceForAcquiredAuctions item={item} case={props.type} />
+                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} callback={props.deleteCallback}/> : <InterfaceForAcquiredAuctions item={item} case={props.type} callback={props.ratingCallback}/>
                                 }
                             </ListGroup>
                         </AccordionBody>

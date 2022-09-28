@@ -18,6 +18,22 @@ export default function AuctionRating(){
             .catch((err) => console.log(err))
     }
 
+    const rate = (id, rating) => {
+        const headers = {
+            'Authorization': `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+        const data = {
+            'rating': rating
+        }
+        axios.patch(`https://localhost:8000/auctions/${localStorage.getItem('username')}/bought/${id}/`, data, { headers })
+            .then((response) => {
+                console.log(response)
+                window.location.reload(false);
+            })
+            .catch((err) => console.log(err))
+    }
+
     useEffect(() => fetchData(), [])
     useEffect(() => {items !== null && setLoaded(true)}, [items])
 
@@ -29,7 +45,7 @@ export default function AuctionRating(){
             </Breadcrumbs>
             <Typography sx={{paddingBottom: '2vh'}} variant="h1">Αξιολόγηση Αγορασθέντων Δημοπρασιών</Typography>
             {
-                loaded ? <ItemAccordion items={items} case={'rating'} type={'bought'}/> : null
+                loaded ? <ItemAccordion items={items} case={'rating'} type={'bought'} ratingCallback={rate}/> : null
             }
         </>
     )
