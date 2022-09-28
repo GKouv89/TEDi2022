@@ -42,6 +42,8 @@ export default function AdminPage(){
 
     useEffect(() => {fetchData()}, [loaded])
 
+    useEffect(() => setActive(1), [])
+
     useEffect(() => {
         console.log("active is " + active)
         axios.get('https://localhost:8000/users/?page=' + active, { headers })

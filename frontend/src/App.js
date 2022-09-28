@@ -46,8 +46,8 @@ class App extends Component {
           <BrowserRouter>
             <AuthProvider>
               <UnreadMessagesProvider>
-              <SearchProvider>
                 <PaginationProvider>
+                  <SearchProvider>
                   <EditAuctionProvider>
                 <Header />
                 <Routes>
@@ -77,8 +77,8 @@ class App extends Component {
                   <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
                 </Routes>
                 </EditAuctionProvider>
-                </PaginationProvider>
-              </SearchProvider>
+                </SearchProvider>
+              </PaginationProvider>
               </UnreadMessagesProvider>
             </AuthProvider>
           </BrowserRouter>

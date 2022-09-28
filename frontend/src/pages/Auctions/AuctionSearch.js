@@ -11,7 +11,7 @@ import { Breadcrumbs, Link, Typography } from '@mui/material'
 import { SearchContext } from '../../context/SearchContext'
 
 function AuctionSearch(){
-    const {fetchData, data, count, loaded, paginationCallback} = useContext(SearchContext)
+    const {fetchData, data, count, loaded} = useContext(SearchContext)
 
     useEffect(() => {fetchData(1)}, [])
 
@@ -45,7 +45,7 @@ function AuctionSearch(){
                     <Grid container justifyContent="center">
                         <Grid item xs={4}></Grid>
                             <Grid item xs={2}>
-                                <MyPagination count={count} callback={paginationCallback}/>
+                                <MyPagination count={count}/>
                             </Grid>
                         <Grid item xs={4}></Grid>
                     </Grid>

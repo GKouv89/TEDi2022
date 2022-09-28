@@ -60,7 +60,7 @@ function AuctionManagement(){
             .then((response) => {
                 console.log(response.data)
                 console.log(response.data.results)
-                setPageCount(Math.ceil(response.data.count/page_size))
+                // setPageCount(Math.ceil(response.data.count/page_size))
                 setItems(response.data.results)
             })
             .catch(err => console.log(err))
@@ -81,7 +81,8 @@ function AuctionManagement(){
 
             </Container>
             <ItemAccordion items={Items} case={'management'} deleteCallback={handleDelete}/>            
-            <MyPagination count={page_count} />
+            {page_count !== 0 ? <MyPagination count={page_count} /> : null }
+            {/* {page_count !== 0 ? <MyPagination2 count={page_count} /> : null } */}
         </>
     )
 }
