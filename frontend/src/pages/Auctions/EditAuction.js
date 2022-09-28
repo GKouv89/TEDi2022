@@ -103,7 +103,8 @@ function EditAuction() {
                             console.log(values.image_url)
                             createMyModelEntry(values)
                                 .then((res) => {
-                                    axios.patch(url, values,
+                                    console.log(res)
+                                    axios.patch(url, res,
                                         {
                                             headers: {
                                                 "Authorization": `Token ${localStorage.getItem('token')}`,
@@ -112,8 +113,8 @@ function EditAuction() {
                                         }
                                     )
                                     .then((response) => console.log(response))
-                                    // .then(() => setShow(true))
-                                    .catch((err) => console.log(err))
+                                    // // .then(() => setShow(true))
+                                    // .catch((err) => console.log(err))
                                 })
                         }
                     }}

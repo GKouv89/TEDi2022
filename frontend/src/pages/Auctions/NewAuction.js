@@ -73,6 +73,7 @@ export default function NewAuction(){
                         console.log(values)
                         createMyModelEntry(values)
                             .then((res) => {
+                                console.log(res)
                                 axios.post(
                                     'https://localhost:8000/auctions/',
                                     res,

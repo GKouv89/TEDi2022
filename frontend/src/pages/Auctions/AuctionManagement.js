@@ -2,19 +2,24 @@ import { IoIosAddCircle } from "react-icons/io";
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { ItemAccordion } from "../../components/Auctions/ItemAccordion";
+import { PaginationContext } from "../../context/PaginationContext";
+import MyPagination from "../../components/MyPagination";
 
 function AuctionManagement(){
     const [Items, setItems] = useState([])
-    
+    const { active, setActive } = useContext(PaginationContext);
     const navigate = useNavigate();
     const handleGoToNewAuction = () => navigate("/NewAuction");
+    const [page_count, setPageCount] = useState(0)
+    const base_url = 'https://localhost:8000/auctions/'
+    const page_size=12
 
     const handleDelete = (id) => {
-        const url = 'https://localhost:8000/auctions/' + id + '/'
+        const url = base_url + id + '/'
 
         axios.delete(url,
             {
@@ -27,23 +32,39 @@ function AuctionManagement(){
             })
     }
 
+    const headers = {
+        "Authorization": `Token ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+    }
+
     //get all the items that this user sells
     useEffect(() => {
-        const headers = {
-            "Authorization": `Token ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-        }
         const data = {}
-        const url = `https://localhost:8000/auctions/${localStorage.getItem('username')}/`
+        const url = base_url + `${localStorage.getItem('username')}/`
         axios.get(url, {headers})
             .then((r) => {
-                console.log(r.data.results)
+                console.log(r)
                 setItems(r.data.results)
+                setPageCount(Math.ceil(r.data.count/page_size))
             })
             .catch(error => {
                 console.log(error.response)
             })
+        setActive(1)
     }, [])
+
+    useEffect(() => {
+        console.log("active is " + active)
+        const url = base_url + `${localStorage.getItem('username')}/`
+        axios.get(url + '?page=' + active, { headers })
+            .then((response) => {
+                console.log(response.data)
+                console.log(response.data.results)
+                setPageCount(Math.ceil(response.data.count/page_size))
+                setItems(response.data.results)
+            })
+            .catch(err => console.log(err))
+    } , [active])
   
 
     return(
@@ -59,7 +80,8 @@ function AuctionManagement(){
                 </Row>
 
             </Container>
-            <ItemAccordion items={Items} case={'management'} callback={handleDelete}/>            
+            <ItemAccordion items={Items} case={'management'} callback={handleDelete}/>      
+            <MyPagination count={page_count} />
         </>
     )
 }
