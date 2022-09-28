@@ -5,11 +5,13 @@ import axios from 'axios'
 import AuctionCreationForm, {schema}  from './AuctionForm';
 import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
 import { Container, Row } from 'react-bootstrap'
+import { useContext, useEffect } from "react";
+import { EditAuctionContext } from "../../context/EditAutctionContext"
 
-String.prototype.indexOfEnd = function(string) {
-    var io = this.indexOf(string);
-    return io == -1 ? -1 : io + string.length;
-}
+// String.prototype.indexOfEnd = function(string) {
+//     var io = this.indexOf(string);
+//     return io == -1 ? -1 : io + string.length;
+// }
 
 String.prototype.lastIndexOfEnd = function(string) {
     var io = this.lastIndexOf(string);
@@ -20,6 +22,7 @@ function EditAuction() {
     const location = useLocation();
     console.log(location.state)
     const bid = location.state.item;
+    console.log(bid)
     console.log(bid.items_images)
     bid.items_images.map((item) => {
         console.log(item.image)
@@ -43,12 +46,28 @@ function EditAuction() {
         }),
         started: bid.started,
         ended: bid.ended,
-        image_url: bid.items_images.map((item) => { //just the name of every picture
-            let index = item.image.lastIndexOfEnd('images/')
-            return item.image.slice(index)
-        })
+        image_url: []
+        // image_url: bid.items_images.map((item) => { //just the name of every picture
+        //     let index = item.image.lastIndexOfEnd('images/')
+        //     return item.image.slice(index)
+        // })
     }
 
+    const {editing, setEditing} = useContext(EditAuctionContext)
+    const {Images, setImages} = useContext(EditAuctionContext)
+    const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
+    const { itemID, setItemID } = useContext(EditAuctionContext)
+    setItemID(bid.id)
+
+    useEffect(()=> { 
+        setImages(bid.items_images.map((item) => { //just the name of every picture
+                let index = item.image.lastIndexOfEnd('images/')
+                return {"image_name": item.image.slice(index), "id": item.id}
+        }))
+        setLoadedImages(true)
+        setEditing(true)
+    }, [])
+    
     return(
         <Container>
             <Row>

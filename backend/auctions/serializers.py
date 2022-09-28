@@ -60,7 +60,7 @@ class ItemImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemImage
-        fields = ['image']
+        fields = ['image', 'id']
 
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'

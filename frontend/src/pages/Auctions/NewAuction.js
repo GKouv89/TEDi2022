@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import {useState, useContext } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import { Container, Form, Row, Col, Button, Placeholder, FormControl } from 'react-bootstrap';
@@ -11,7 +11,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
 import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
 import axios from 'axios';
-
+import { EditAuctionContext } from '../../context/EditAutctionContext';
 import AuctionCreationForm, {schema}  from './AuctionForm';
 
 const initialValues = {
@@ -59,6 +59,9 @@ export default function NewAuction(){
         return form_data
     }
     
+    const {editing, setEditing} = useContext(EditAuctionContext)
+    setEditing(false)
+
     return (
         <Container>
             <Row>

@@ -58,6 +58,11 @@ class ItemView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, auction_id):
+        item = self.get_object(auction_id)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 def createXMLFromItem(item, single=True):
     if single:

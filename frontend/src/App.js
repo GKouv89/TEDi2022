@@ -19,6 +19,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AlertProvider } from './context/VisibleAlert';
 import { PaginationProvider } from './context/PaginationContext';
 import { UnreadMessagesProvider } from './context/UnreadMessages';
+import { EditAuctionProvider } from './context/EditAutctionContext';
 import PrivateRoute from './utils/PrivateRoute'
 import ApprovedUserRoute from './utils/ApprovedUserRoute'
 import UnauthorizedPage from './pages/Warnings/WarningPage';
@@ -44,6 +45,7 @@ class App extends Component {
               <UnreadMessagesProvider>
               <SearchProvider>
                 <PaginationProvider>
+                  <EditAuctionProvider>
                 <Header />
                 <Routes>
                   <Route path="/" element={<HomePage />}/>
@@ -68,6 +70,7 @@ class App extends Component {
                   <Route path="/warning" element={<UnauthorizedPage />} />
                   <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
                 </Routes>
+                </EditAuctionProvider>
                 </PaginationProvider>
               </SearchProvider>
               </UnreadMessagesProvider>
