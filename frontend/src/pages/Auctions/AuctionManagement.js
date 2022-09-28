@@ -28,6 +28,20 @@ function AuctionManagement(){
     const handleGoToEditAuction = (item) => {
         navigate("/auctionmanagement/EditAuction", { state: {item} });
     }
+
+    const handleDelete = (id) => {
+        const url = 'https://localhost:8000/auctions/' + id + '/'
+
+        axios.delete(url,
+            {
+                headers: {
+                    "Authorization": `Token ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json"
+                }
+            }).then(() => {
+                window.location.reload(false);
+            })
+    }
     
     //get all the items that this user sells
     useEffect(() => {
@@ -117,6 +131,30 @@ function AuctionManagement(){
                                             </Button> 
                                             </span>
                                         </ConditionalWrapper>    
+
+                                        {' '}
+
+                                        <ConditionalWrapper condition={item.number_of_bids}
+                                            wrapper={children => (
+                                                <OverlayTrigger key={1} placement='top'
+                                                    overlay={
+                                                        <Tooltip id={'tooltip-bottom0'}>
+                                                        Δεν είνα επιτρεπτή η διαγραφή, υπάρχουν ήδη προσφορές για τη συγκεκριμένη δημοπρασία. 
+                                                        </Tooltip>
+                                                    }
+                                                >
+                                                    
+                                                    {children}
+                                                </OverlayTrigger>
+                                            )}
+                                        >
+                                            <span>
+                                            <Button variant="danger" size="sm" onClick={() => handleDelete(item.id)} disabled={item.number_of_bids ? true : false} >
+                                                Διαγραφή δημοπρασίας
+                                            </Button>
+                                            </span>
+                                        </ConditionalWrapper>
+
                                         </div>
                                     </ListGroup.Item>
                                 </ListGroup>
