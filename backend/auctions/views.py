@@ -56,8 +56,8 @@ class ItemView(APIView):
             return Response({"error": "auction should have started"}, status=status.HTTP_412_PRECONDITION_FAILED)
         serializer = ItemCreationSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
-            print(request.data)
-            print(serializer.validated_data)
+            # print(request.data)
+            # print(serializer.validated_data)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
