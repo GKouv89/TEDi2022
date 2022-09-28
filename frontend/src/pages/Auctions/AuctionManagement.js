@@ -13,6 +13,20 @@ function AuctionManagement(){
     const navigate = useNavigate();
     const handleGoToNewAuction = () => navigate("/NewAuction");
 
+    const handleDelete = (id) => {
+        const url = 'https://localhost:8000/auctions/' + id + '/'
+
+        axios.delete(url,
+            {
+                headers: {
+                    "Authorization": `Token ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json"
+                }
+            }).then(() => {
+                window.location.reload(false);
+            })
+    }
+
     //get all the items that this user sells
     useEffect(() => {
         const headers = {
@@ -45,7 +59,7 @@ function AuctionManagement(){
                 </Row>
 
             </Container>
-            <ItemAccordion items={Items} case={'management'}/>            
+            <ItemAccordion items={Items} case={'management'} callback={handleDelete}/>            
         </>
     )
 }

@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useContext } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import { Container, Form, Row, Col, Button, Placeholder, FormControl } from 'react-bootstrap';
@@ -14,6 +14,8 @@ import MultiAutocomplete from '../../components/Auctions/MultiAutocomplete'
 import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
 import axios from 'axios';
 import moment from 'moment';
+import { toUnitless } from '@mui/material/styles/cssUtils';
+import { EditAuctionContext } from '../../context/EditAutctionContext';
 
 export const schema = Yup.object().shape(
     {
@@ -64,7 +66,20 @@ const started_ended_validation = (started, ended) => {
 }
 
 const handleClick = () => {}
-const handleDelete = () => {}
+const handleDelete = (itemId, imageId) => {
+    const url = 'https://localhost:8000/auctions/' + itemId + '/images/' + imageId + '/'
+
+    if(imageId == -1) //if this is a newly inserted image do nothing
+        return
+    
+    axios.delete(url,
+        {
+            headers: {
+                "Authorization": `Token ${localStorage.getItem('token')}`,
+                "Content-Type": "application/json"
+            }
+        })
+}
 
 function AuctionCreationForm(props){
     const [invalidStartedDate, setInvalidStartedDate] = useState(false)
@@ -73,8 +88,13 @@ function AuctionCreationForm(props){
     const [started, setStarted] = useState(props.values.started ? dayjs(props.values.started, "DD-MM-YYYY HH:mm:ss") : null)
     const [ended, setEnded] = useState(props.values.ended ? dayjs(props.values.ended, "DD-MM-YYYY HH:mm:ss") : null)
     const [image_url, setImage_url] = useState(null)    
-    const [selectedImages, setSelectedImages] = useState([])
-    
+
+    const {editing, setEditing} = useContext(EditAuctionContext)
+    const {Images, setImages} = useContext(EditAuctionContext)
+    const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
+    const {itemID, setItemID} = useContext(EditAuctionContext)
+    console.log(Images)
+
     const [ startedError, setStartedError ] = useState("")
     const [ endedError, setEndedError ] = useState("")
     
@@ -92,10 +112,19 @@ function AuctionCreationForm(props){
         console.log(e.target.files)
         setImage_url(e.target.files);
         props.setFieldValue('image_url', e.target.files);
-        let newImages = Array.from(e.target.files).map((file)=> {return file.name})
-        console.log(newImages)
+        const new_Images = Array.from(e.target.files).map((file)=> {
+            return {"image_name": file.name, "id": -1}  //convention: id=-1, new images that need to be saven in the database
+        })
 
+        setLoadedImages(false)
+        let image_array = new_Images
+        Images.map((img) => {
+            image_array = [...image_array, img]
+        })
+        setImages(image_array)
+        setLoadedImages(true) 
     }
+
 
     //check dates
     useEffect(() => {
@@ -127,7 +156,7 @@ function AuctionCreationForm(props){
         fetchCountries()
 
         setInvalidDates(true)
-        setInvalidStartedDate(true)
+        setInvalidStartedDate(true)        
     }, []);
 
     useEffect(() => {
@@ -338,13 +367,7 @@ function AuctionCreationForm(props){
                     <Form.Label column xs={3}>Επιλογή Εικόνας: </Form.Label>
                     <Col>
                         <FormControl type="file" multiple onChange={handleImage}/>
-                        <Chip
-                        label="Custom delete icon"
-                        onClick={handleClick}
-                        onDelete={handleDelete}
-                        deleteIcon={<DeleteIcon />}
-                        variant="outlined"
-                        />
+                        {loadedImages && editing ? <ImageChips itemId={itemID} /> : null}
                     </Col>
                 </Form.Group>
                 <Button variant="primary" type="submit">
@@ -352,6 +375,52 @@ function AuctionCreationForm(props){
                 </Button>
             </Form>
         </Container>
+    )
+}
+
+
+
+function ImageChips(props) {
+    const {Images, setImages} = useContext(EditAuctionContext)
+    const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
+
+    const deleteImage = (imageName, imageId) => {
+        console.log(imageName)
+        console.log(imageId)
+        setLoadedImages(false)
+        let new_array = []
+        for (let i=0; i<Images.length; i++) {
+            console.log(i)
+            console.log(Images[i].id)
+            console.log(Images[i].image_name)
+            if (Images[i].id != imageId && !(Images[i].image_name == imageName)) {
+                console.log("PUSHING => " + i)
+                new_array.push(Images[i])
+            }
+        }
+        console.log(new_array)
+        setImages(new_array)
+        setLoadedImages(true)
+    }
+
+    let chips = Images.map((image, index) => {
+        return (
+            <Chip
+            label={image.image_name}
+            onClick={handleClick}
+            onDelete={()=>{
+                handleDelete(props.itemId, image.id)
+                deleteImage(image.image_name, image.id)
+            }}
+            deleteIcon={<DeleteIcon />}
+            variant="outlined"
+            />
+        )
+    })
+    return(
+        <>
+            {chips}
+        </>
     )
 }
 

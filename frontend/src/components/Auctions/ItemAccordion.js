@@ -67,7 +67,28 @@ function InterfaceForManagableAuctions(props){
                     Επεξεργασία δημοπρασίας
                 </Button> 
                 </span>
-            </ConditionalWrapper>    
+            </ConditionalWrapper>  
+            {' '}  
+            <ConditionalWrapper condition={props.item.number_of_bids}
+                wrapper={children => (
+                    <OverlayTrigger key={1} placement='top'
+                        overlay={
+                            <Tooltip id={'tooltip-bottom0'}>
+                            Δεν είνα επιτρεπτή η διαγραφή, υπάρχουν ήδη προσφορές για τη συγκεκριμένη δημοπρασία. 
+                            </Tooltip>
+                        }
+                    >
+                        
+                        {children}
+                    </OverlayTrigger>
+                )}
+            >
+                <span>
+                <Button variant="danger" size="sm" onClick={() => props.callback(props.item.id)} disabled={props.item.number_of_bids ? true : false} >
+                    Διαγραφή δημοπρασίας
+                </Button>
+                </span>
+            </ConditionalWrapper>
             </div>
         </ListGroup.Item>
     )
@@ -113,7 +134,7 @@ export function ItemAccordion(props){
                                     <></>
                                 }
                                 {
-                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} /> : null
+                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} callback={props.callback}/> : null
                                 }
                             </ListGroup>
                         </AccordionBody>
