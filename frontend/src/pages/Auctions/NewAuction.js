@@ -61,6 +61,7 @@ export default function NewAuction(){
     
     const {editing, setEditing} = useContext(EditAuctionContext)
     setEditing(false)
+    const [okToSend, setOkToSend] = useState(false)
 
     return (
         <Container>
@@ -69,6 +70,7 @@ export default function NewAuction(){
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
                         console.log('From formik: ', values.image_url)
+                        console.log(values)
                         createMyModelEntry(values)
                             .then((res) => {
                                 axios.post(
@@ -88,11 +90,8 @@ export default function NewAuction(){
                     }}
                     initialValues={initialValues}
                 >
-                    {/* { props => 
-                        (<AuctionCreationForm {...props}/>)
-                    } */}
                     { props => 
-                        (<AuctionCreationForm {...props}/>)
+                        (<AuctionCreationForm {...props} state={{okToSend, setOkToSend}}/>)
                     }
                 </Formik>
             </Row>
