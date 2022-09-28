@@ -60,7 +60,7 @@ function AuctionManagement(){
             .then((response) => {
                 console.log(response.data)
                 console.log(response.data.results)
-                setPageCount(Math.ceil(response.data.count/page_size))
+                // setPageCount(Math.ceil(response.data.count/page_size))
                 setItems(response.data.results)
             })
             .catch(err => console.log(err))

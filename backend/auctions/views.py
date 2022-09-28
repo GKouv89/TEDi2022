@@ -59,6 +59,7 @@ class ItemView(APIView):
         return Response(serializer.data)
     
     def patch(self, request, auction_id):
+        print(request.data)
         item = self.get_object(auction_id)
         # if item.status != Item.INACTIVE or (item.status == Item.RUNNING and item.number_of_bids > 0 ):
         if item.number_of_bids > 0 and item.status != Item.ACQUIRED:

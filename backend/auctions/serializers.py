@@ -115,6 +115,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
         return item
 
     def update(self, instance, validated_data):
+        print("UPDATEEEEE")
         print(instance)
         print(validated_data)
         # address_data = validated_data.pop('address')
