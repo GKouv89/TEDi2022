@@ -1,9 +1,12 @@
 import { useContext, createContext, useState, useRef, useEffect } from "react";
 import axios from 'axios';
+import { PaginationContext } from "./PaginationContext";
 
 export const SearchContext = createContext();
 
 export function SearchProvider({children}){
+    const { active, setActive} = useContext(PaginationContext)
+
     const base_url = 'https://localhost:8000/auctions/'
     const pageSize = 12; // Fixed number, same as backend
 
@@ -82,10 +85,12 @@ export function SearchProvider({children}){
             .catch(err => console.log(err))
     }
 
-    const paginationCallback = (pageNo) =>{
-        setLoaded(false)
-        fetchData(pageNo)
-    }
+    // const paginationCallback = (pageNo) =>{
+    //     setLoaded(false)
+    //     fetchData(pageNo)
+    // }
+
+    useEffect(() => {setLoaded(false); fetchData(active)}, [active])
 
     useEffect(() => fetchFilteredItems(), [checked])
     
@@ -112,7 +117,7 @@ export function SearchProvider({children}){
         queryCategories: queryCategories,
         fetchFilteredItems: fetchFilteredItems,
         fetchData: fetchData,
-        paginationCallback: paginationCallback,
+        // paginationCallback: paginationCallback,
         setLowerBound: setLowerBound,
         setUpperBound: setUpperBound
     }

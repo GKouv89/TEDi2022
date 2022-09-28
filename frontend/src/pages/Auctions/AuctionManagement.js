@@ -81,7 +81,8 @@ function AuctionManagement(){
 
             </Container>
             <ItemAccordion items={Items} case={'management'} deleteCallback={handleDelete}/>            
-            <MyPagination count={page_count} />
+            {page_count !== 0 ? <MyPagination count={page_count} /> : null }
+            {/* {page_count !== 0 ? <MyPagination2 count={page_count} /> : null } */}
         </>
     )
 }
