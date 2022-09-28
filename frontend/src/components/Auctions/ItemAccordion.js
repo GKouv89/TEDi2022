@@ -100,9 +100,9 @@ function InterfaceForAcquiredAuctions(props){
         <>
             <ListGroup.Item>
                 {props.case == 'bought' ?
-                        `Πωλητής: ${props.item.seller}`
+                        `Πωλητής: ${props.item.seller.username}`
                     :
-                        `Αγοράστηκε από: ${props.item.buyer}`
+                        `Αγοράστηκε από: ${props.item.buyer.username}`
                 }
             </ListGroup.Item>
             <ListGroup.Item>

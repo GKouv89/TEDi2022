@@ -1,37 +1,27 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
+import axios from 'axios'
+
 import { ItemAccordion } from "../../components/Auctions/ItemAccordion"
 import Breadcrumbs from '@mui/material/Breadcrumbs'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
-const items = [
-    {
-        'id': 17,
-        'name': 'Floor lamp',
-        'description': 'Floor lamp',
-        'started': '08-08-2022',
-        'ended': '08-09-2022',
-        'first_bid': 50,
-        'currently': 85.50,
-        'seller': 'Mom', // this might have to change to sth like seller.username
-        'buyer': 'Dad', // this might have to change seller.username
-        'category': [
-            {'name': 'ABC'},
-            {'name': 'DEF'},
-            {'name': 'GHI'},
-        ],
-        'address': {
-            'address_name': 'Yellow Cafe',
-            'Street_name': 'Mpellou',
-            'Street_number': '3',
-            'Postal_code': 'ABC 12',
-            'City': 'Athens',
-            'Country': 'Greece'
-        }
-    }
-]
-
 export default function BuyerRating(){
+    const [items, setItems] = useState(null)
+    const [loaded, setLoaded] = useState(false)
+
+    const fetchData = () => {
+        const headers = {
+            'Authorization': `Token ${localStorage.getItem('token')}`
+        }
+        axios.get(`https://localhost:8000/auctions/${localStorage.getItem('username')}/sold/`, { headers })
+            .then((response) => setItems(response.data.results))
+            .catch((err) => console.log(err))
+    }
+
+    useEffect(() => fetchData(), [])
+    useEffect(() => {items !== null && setLoaded(true)}, [items])
+
     return(
         <>
             <Breadcrumbs sx={{paddingLeft: '1vw', paddingTop: '1vh'}}>
@@ -39,7 +29,9 @@ export default function BuyerRating(){
                 <Typography variant="button">Αξιολόγηση Αγοραστών</Typography>
             </Breadcrumbs>
             <Typography sx={{paddingBottom: '2vh'}} variant="h1">Αξιολόγηση Αγοραστών Πωλημένων Δημοπρασιών</Typography>
-            <ItemAccordion items={items} case={'rating'} type={'sold'}/>
+            {
+                loaded ? <ItemAccordion items={items} case={'rating'} type={'sold'}/> : null
+            }
         </>
     )
 }

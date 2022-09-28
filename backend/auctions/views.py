@@ -22,7 +22,13 @@ from .models import Category, Item, ItemImage
 # Create your views here.
 
 def update_auctions_status():
-    Item.objects.filter(ended__lt=datetime.datetime.now()).update(status=Item.ACQUIRED)
+    acquired_items = Item.objects.filter(ended__lt=datetime.datetime.now())
+    for item in acquired_items:
+        if item.number_of_bids > 0:
+            highest_bid = item.items_bids.all().order_by('-amount').first()
+            item.buyer = highest_bid.bidder
+        item.status = Item.ACQUIRED
+        item.save()
     Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now()) & ~Q(status=Item.ACQUIRED)).update(status=Item.RUNNING)
 
 
@@ -38,6 +44,9 @@ class ItemView(APIView):
                 item.status = Item.RUNNING
                 item.save()
             elif item.ended < now:
+                if item.number_of_bids > 0:
+                    highest_bid = item.items_bids.all().order_by('-amount').first()
+                    item.buyer = highest_bid.bidder
                 item.status = Item.ACQUIRED
                 item.save()
             return item
@@ -220,6 +229,48 @@ class SellersItems(ListAPIView):
                 return self.get_paginated_response(serializer.data)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
+class SoldItems(ListAPIView):
+    serializer_class = ItemSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_queryset(self, username):
+        update_auctions_status()
+        user = MyUser.objects.get(username=username)
+        queryset = user.sold_items.all()
+        q = Q(status=Item.ACQUIRED) & ~Q(buyer=None)
+        queryset = queryset.filter(q)
+        return queryset
+
+    def list(self, request, username):
+        req_user = request.user # Only the seller can view these items
+        if req_user.username == username:
+            page = self.paginate_queryset(self.get_queryset(username))
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+class BoughtItems(ListAPIView):
+    serializer_class = ItemSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_queryset(self, username):
+        update_auctions_status()
+        user = MyUser.objects.get(username=username)
+        queryset = user.bought_items.all()
+        return queryset
+
+    def list(self, request, username):
+        req_user = request.user # Only the seller can view these items
+        if req_user.username == username:
+            page = self.paginate_queryset(self.get_queryset(username))
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
 class ItemsBids(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -234,6 +285,9 @@ class ItemsBids(ListAPIView):
                 item.save()
             elif item.ended < now:
                 item.status = Item.ACQUIRED
+                if item.number_of_bids > 0:
+                    highest_bid = item.items_bids.all().order_by('-amount').first()
+                    item.buyer = highest_bid.bidder
                 item.save()
             return item
 

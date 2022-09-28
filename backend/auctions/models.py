@@ -56,6 +56,17 @@ class Item(models.Model):
         on_delete=models.CASCADE,
         related_name='sold_items',
     )
+
+    buyer = models.ForeignKey(
+        'base.MyUser',
+        on_delete=models.CASCADE,
+        related_name='bought_items',
+        null = True,
+        blank = True,
+    )
+
+    rating = models.IntegerField(default=0)
+
     started = models.DateTimeField()
     ended = models.DateTimeField()
     description = models.TextField()
