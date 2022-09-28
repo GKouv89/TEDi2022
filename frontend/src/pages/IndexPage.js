@@ -28,6 +28,18 @@ export default function IndexPage(){
                     </Button>
                 }
             </Row>
+            {
+                localStorage.getItem('isAdmin') == 'false' ? 
+                <>
+                    <Row className="mt-3">
+                        <Button size="lg" variant="primary" href="/boughtitems">Αξιολόγηση Αγορών</Button>
+                    </Row>
+                    <Row className="mt-3">
+                        <Button size="lg" variant="primary" href="/solditems">Αξιολόγηση Αγοραστών</Button>
+                    </Row>
+                </>
+                : null
+            }
             <Row className="mt-3">
                 {localStorage.getItem('isAdmin') == 'true' ? 
                     <Button size="lg" variant="primary" href="/massexport">

@@ -59,7 +59,7 @@ function AuctionManagement(){
                 </Row>
 
             </Container>
-            <ItemAccordion items={Items} case={'management'} callback={handleDelete}/>            
+            <ItemAccordion items={Items} case={'management'} deleteCallback={handleDelete}/>            
         </>
     )
 }
