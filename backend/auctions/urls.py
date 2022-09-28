@@ -16,4 +16,5 @@ urlpatterns = [
     path('<str:username>/', views.SellersItems.as_view()),
     path('<str:username>/sold/', views.SoldItems.as_view()),
     path('<str:username>/bought/', views.BoughtItems.as_view()),
+    path('<str:username>/bought/<int:item_id>/', views.ItemRatingView.as_view()),
 ]

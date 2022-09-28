@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.parsers import FormParser
 from drf_nested_forms.parsers import NestedMultiPartParser
 from knox.auth import AuthToken, TokenAuthentication
@@ -250,6 +250,27 @@ class SoldItems(ListAPIView):
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+class ItemRatingView(UpdateAPIView):
+    serializer_class = ItemCreationSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_object(self, item_id):
+        return Item.objects.get(id=item_id)
+
+    def patch(self, request, username, item_id):
+        req_user = request.user
+        item = self.get_object(item_id)
+        if item.rating == 0 and username == item.buyer.username and req_user == item.buyer:
+            serializer = self.get_serializer(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                item.seller.seller_rating += request.data['rating']
+                item.seller.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_403_FORBIDDEN)    
 
 class BoughtItems(ListAPIView):
     serializer_class = ItemSerializer
