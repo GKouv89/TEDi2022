@@ -60,10 +60,13 @@ class ItemView(APIView):
     
     def patch(self, request, auction_id):
         item = self.get_object(auction_id)
-        if item.status != Item.INACTIVE:
+        # if item.status != Item.INACTIVE or (item.status == Item.RUNNING and item.number_of_bids > 0 ):
+        if item.number_of_bids > 0 and item.status != Item.ACQUIRED:
             return Response({"error": "auction should have started"}, status=status.HTTP_412_PRECONDITION_FAILED)
         serializer = ItemCreationSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
+            print(request.data)
+            print(serializer.validated_data)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

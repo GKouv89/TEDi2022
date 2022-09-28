@@ -69,9 +69,9 @@ const handleClick = () => {}
 const handleDelete = (itemId, imageId) => {
     const url = 'https://localhost:8000/auctions/' + itemId + '/images/' + imageId + '/'
 
-    if(imageId == -1) //if this is a newly inserted image do nothing
+    if(imageId == -1) {//if this is a newly inserted image delete it from state "image_url"////////////////////////
         return
-    
+    }
     axios.delete(url,
         {
             headers: {
@@ -93,7 +93,6 @@ function AuctionCreationForm(props){
     const {Images, setImages} = useContext(EditAuctionContext)
     const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
     const {itemID, setItemID} = useContext(EditAuctionContext)
-    console.log(Images)
 
     const [ startedError, setStartedError ] = useState("")
     const [ endedError, setEndedError ] = useState("")
@@ -109,11 +108,11 @@ function AuctionCreationForm(props){
     }
 
     const handleImage = (e) => {
+        props.state.setOkToSend(false)
         console.log(e.target.files)
         setImage_url(e.target.files);
-        props.setFieldValue('image_url', e.target.files);
         const new_Images = Array.from(e.target.files).map((file)=> {
-            return {"image_name": file.name, "id": -1}  //convention: id=-1, new images that need to be saven in the database
+            return {"image_name": file.name, "id": -1}  //convention: id=-1, new images that need to be saved in the database
         })
 
         setLoadedImages(false)
@@ -125,6 +124,23 @@ function AuctionCreationForm(props){
         setLoadedImages(true) 
     }
 
+    const deleteImageUrl = (imageName) => {
+        props.state.setOkToSend(false)
+        let new_image_url = []
+        for(let i=0; i<image_url.length; i++) {
+            if(image_url[i].name === imageName)
+                continue
+            new_image_url.push(image_url[i])
+        }
+        setImage_url(new_image_url)
+    }
+
+    useEffect(()=>{
+        if(image_url) {
+            props.state.setOkToSend(true)
+            props.setFieldValue('image_url', image_url);
+        }
+    }, [image_url])
 
     //check dates
     useEffect(() => {
@@ -367,7 +383,7 @@ function AuctionCreationForm(props){
                     <Form.Label column xs={3}>Επιλογή Εικόνας: </Form.Label>
                     <Col>
                         <FormControl type="file" multiple onChange={handleImage}/>
-                        {loadedImages && editing ? <ImageChips itemId={itemID} /> : null}
+                        {loadedImages && editing ? <ImageChips itemId={itemID} deleteCallback={deleteImageUrl} /> : null}
                     </Col>
                 </Form.Group>
                 <Button variant="primary" type="submit">
@@ -385,20 +401,13 @@ function ImageChips(props) {
     const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
 
     const deleteImage = (imageName, imageId) => {
-        console.log(imageName)
-        console.log(imageId)
         setLoadedImages(false)
         let new_array = []
         for (let i=0; i<Images.length; i++) {
-            console.log(i)
-            console.log(Images[i].id)
-            console.log(Images[i].image_name)
-            if (Images[i].id != imageId && !(Images[i].image_name == imageName)) {
-                console.log("PUSHING => " + i)
+            if (Images[i].id != imageId || !(Images[i].image_name == imageName)) {
                 new_array.push(Images[i])
             }
         }
-        console.log(new_array)
         setImages(new_array)
         setLoadedImages(true)
     }
@@ -411,6 +420,7 @@ function ImageChips(props) {
             onDelete={()=>{
                 handleDelete(props.itemId, image.id)
                 deleteImage(image.image_name, image.id)
+                props.deleteCallback(image.image_name)
             }}
             deleteIcon={<DeleteIcon />}
             variant="outlined"

@@ -5,7 +5,7 @@ import axios from 'axios'
 import AuctionCreationForm, {schema}  from './AuctionForm';
 import CreationConfirmation from '../../components/Auctions/CreationConfirmation'
 import { Container, Row } from 'react-bootstrap'
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { EditAuctionContext } from "../../context/EditAutctionContext"
 
 // String.prototype.indexOfEnd = function(string) {
@@ -20,16 +20,15 @@ String.prototype.lastIndexOfEnd = function(string) {
 
 function EditAuction() {
     const location = useLocation();
-    console.log(location.state)
     const bid = location.state.item;
     console.log(bid)
-    console.log(bid.items_images)
-    bid.items_images.map((item) => {
-        console.log(item.image)
-        console.log(item.image.lastIndexOfEnd('images/'))
-        let index = item.image.lastIndexOfEnd('images/')
-        console.log(item.image.slice(index))
-    })
+    // console.log(bid.items_images)
+    // bid.items_images.map((item) => {
+    //     console.log(item.image)
+    //     console.log(item.image.lastIndexOfEnd('images/'))
+    //     let index = item.image.lastIndexOfEnd('images/')
+    //     console.log(item.image.slice(index))
+    // })
     const initialValues = {
         name: bid.name,
         first_bid: bid.first_bid,
@@ -47,10 +46,6 @@ function EditAuction() {
         started: bid.started,
         ended: bid.ended,
         image_url: []
-        // image_url: bid.items_images.map((item) => { //just the name of every picture
-        //     let index = item.image.lastIndexOfEnd('images/')
-        //     return item.image.slice(index)
-        // })
     }
 
     const {editing, setEditing} = useContext(EditAuctionContext)
@@ -58,15 +53,41 @@ function EditAuction() {
     const {loadedImages, setLoadedImages} = useContext(EditAuctionContext)
     const { itemID, setItemID } = useContext(EditAuctionContext)
     setItemID(bid.id)
+    const [okToSend, setOkToSend] = useState(false)
 
     useEffect(()=> { 
-        setImages(bid.items_images.map((item) => { //just the name of every picture
+        setImages(bid.items_images.map((item) => {
                 let index = item.image.lastIndexOfEnd('images/')
                 return {"image_name": item.image.slice(index), "id": item.id}
         }))
         setLoadedImages(true)
         setEditing(true)
     }, [])
+
+    const createMyModelEntry = async (values) => {
+        let form_data = new FormData();
+        if (typeof values.image_url != 'string'){
+            for(let i = 0; i < values.image_url.length; i++){
+                form_data.append(`items_images[${i}][image]`, values.image_url[i], values.image_url[i].name);
+            }
+        }
+        form_data.append('name', values.name)
+        form_data.append('first_bid', values.first_bid)
+        form_data.append('buy_price', values.buy_price)
+        form_data.append('description', values.description)
+        form_data.append('address[address_name]', values.addressName)
+        form_data.append('address[Street_number]', values.streetNumber)
+        form_data.append('address[Street_name]', values.streetName)
+        form_data.append('address[Postal_code]', values.postalCode)
+        form_data.append('address[City]', values.city)
+        form_data.append('address[Country]', values.country)
+        for(let i = 0; i < values.categories.length; i++){
+            form_data.append(`categories[${i}]`, values.categories[i])            
+        }
+        form_data.append('started', values.started)
+        form_data.append('ended', values.ended)
+        return form_data
+    }
     
     return(
         <Container>
@@ -74,26 +95,33 @@ function EditAuction() {
                 <Formik
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
-                        const data = {}
-                        console.log(values)
-                        const url = 'https://localhost:8000/auctions/' + bid.id + '/'
-                        axios.patch(url, values,
-                            {
-                                headers: {
-                                    "Authorization": `Token ${localStorage.getItem('token')}`,
-                                    "Content-Type": "application/json"
-                                }
-                            }
-                        )
-                        .then((response) => console.log(response))
-                        // .then(() => setShow(true))
-                        .catch((err) => console.log(err))
-                       
+                        if (okToSend) {
+                            const data = {}
+                            // console.log(values)
+                            const url = 'https://localhost:8000/auctions/' + bid.id + '/'
+                            console.log(values)
+                            console.log(values.image_url)
+                            createMyModelEntry(values)
+                                .then((res) => {
+                                    console.log(res)
+                                    axios.patch(url, res,
+                                        {
+                                            headers: {
+                                                "Authorization": `Token ${localStorage.getItem('token')}`,
+                                                "Content-Type": "application/json"
+                                            }
+                                        }
+                                    )
+                                    .then((response) => console.log(response))
+                                    // // .then(() => setShow(true))
+                                    // .catch((err) => console.log(err))
+                                })
+                        }
                     }}
                     initialValues={initialValues}
                 >
                     { props => 
-                        (<AuctionCreationForm {...props}/>)
+                        (<AuctionCreationForm {...props} state={{okToSend, setOkToSend}}/>)
                     }
                 </Formik>
             </Row>
