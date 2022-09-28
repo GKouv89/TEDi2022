@@ -9,7 +9,13 @@ import time
 import datetime
 
 def update_auctions_status():
-    Item.objects.filter(ended__lt=datetime.datetime.now()).update(status=Item.ACQUIRED)
+    acquired_items = Item.objects.filter(ended__lt=datetime.datetime.now())
+    for item in acquired_items:
+        if item.number_of_bids > 0:
+            highest_bid = item.items_bids.all().order_by('-amount').first()
+            item.buyer = highest_bid.bidder
+        item.status = Item.ACQUIRED
+        item.save()
     Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now()) & ~Q(status=Item.ACQUIRED)).update(status=Item.RUNNING)
 
 class MatrixFactorization():

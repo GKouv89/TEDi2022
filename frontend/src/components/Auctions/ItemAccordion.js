@@ -4,7 +4,9 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { useState } from 'react'
 import { useNavigate } from "react-router-dom";
+import Rating from './Rating'
 
 const ConditionalWrapper = ({
     condition,
@@ -94,15 +96,38 @@ function InterfaceForManagableAuctions(props){
     )
 }
 
-// function InterfaceForBoughtAuctions(props){
+function InterfaceForAcquiredAuctions(props){
+    const firstRating = props.item.rating
+    const [rating, setRating] = useState(props.item.rating)
 
-// }
-
-// function InterfaceForSoldAuctions(props){
-    
-// }
+    return(
+        <>
+            <ListGroup.Item>
+                {props.case == 'bought' ?
+                        `Πωλητής: ${props.item.seller.username}`
+                    :
+                        `Αγοράστηκε από: ${props.item.buyer.username}`
+                }
+            </ListGroup.Item>
+            <ListGroup.Item>
+                Αξιολογήστε
+                {props.case == 'bought' ?
+                        ` την δημοπρασία: `
+                    :
+                        ' τον αγοραστή: '
+                }
+                <Rating rating={rating} setRating={setRating}/>
+            </ListGroup.Item>
+            <ListGroup.Item>
+                <Button disabled={firstRating !== 0} onClick={() => props.callback(props.item.id, rating)}>Υποβολή Αξιολόγησης</Button>
+            </ListGroup.Item>
+        </>
+    )
+}
 
 export function ItemAccordion(props){
+    console.log(props)
+    console.log(typeof props.ratingCallback)
     return(
         <>
             <Accordion>
@@ -115,7 +140,9 @@ export function ItemAccordion(props){
                                 <ListGroup.Item>Τρέχουσα καλύτερη προσφορά: {item.currently}$</ListGroup.Item>
                                 <ListGroup.Item>Τιμή πρώτης προσφοράς: {item.first_bid}$</ListGroup.Item>
                                 <ListGroup.Item>Τιμή εξαγοράς: {item.buy_price}$</ListGroup.Item>
-                                <ListGroup.Item>Αριθμός προσφορών: {item.number_of_bids}</ListGroup.Item>
+                                {
+                                    props.case == 'management' ?  <ListGroup.Item>Αριθμός προσφορών: {item.number_of_bids}</ListGroup.Item> : null
+                                }
                                 <ListGroup.Item>Κατηγoρία: 
                                 <ListGroup horizontal style={{justifyContent: "center", display: "flex"}}>
                                     {item.category.map((c, ind) => {
@@ -134,7 +161,7 @@ export function ItemAccordion(props){
                                     <></>
                                 }
                                 {
-                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} callback={props.callback}/> : null
+                                    props.case == 'management' ? <InterfaceForManagableAuctions item={item} callback={props.deleteCallback}/> : <InterfaceForAcquiredAuctions item={item} case={props.type} callback={props.ratingCallback}/>
                                 }
                             </ListGroup>
                         </AccordionBody>

@@ -35,7 +35,8 @@ import '@fontsource/roboto/400.css';
 import MessagingPage from './pages/Messages/MessagingPage';
 import { RecommendedPage } from './pages/RecommendedPage';
 import { MassFileExportPage } from './pages/MassFileExportPage';
-import { Rating } from './components/Auctions/Rating';
+import AuctionRating from './pages/Auctions/AuctionRating'
+import BuyerRating from './pages/Auctions/BuyerRating'
 
 class App extends Component {
   render() {
@@ -65,6 +66,8 @@ class App extends Component {
                       <Route path="/auctionmanagement" element={<AuctionManagement />} />
                       <Route path="/auctionmanagement/ItemBids" element={<ItemBids />} />
                       <Route path="/auctionmanagement/EditAuction" element={<EditAuction />} />
+                      <Route path="/boughtitems" element={<AuctionRating />} />
+                      <Route path="/solditems" element={<BuyerRating />} />
                       <Route path="/messages" element={<MessagingPage />} />
                       <Route path="/recommendations" element={<RecommendedPage />} />
                     </Route>
@@ -72,7 +75,6 @@ class App extends Component {
                   </Route>
                   <Route path="/warning" element={<UnauthorizedPage />} />
                   <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
-                  <Route path="/rating" element={<Rating />}/>
                 </Routes>
                 </EditAuctionProvider>
                 </PaginationProvider>

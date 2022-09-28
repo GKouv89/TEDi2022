@@ -29,6 +29,11 @@ class SellerSerializer(serializers.ModelSerializer):
         model = MyUser
         fields = ['username', 'seller_rating']
 
+class BuyerSerialzizer(serializers.ModelSerializer):
+    class Meta:
+        model = MyUser
+        fields= ['username']
+
 class BidderSerializer(serializers.ModelSerializer):
     Address = BidderLocationSerializer()
     class Meta:
@@ -72,6 +77,7 @@ class ItemSerializer(serializers.ModelSerializer):
     started = serializers.DateTimeField(format=fmt)
     ended = serializers.DateTimeField(format=fmt)
     seller = SellerSerializer()
+    buyer = BuyerSerialzizer()
     items_bids = BidSerializer(many=True, required=False, read_only=True)
     # address = ItemLocationSerializer() 
     address = AddressSerializer()
@@ -80,7 +86,7 @@ class ItemSerializer(serializers.ModelSerializer):
     items_images = ItemImageSerializer(many=True, required=False)
     class Meta:
         model = Item
-        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'items_bids', 'address', 'items_images']
+        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'buyer', 'items_bids', 'address', 'items_images', 'rating']
         depth = 3
 
 # WRITE ONLY SERIALIZERS
@@ -94,7 +100,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'items_images']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'items_images', 'rating']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')
@@ -145,6 +151,7 @@ class BidCreationSerializer(serializers.ModelSerializer):
         if validated_data["amount"] > item.currently:
             item.currently = validated_data["amount"]
         if item.buy_price is not None and validated_data["amount"] >= item.buy_price:
+            item.buyer = self.context['request'].user
             item.status = Item.ACQUIRED
             item.ended = time
         item.number_of_bids = item.number_of_bids + 1
