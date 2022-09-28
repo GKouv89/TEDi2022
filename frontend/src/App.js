@@ -34,6 +34,7 @@ import '@fontsource/roboto/400.css';
 import MessagingPage from './pages/Messages/MessagingPage';
 import { RecommendedPage } from './pages/RecommendedPage';
 import { MassFileExportPage } from './pages/MassFileExportPage';
+import { Rating } from './components/Auctions/Rating';
 
 class App extends Component {
   render() {
@@ -69,6 +70,7 @@ class App extends Component {
                   </Route>
                   <Route path="/warning" element={<UnauthorizedPage />} />
                   <Route path="/newauction" element={<NewAuction />} /> // The url will change once I'm done with the form to /auctions/new and will be nested
+                  <Route path="/rating" element={<Rating />}/>
                 </Routes>
                 </PaginationProvider>
               </SearchProvider>
