@@ -35,6 +35,8 @@ def update_auctions_status():
 class ItemView(APIView):
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated, )
+    parser_classes = (NestedMultiPartParser, FormParser)
+
 
     def get_object(self, auction_id):
         try:
@@ -59,16 +61,21 @@ class ItemView(APIView):
         return Response(serializer.data)
     
     def patch(self, request, auction_id):
-        print(request.data)
         item = self.get_object(auction_id)
-        # if item.status != Item.INACTIVE or (item.status == Item.RUNNING and item.number_of_bids > 0 ):
         if item.number_of_bids > 0 and item.status != Item.ACQUIRED:
-            return Response({"error": "auction should have started"}, status=status.HTTP_412_PRECONDITION_FAILED)
+            return Response({"error": "auction has started, no update allowed"}, status=status.HTTP_412_PRECONDITION_FAILED)###########
         serializer = ItemCreationSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
-            # print(request.data)
-            # print(serializer.validated_data)
             serializer.save()
+
+            #remove first all categories from this item
+            for obj in item.category.all():
+                item.category.remove(obj)
+
+            #associate this item with new categories
+            for name in request.data['categories']:
+                category, _ = Category.objects.get_or_create(name=name)
+                item.category.add(category)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -193,7 +200,6 @@ class AllItems(ListCreateAPIView):
             return self.get_paginated_response(serializer.data)
     
     def post(self, request):
-        print(request.data)
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             item = serializer.save()
