@@ -97,8 +97,13 @@ function InterfaceForManagableAuctions(props){
 }
 
 function InterfaceForAcquiredAuctions(props){
-    const firstRating = props.item.rating
-    const [rating, setRating] = useState(props.item.rating)
+    let firstRating
+    if(props.case == 'sold')
+        firstRating = props.item.buyer_rating
+    else
+        firstRating = props.item.rating
+    let disabledRating = (firstRating !== 0)
+    const [rating, setRating] = useState(props.case == 'sold' ? props.item.buyer_rating : props.item.rating)
 
     return(
         <>
@@ -116,7 +121,7 @@ function InterfaceForAcquiredAuctions(props){
                     :
                         ' τον αγοραστή: '
                 }
-                <Rating rating={rating} setRating={setRating}/>
+                <Rating rating={rating} disabled={disabledRating} setRating={setRating}/>
             </ListGroup.Item>
             <ListGroup.Item>
                 <Button disabled={firstRating !== 0} onClick={() => props.callback(props.item.id, rating)}>Υποβολή Αξιολόγησης</Button>

@@ -67,11 +67,6 @@ class ItemImageSerializer(serializers.ModelSerializer):
         model = ItemImage
         fields = ['image', 'id']
 
-    # def update(self, instance, validated_data):
-    #     print(instance)
-    #     print(validated_data)
-    #     return super().update(instance, validated_data)
-
 class ItemSerializer(serializers.ModelSerializer):
     fmt = '%d-%m-%Y %H:%M:%S'
     started = serializers.DateTimeField(format=fmt)
@@ -86,7 +81,7 @@ class ItemSerializer(serializers.ModelSerializer):
     items_images = ItemImageSerializer(many=True, required=False)
     class Meta:
         model = Item
-        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'buyer', 'items_bids', 'address', 'items_images', 'rating']
+        fields = ['id', 'name', 'category', 'currently', 'first_bid', 'buy_price', 'number_of_bids', 'status', 'started', 'ended', 'description', 'seller', 'buyer', 'items_bids', 'address', 'items_images', 'rating', 'buyer_rating']
         depth = 3
 
 # WRITE ONLY SERIALIZERS
@@ -100,7 +95,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'items_images', 'rating']
+        fields = ['id', 'name', 'first_bid', 'buy_price', 'started', 'ended', 'description', 'address', 'items_images', 'rating', 'buyer_rating']
 
     def create(self, validated_data):
         address_data = validated_data.pop('address')

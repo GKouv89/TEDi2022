@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:item_id>/images/<int:image_id>/', views.ImageView.as_view()),
     path('<str:username>/', views.SellersItems.as_view()),
     path('<str:username>/sold/', views.SoldItems.as_view()),
+    path('<str:username>/sold/<int:item_id>/', views.BuyerRatingView.as_view()),
     path('<str:username>/bought/', views.BoughtItems.as_view()),
     path('<str:username>/bought/<int:item_id>/', views.ItemRatingView.as_view()),
 ]

@@ -9,9 +9,9 @@ function MyStar(props){
     const handleClick = () => {
         props.setRating(props.value)
     }
-
+    console.log(props.disabled) 
     return(
-        <IconButton onClick={handleClick}>
+        <IconButton onClick={handleClick} disabled={props.disabled}>
             {
                 props.value <= props.rating ? 
                     <StarIcon />
@@ -27,7 +27,7 @@ export default function Rating(props){
     return(
         <>
             {
-                [...Array(5).keys()].map((number) => <MyStar key={number} value={number + 1} setRating={props.setRating} rating={props.rating}/>)
+                [...Array(5).keys()].map((number) => <MyStar key={number} value={number + 1} setRating={props.setRating} rating={props.rating} disabled={props.disabled}/>)
             }
         </>
     )

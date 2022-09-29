@@ -169,8 +169,8 @@ class AllItems(ListCreateAPIView):
     parser_classes = (NestedMultiPartParser, FormParser)
 
     def get_queryset(self):
-        # queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
-        queryset = Item.objects.all().order_by('id')
+        queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
+        # queryset = Item.objects.all().order_by('id')
         category_list = self.request.query_params.getlist('category', '')
         if category_list is not None:
             q = Q()
@@ -227,7 +227,7 @@ class SellersItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.INACTIVE) | Q(status=Item.RUNNING)
-        queryset = queryset.filter(q)
+        queryset = queryset.filter(q).order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -249,7 +249,7 @@ class SoldItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.ACQUIRED) & ~Q(buyer=None)
-        queryset = queryset.filter(q)
+        queryset = queryset.filter(q).order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -290,7 +290,7 @@ class BoughtItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        queryset = user.bought_items.all()
+        queryset = user.bought_items.all().order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -300,6 +300,27 @@ class BoughtItems(ListAPIView):
             if page is not None:
                 serializer = self.get_serializer(page, many=True)
                 return self.get_paginated_response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+class BuyerRatingView(UpdateAPIView):
+    serializer_class = ItemCreationSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_object(self, item_id):
+        return Item.objects.get(id=item_id)
+
+    def patch(self, request, username, item_id):
+        req_user = request.user
+        item = self.get_object(item_id)
+        if item.buyer_rating == 0 and username == item.seller.username and req_user == item.seller:
+            serializer = self.get_serializer(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                item.buyer.buyer_rating += request.data['buyer_rating']
+                item.buyer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class ItemsBids(ListAPIView):
@@ -327,7 +348,7 @@ class ItemsBids(ListAPIView):
     
     def get_queryset(self, item_id):
         item = self.get_object(item_id)
-        return item.items_bids.all()
+        return item.items_bids.all().order_by('id')
 
     def list(self, request, item_id):
         req_user = request.user # Only the seller can view the bids

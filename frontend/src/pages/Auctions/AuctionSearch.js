@@ -9,11 +9,12 @@ import Sidebar from '../../components/Auctions/Browsing/Sidebar'
 import { Breadcrumbs, Link, Typography } from '@mui/material'
 
 import { SearchContext } from '../../context/SearchContext'
+import { PaginationContext } from '../../context/PaginationContext'
 
 function AuctionSearch(){
     const {fetchData, data, count, loaded} = useContext(SearchContext)
-
-    useEffect(() => {fetchData(1)}, [])
+    const {active, setActive} = useContext(PaginationContext)
+    useEffect(() => {fetchData(1); setActive(1)}, [])
 
     return(
         <>
