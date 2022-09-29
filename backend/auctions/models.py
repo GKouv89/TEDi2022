@@ -66,6 +66,7 @@ class Item(models.Model):
     )
 
     rating = models.IntegerField(default=0)
+    buyer_rating = models.IntegerField(default=0) # This is how well the buyer cooperated after acquiring the item etc. Will be added to user's overall buyer rating
 
     started = models.DateTimeField()
     ended = models.DateTimeField()

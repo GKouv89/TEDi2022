@@ -295,6 +295,27 @@ class BoughtItems(ListAPIView):
                 return self.get_paginated_response(serializer.data)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
+class BuyerRatingView(UpdateAPIView):
+    serializer_class = ItemCreationSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+    
+    def get_object(self, item_id):
+        return Item.objects.get(id=item_id)
+
+    def patch(self, request, username, item_id):
+        req_user = request.user
+        item = self.get_object(item_id)
+        if item.buyer_rating == 0 and username == item.seller.username and req_user == item.seller:
+            serializer = self.get_serializer(item, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                item.buyer.buyer_rating += request.data['buyer_rating']
+                item.buyer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
 class ItemsBids(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)

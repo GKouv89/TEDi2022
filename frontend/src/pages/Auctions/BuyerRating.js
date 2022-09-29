@@ -19,6 +19,22 @@ export default function BuyerRating(){
             .catch((err) => console.log(err))
     }
 
+    const rate = (id, rating) => {
+        const headers = {
+            'Authorization': `Token ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+        const data = {
+            'buyer_rating': rating
+        }
+        axios.patch(`https://localhost:8000/auctions/${localStorage.getItem('username')}/sold/${id}/`, data, { headers })
+            .then((response) => {
+                console.log(response)
+                window.location.reload(false);
+            })
+            .catch((err) => console.log(err))
+    }
+
     useEffect(() => fetchData(), [])
     useEffect(() => {items !== null && setLoaded(true)}, [items])
 
@@ -30,7 +46,7 @@ export default function BuyerRating(){
             </Breadcrumbs>
             <Typography sx={{paddingBottom: '2vh'}} variant="h1">Αξιολόγηση Αγοραστών Πωλημένων Δημοπρασιών</Typography>
             {
-                loaded ? <ItemAccordion items={items} case={'rating'} type={'sold'}/> : null
+                loaded ? <ItemAccordion items={items} case={'rating'} type={'sold'} ratingCallback={rate}/> : null
             }
         </>
     )
