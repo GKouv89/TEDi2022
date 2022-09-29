@@ -8,10 +8,6 @@ import { Container, Row } from 'react-bootstrap'
 import { useContext, useEffect, useState } from "react";
 import { EditAuctionContext } from "../../context/EditAutctionContext"
 
-// String.prototype.indexOfEnd = function(string) {
-//     var io = this.indexOf(string);
-//     return io == -1 ? -1 : io + string.length;
-// }
 
 String.prototype.lastIndexOfEnd = function(string) {
     var io = this.lastIndexOf(string);
@@ -19,16 +15,11 @@ String.prototype.lastIndexOfEnd = function(string) {
 }
 
 function EditAuction() {
+    const [show, setShow] = useState(false)
     const location = useLocation();
     const bid = location.state.item;
     console.log(bid)
-    // console.log(bid.items_images)
-    // bid.items_images.map((item) => {
-    //     console.log(item.image)
-    //     console.log(item.image.lastIndexOfEnd('images/'))
-    //     let index = item.image.lastIndexOfEnd('images/')
-    //     console.log(item.image.slice(index))
-    // })
+
     const initialValues = {
         name: bid.name,
         first_bid: bid.first_bid,
@@ -69,6 +60,8 @@ function EditAuction() {
         if (typeof values.image_url != 'string'){
             for(let i = 0; i < values.image_url.length; i++){
                 form_data.append(`items_images[${i}][image]`, values.image_url[i], values.image_url[i].name);
+                console.log(values.image_url[i])
+                console.log(values.image_url[i].name)
             }
         }
         form_data.append('name', values.name)
@@ -95,15 +88,17 @@ function EditAuction() {
                 <Formik
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
+                        console.log("SUBMITTING")
                         if (okToSend) {
                             const data = {}
-                            // console.log(values)
                             const url = 'https://localhost:8000/auctions/' + bid.id + '/'
                             console.log(values)
                             console.log(values.image_url)
                             createMyModelEntry(values)
                                 .then((res) => {
-                                    console.log(res)
+                                for (var pair of res.entries()) {
+                                    console.log(pair[0]+ ' - ' + pair[1]); 
+                                }
                                     axios.patch(url, res,
                                         {
                                             headers: {
@@ -113,7 +108,7 @@ function EditAuction() {
                                         }
                                     )
                                     .then((response) => console.log(response))
-                                    // // .then(() => setShow(true))
+                                    .then(() => setShow(true))
                                     // .catch((err) => console.log(err))
                                 })
                         }
@@ -125,7 +120,7 @@ function EditAuction() {
                     }
                 </Formik>
             </Row>
-            {/* <CreationConfirmation show={show} /> */}
+            <CreationConfirmation show={show} />
         </Container>
     )
 }

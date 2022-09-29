@@ -6,7 +6,8 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 const filter = createFilterOptions();
 
 export default function MultiAutocomplete(props){
-    const [values, setValues] = useState(props.value ? props.value : [])
+    console.log(props.value)
+    const [values, setValues] = useState(props.value ?  props.value : [])
     const [options, setOptions] = useState(null)
    
     useEffect(() => {
@@ -20,13 +21,28 @@ export default function MultiAutocomplete(props){
                 })
         }
         fetchCategories()
+        console.log(values)
+        if(values!=[]) {
+            setValues(values.map((i) => {
+                return { label: i}
+            }))
+        }
+
     }, []);
+
+    useEffect(() => {
+        if( values) {
+            props.setFieldValue(values)
+            console.log(values)
+        }
+    }, [values])
 
     let cleanedUpValues = []
     return (
         <Autocomplete 
             value={values}
             onChange={(e, newValue) => {
+                console.log(newValue)
                 if(newValue[newValue.length - 1]){
                     if(typeof newValue[newValue.length - 1] == 'string'){
                         newValue[newValue.length - 1] = { label: newValue[newValue.length - 1]}
@@ -34,12 +50,15 @@ export default function MultiAutocomplete(props){
                     setValues(newValue)
                     cleanedUpValues = []
                     newValue.forEach((element) => cleanedUpValues.push(element.label.replace('Add \"', '').replace('\"', '')))
+                    console.log(cleanedUpValues)
                     props.setFieldValue('categories', cleanedUpValues)    
                 }else{ // For some reason, when deleting a tag (pressing the pill's X button), the last element becomes invalid (probably a delay in updating the length)
                     setValues(newValue)
                     cleanedUpValues = []
                     newValue.forEach((element) => cleanedUpValues.push(element.label.replace('Add \"', '').replace('\"', '')))
-                    props.setFieldValue('categories', cleanedUpValues)    
+                    props.setFieldValue('categories', cleanedUpValues)  
+                    console.log(cleanedUpValues)
+
                 }
             }}
             multiple

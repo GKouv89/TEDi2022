@@ -73,7 +73,10 @@ export default function NewAuction(){
                         console.log(values)
                         createMyModelEntry(values)
                             .then((res) => {
-                                console.log(res)
+                                console.log(res.values())
+                                for (var pair of res.entries()) {
+                                    console.log(pair[0]+ ' - ' + pair[1]); 
+                                }
                                 axios.post(
                                     'https://localhost:8000/auctions/',
                                     res,
@@ -88,7 +91,8 @@ export default function NewAuction(){
                                 .then(() => setShow(true))
                                 .catch((err) => console.log(err))
                             })
-                    }}
+                        }
+                    }
                     initialValues={initialValues}
                 >
                     { props => 
