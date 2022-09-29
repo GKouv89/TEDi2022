@@ -161,8 +161,8 @@ class AllItems(ListCreateAPIView):
     parser_classes = (NestedMultiPartParser, FormParser)
 
     def get_queryset(self):
-        # queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
-        queryset = Item.objects.all().order_by('id')
+        queryset = Item.objects.filter(status=Item.RUNNING).order_by('id') 
+        # queryset = Item.objects.all().order_by('id')
         category_list = self.request.query_params.getlist('category', '')
         if category_list is not None:
             q = Q()
