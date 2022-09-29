@@ -33,6 +33,7 @@ class MatrixFactorization():
             visited = user.visited_items.all()
             bidded = user.bidded_items.all()
             sold = user.sold_items.all()
+            bought = user.bought_items.all()
             for item in visited:
                 self.R[self.user_dict[user.id], self.item_dict[item.id]] = 1
             for item in bidded:
@@ -42,6 +43,12 @@ class MatrixFactorization():
                     self.R[self.user_dict[user.id], self.item_dict[item.id]] += 0.1*(bids_on_item - 1)
             for item in sold: # Indicate some interest for items similar to ones sold, too
                 self.R[self.user_dict[user.id], self.item_dict[item.id]] = 1.5
+            for item in bought: # Indicate some interest for items similar to ones sold, too
+                if item.rating != 0:
+                    self.R[self.user_dict[user.id], self.item_dict[item.id]] = item.rating
+                else:
+                    print('Edge case')
+                    self.R[self.user_dict[user.id], self.item_dict[item.id]] = 2.5 # A little higher interest than if he had just bid
     def factorize(self, k, eta):
         self.V = 2*np.random.rand(self.N, k)
         self.F = 2*np.random.rand(k, self.M)
