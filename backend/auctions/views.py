@@ -220,7 +220,7 @@ class SellersItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.INACTIVE) | Q(status=Item.RUNNING)
-        queryset = queryset.filter(q)
+        queryset = queryset.filter(q).order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -242,7 +242,7 @@ class SoldItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.ACQUIRED) & ~Q(buyer=None)
-        queryset = queryset.filter(q)
+        queryset = queryset.filter(q).order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -283,7 +283,7 @@ class BoughtItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        queryset = user.bought_items.all()
+        queryset = user.bought_items.all().order_by('id')
         return queryset
 
     def list(self, request, username):
@@ -341,7 +341,7 @@ class ItemsBids(ListAPIView):
     
     def get_queryset(self, item_id):
         item = self.get_object(item_id)
-        return item.items_bids.all()
+        return item.items_bids.all().order_by('id')
 
     def list(self, request, item_id):
         req_user = request.user # Only the seller can view the bids
