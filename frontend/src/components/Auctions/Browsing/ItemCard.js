@@ -42,7 +42,7 @@ export function calcRemTime(ended){
 function ItemCard(props){
     return(
         <Card sx={{height: '100%'}}>
-            <CardActionArea component={Link} to={`${props.data.id}`}>
+            <CardActionArea component={Link} to={`/auctions/${props.data.id}`}>
                     {
                         props.loaded ? 
                             props.data.items_images.length == 0 ? 
