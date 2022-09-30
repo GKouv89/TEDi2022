@@ -127,6 +127,7 @@ class ItemCreationSerializer(serializers.ModelSerializer):
 
         instance.name = validated_data.get('name', instance.name)
         instance.first_bid = validated_data.get('first_bid', instance.first_bid)
+        instance.currently = validated_data.get('first_bid', instance.first_bid)
         instance.buy_price = validated_data.get('buy_price', instance.buy_price)
         instance.started = validated_data.get('started', instance.started)
         instance.ended = validated_data.get('ended', instance.ended)

@@ -25,12 +25,14 @@ export const schema = Yup.object().shape(
             .required('Υποχρεωτικό Πεδίο')
             .matches(/[1-9][0-9]*\.?[0-9]*/, 'Μη έγκυρη μορφή δεκαδικού αριθμού. Ελέγξτε ότι χρησιμοποιείται τελεία και όχι κόμμα για την υποδιαστολή.'),
         buy_price: Yup.string()
-            .matches(/[1-9][0-9]*\.?[0-9]*/, 'Μη έγκυρη μορφή δεκαδικού αριθμού. Ελέγξτε ότι χρησιμοποιείται τελεία και όχι κόμμα για την υποδιαστολή.'),
+            .matches(/[1-9][0-9]*\.?[0-9]*/, 'Μη έγκυρη μορφή δεκαδικού αριθμού. Ελέγξτε ότι χρησιμοποιείται τελεία και όχι κόμμα για την υποδιαστολή.')
+            .nullable(true),
         categories: Yup.array()
             .min(1, 'Πρέπει να επιλέξετε τουλάχιστον μία κατηγορία'),
         description: Yup.string()
             .required('Υποχρεωτικό Πεδίο'),
-        addressName: Yup.string(),
+        addressName: Yup.string()
+            .nullable(true),
         streetName: Yup.string()
             .required('Υποχρεωτικό πεδίο.'),
         streetNumber: Yup.string()

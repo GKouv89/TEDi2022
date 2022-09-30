@@ -57,8 +57,8 @@ class PromptUser(APIView):
         
 
 class ItemView(APIView):
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated, )
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
     parser_classes = (NestedMultiPartParser, FormParser)
 
 
@@ -85,6 +85,7 @@ class ItemView(APIView):
         return Response(serializer.data)
     
     def patch(self, request, auction_id):
+        print(request.data)
         item = self.get_object(auction_id)
         if item.number_of_bids > 0 and item.status != Item.ACQUIRED:
             return Response({"error": "auction has started, no update allowed"}, status=status.HTTP_412_PRECONDITION_FAILED)###########
