@@ -135,10 +135,11 @@ function AuctionCreationForm(props){
         setImage_url(new_image_url)
     }
 
+
     useEffect(()=>{
         if(image_url) {
-            props.state.setOkToSend(true)
             props.setFieldValue('image_url', image_url);
+            props.state.setOkToSend(true)
         }
     }, [image_url])
 
@@ -173,6 +174,7 @@ function AuctionCreationForm(props){
 
         setInvalidDates(true)
         setInvalidStartedDate(true)        
+        props.state.setOkToSend(true)
     }, []);
 
     useEffect(() => {

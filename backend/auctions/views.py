@@ -27,14 +27,40 @@ def update_auctions_status():
         if item.number_of_bids > 0:
             highest_bid = item.items_bids.all().order_by('-amount').first()
             item.buyer = highest_bid.bidder
+            if item.status != Item.ACQUIRED:
+                #set booleans to true
+                item.notify_buyer = True
+                item.notify_seller = True
+                #if item is alreadey set to ACQUIRED users have already been notified
         item.status = Item.ACQUIRED
         item.save()
     Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now()) & ~Q(status=Item.ACQUIRED)).update(status=Item.RUNNING)
 
 
+class PromptUser(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+
+    def patch(self, request):
+        update_auctions_status()
+        buyer = Item.objects.filter(buyer=request.user, notify_buyer=True)
+        seller = Item.objects.filter(seller=request.user, notify_seller=True)
+
+        #if querysets are not empty the user must be notified
+        if buyer.exists():
+            Item.objects.filter(buyer=request.user).update(notify_buyer=False)
+            return Response({"notify": True})
+        if seller.exists():
+            Item.objects.filter(seller=request.user).update(notify_seller=False)
+            return Response({"notify": True})
+        return Response({"notify": False})
+        
+
 class ItemView(APIView):
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated, )
+    parser_classes = (NestedMultiPartParser, FormParser)
+
 
     def get_object(self, auction_id):
         try:
@@ -60,14 +86,20 @@ class ItemView(APIView):
     
     def patch(self, request, auction_id):
         item = self.get_object(auction_id)
-        # if item.status != Item.INACTIVE or (item.status == Item.RUNNING and item.number_of_bids > 0 ):
         if item.number_of_bids > 0 and item.status != Item.ACQUIRED:
-            return Response({"error": "auction should have started"}, status=status.HTTP_412_PRECONDITION_FAILED)
+            return Response({"error": "auction has started, no update allowed"}, status=status.HTTP_412_PRECONDITION_FAILED)###########
         serializer = ItemCreationSerializer(item, data=request.data, partial=True)
         if serializer.is_valid():
-            print(request.data)
-            print(serializer.validated_data)
             serializer.save()
+
+            #remove first all categories from this item
+            for obj in item.category.all():
+                item.category.remove(obj)
+
+            #associate this item with new categories
+            for name in request.data['categories']:
+                category, _ = Category.objects.get_or_create(name=name)
+                item.category.add(category)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -192,7 +224,6 @@ class AllItems(ListCreateAPIView):
             return self.get_paginated_response(serializer.data)
     
     def post(self, request):
-        print(request.data)
         serializer = ItemCreationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             item = serializer.save()
@@ -242,7 +273,7 @@ class SoldItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.ACQUIRED) & ~Q(buyer=None)
-        queryset = queryset.filter(q).order_by('id')
+        queryset = queryset.filter(q).order_by('-ended')
         return queryset
 
     def list(self, request, username):
@@ -283,7 +314,7 @@ class BoughtItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        queryset = user.bought_items.all().order_by('id')
+        queryset = user.bought_items.all().order_by('-ended')#'-id'
         return queryset
 
     def list(self, request, username):

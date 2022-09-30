@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.AllItems.as_view()),
     path('xml/', views.ItemsXMLView.as_view()),
     path('json/', views.ItemsForJSONView.as_view()),
+    path('promptMessaging/', views.PromptUser.as_view()),
     path('<int:auction_id>/', views.ItemView.as_view()),
     path('<int:item_id>/xml/', views.ItemXMLView.as_view()),
     path('<int:auction_id>/visitors/', views.VisitorsView.as_view()),

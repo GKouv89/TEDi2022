@@ -13,6 +13,7 @@ import CreationConfirmation from '../../components/Auctions/CreationConfirmation
 import axios from 'axios';
 import { EditAuctionContext } from '../../context/EditAutctionContext';
 import AuctionCreationForm, {schema}  from './AuctionForm';
+import { Alert } from '@mui/material';
 
 const initialValues = {
     name: '',
@@ -33,7 +34,7 @@ const initialValues = {
 
 export default function NewAuction(){
     const [show, setShow] = useState(false)
-
+    const [alert, setAlert] = useState(false)
     const createMyModelEntry = async (values) => {
         let form_data = new FormData();
         if (typeof values.image_url != 'string'){
@@ -62,7 +63,7 @@ export default function NewAuction(){
     const {editing, setEditing} = useContext(EditAuctionContext)
     setEditing(false)
     const [okToSend, setOkToSend] = useState(false)
-
+    
     return (
         <Container>
             <Row>
@@ -73,7 +74,11 @@ export default function NewAuction(){
                         console.log(values)
                         createMyModelEntry(values)
                             .then((res) => {
-                                console.log(res)
+                                setAlert(false)
+                                console.log(res.values())
+                                for (var pair of res.entries()) {
+                                    console.log(pair[0]+ ' - ' + pair[1]); 
+                                }
                                 axios.post(
                                     'https://localhost:8000/auctions/',
                                     res,
@@ -86,15 +91,22 @@ export default function NewAuction(){
                                 )
                                 .then((response) => console.log(response))
                                 .then(() => setShow(true))
-                                .catch((err) => console.log(err))
+                                .catch((err) => {
+                                    console.log(err)
+                                    if (err.response.status === 400) {
+                                        setAlert(true)
+                                    }
+                                })
                             })
-                    }}
+                        }
+                    }
                     initialValues={initialValues}
                 >
                     { props => 
                         (<AuctionCreationForm {...props} state={{okToSend, setOkToSend}}/>)
                     }
                 </Formik>
+                {alert ? <Alert severity="error">Λανθασμένη μορφή στοιχείων παρακαλώ προσπαθήστε ξανά.</Alert> : <></>}
             </Row>
             <CreationConfirmation show={show} />
         </Container>

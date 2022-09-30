@@ -109,28 +109,35 @@ class ItemCreationSerializer(serializers.ModelSerializer):
                 ItemImage.objects.create(item=item, **image_data)
         return item
 
-    # def update(self, instance, validated_data):
-    #     address_data = validated_data.pop('address')
-    #     address = instance.address
-    #     images = {}
-    #     if('items_images' in validated_data.keys()):
-    #         images = validated_data.pop('items_images')
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address')
+        address = instance.address
 
-    #     instance.name = validated_data.get('name', instance.name)
-    #     instance.first_bid = validated_data.get('first_bid', instance.first_bid)
-    #     instance.buy_price = validated_data.get('buy_price', instance.buy_price)
-    #     instance.started = validated_data.get('started', instance.started)
-    #     instance.ended = validated_data.get('ended', instance.ended)
-    #     instance.description = validated_data.get('description', instance.description)
-    #     instance.save()
-
-        # item = Item.objects.create(address=address, seller=self.context['request'].user, **validated_data)        
-        # if len(images) != 0:
-        #     for image_data in images:
-        #         ItemImage.objects.create(item=instance, **image_data)
+        address.address_name = address_data['address_name']
+        address.Street_name = address_data['Street_name']
+        address.Street_number = address_data['Street_number']
+        address.Postal_code = address_data['Postal_code']
+        address.City = address_data['City']
+        address.Country = address_data['Country']
+        address.save()
         
-        # address.save()
-        # return instance
+        images = {}
+        if('items_images' in validated_data.keys()):
+            images = validated_data.pop('items_images')
+
+        instance.name = validated_data.get('name', instance.name)
+        instance.first_bid = validated_data.get('first_bid', instance.first_bid)
+        instance.buy_price = validated_data.get('buy_price', instance.buy_price)
+        instance.started = validated_data.get('started', instance.started)
+        instance.ended = validated_data.get('ended', instance.ended)
+        instance.description = validated_data.get('description', instance.description)
+
+        if len(images) != 0:
+            for image_data in images:
+                ItemImage.objects.create(item=instance, **image_data)
+        
+        instance.save()
+        return instance
 
 class BidCreationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -146,6 +153,8 @@ class BidCreationSerializer(serializers.ModelSerializer):
             item.buyer = self.context['request'].user
             item.status = Item.ACQUIRED
             item.ended = time
+            item.notify_buyer = True
+            item.notify_seller = True
         item.number_of_bids = item.number_of_bids + 1
         item.save()
         bid = Bid.objects.create(
