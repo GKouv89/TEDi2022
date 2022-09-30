@@ -153,6 +153,8 @@ class BidCreationSerializer(serializers.ModelSerializer):
             item.buyer = self.context['request'].user
             item.status = Item.ACQUIRED
             item.ended = time
+            item.notify_buyer = True
+            item.notify_seller = True
         item.number_of_bids = item.number_of_bids + 1
         item.save()
         bid = Bid.objects.create(

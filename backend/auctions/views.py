@@ -27,10 +27,34 @@ def update_auctions_status():
         if item.number_of_bids > 0:
             highest_bid = item.items_bids.all().order_by('-amount').first()
             item.buyer = highest_bid.bidder
+            if item.status != Item.ACQUIRED:
+                #set booleans to true
+                item.notify_buyer = True
+                item.notify_seller = True
+                #if item is alreadey set to ACQUIRED users have already been notified
         item.status = Item.ACQUIRED
         item.save()
     Item.objects.filter(Q(started__lt=datetime.datetime.now()) & Q(ended__gt=datetime.datetime.now()) & ~Q(status=Item.ACQUIRED)).update(status=Item.RUNNING)
 
+
+class PromptUser(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, )
+
+    def patch(self, request):
+        update_auctions_status()
+        buyer = Item.objects.filter(buyer=request.user, notify_buyer=True)
+        seller = Item.objects.filter(seller=request.user, notify_seller=True)
+
+        #if querysets are not empty the user must be notified
+        if buyer.exists():
+            Item.objects.filter(buyer=request.user).update(notify_buyer=False)
+            return Response({"notify": True})
+        if seller.exists():
+            Item.objects.filter(seller=request.user).update(notify_seller=False)
+            return Response({"notify": True})
+        return Response({"notify": False})
+        
 
 class ItemView(APIView):
     # authentication_classes = (TokenAuthentication,)
@@ -249,7 +273,7 @@ class SoldItems(ListAPIView):
         user = MyUser.objects.get(username=username)
         queryset = user.sold_items.all()
         q = Q(status=Item.ACQUIRED) & ~Q(buyer=None)
-        queryset = queryset.filter(q).order_by('id')
+        queryset = queryset.filter(q).order_by('-ended')
         return queryset
 
     def list(self, request, username):
@@ -290,7 +314,7 @@ class BoughtItems(ListAPIView):
     def get_queryset(self, username):
         update_auctions_status()
         user = MyUser.objects.get(username=username)
-        queryset = user.bought_items.all().order_by('id')
+        queryset = user.bought_items.all().order_by('-ended')#'-id'
         return queryset
 
     def list(self, request, username):

@@ -1,11 +1,33 @@
-import React, {useContext} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import Button from 'react-bootstrap/Button';
 import {Container, Row} from 'react-bootstrap'
-
+import { Snackbar, Alert } from '@mui/material';
 import AuthContext from '../context/AuthContext';
+import axios from 'axios';
 
 export default function IndexPage(){
     let {user} = useContext(AuthContext)
+    const [open, setOpen] = useState(false)
+    const vertical = "bottom"
+    const horizontal = "center"
+
+    useEffect(()=>{
+        const url = 'https://localhost:8000/auctions/promptMessaging/'
+        const data = {}
+        axios.patch(url, data,
+            {
+                headers: {
+                    "Authorization": `Token ${localStorage.getItem('token')}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        ).then((r) => {
+            console.log(r.data.notify)
+            if(r.data.notify) {
+                setOpen(true)
+            }
+        })
+    }, [])
 
     return(
         <Container className="mt-3">
@@ -51,6 +73,14 @@ export default function IndexPage(){
                     </Button>
                 }
             </Row>
+            <Snackbar
+                anchorOrigin={{vertical, horizontal}}
+                open={open}
+                message="Πραγματοποιήθηκε κατοχύρωση δημοπρασίας. Παρακαλώ μεταβείτε στα μηνύματα για να συνεννοηθείτε για τα διαδικαστικά."
+                key={vertical + horizontal}
+                autoHideDuration={8000}
+                onClose={()=>{setOpen(false)}}
+            />
         </Container>
     )
 }

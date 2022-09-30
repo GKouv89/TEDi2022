@@ -7,7 +7,7 @@ import CreationConfirmation from '../../components/Auctions/CreationConfirmation
 import { Container, Row } from 'react-bootstrap'
 import { useContext, useEffect, useState } from "react";
 import { EditAuctionContext } from "../../context/EditAutctionContext"
-
+import { Alert } from '@mui/material';
 
 String.prototype.lastIndexOfEnd = function(string) {
     var io = this.lastIndexOf(string);
@@ -16,6 +16,7 @@ String.prototype.lastIndexOfEnd = function(string) {
 
 function EditAuction() {
     const [show, setShow] = useState(false)
+    const [alert, setAlert] = useState(false)
     const location = useLocation();
     const bid = location.state.item;
     console.log(bid)
@@ -96,6 +97,7 @@ function EditAuction() {
                             console.log(values.image_url)
                             createMyModelEntry(values)
                                 .then((res) => {
+                                setAlert(false)
                                 for (var pair of res.entries()) {
                                     console.log(pair[0]+ ' - ' + pair[1]); 
                                 }
@@ -109,7 +111,12 @@ function EditAuction() {
                                     )
                                     .then((response) => console.log(response))
                                     .then(() => setShow(true))
-                                    // .catch((err) => console.log(err))
+                                    .catch((err) => {
+                                        console.log(err)
+                                        if (err.response.status === 400) {
+                                            setAlert(true)
+                                        }
+                                    })
                                 })
                         }
                     }}
@@ -119,6 +126,7 @@ function EditAuction() {
                         (<AuctionCreationForm {...props} state={{okToSend, setOkToSend}}/>)
                     }
                 </Formik>
+                {alert ? <Alert severity="error">Λανθασμένη μορφή στοιχείων παρακαλώ προσπαθήστε ξανά.</Alert> : <></>}
             </Row>
             <CreationConfirmation show={show} />
         </Container>

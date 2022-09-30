@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 from base.models import MyUser, Address
 
@@ -71,6 +72,10 @@ class Item(models.Model):
     started = models.DateTimeField()
     ended = models.DateTimeField()
     description = models.TextField()
+
+    #These booleans are used when we want to prompt the user to initiate messaging with the other part of the transaction
+    notify_buyer = models.BooleanField(default=False)
+    notify_seller = models.BooleanField(default=False)
 
 class ItemImage(models.Model):
     image = models.ImageField(upload_to=upload_to)
