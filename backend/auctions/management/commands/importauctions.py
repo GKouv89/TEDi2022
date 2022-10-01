@@ -37,7 +37,8 @@ class Command(BaseCommand):
                 if description is None: # Handle case of no description, as we require it
                     description = "abc"
 
-                user = users[randrange(user_count)]
+                seller = randrange(user_count)
+                user = users[seller]
             
                 number_of_bids = int(item.find('Number_of_Bids').text)
                 if number_of_bids == 0:
@@ -57,11 +58,11 @@ class Command(BaseCommand):
                     category_object, _ = Category.objects.get_or_create(name=category)
                     new_item.category.add(category_object)
 
-                touched = [user.id] # we don't want the creator of the auction to come up as a bidder or visitor (initially)
+                touched = [seller] # we don't want the creator of the auction to come up as a bidder or visitor (initially)
                 all_bids = item.iter('Bid')
                 for i in all_bids:
                     bidder = randrange(user_count)
-                    while bidder == user.id: # Excluding seller
+                    while bidder == seller: # Excluding seller
                         bidder = randrange(user_count)
                     if bidder not in touched:
                         touched.append(bidder)
