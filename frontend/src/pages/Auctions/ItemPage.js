@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext} from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { Modal } from 'react-bootstrap'
 import { Alert, Tooltip } from '@mui/material'
@@ -92,6 +92,7 @@ const createAndDownloadXML = (id) => {
 
 export default function ItemPage(){
     let { auctionid } = useParams()
+    const navigate = useNavigate();
     const [loaded, setLoaded] = useState(false)
     const [data, setData] = useState(null)
     const [openDialog, setOpenDialog] = useState(false)
@@ -123,7 +124,15 @@ export default function ItemPage(){
             'Content-Type': 'application/json',
         }
         axios.get(`https://localhost:8000/auctions/${auctionid}/`, {headers})
-            .then((response) => {console.log(response.data); setData(response.data); setLoaded(true);})
+            .then((response) => {
+                console.log(response.data.currently)
+                console.log(response.data.buy_price)
+                if(response.data.buy_price !== null && parseFloat(response.data.currently) >= parseFloat(response.data.buy_price)){ // Item was acquired during previous bid
+                    navigate("/index")
+                }else{
+                    setData(response.data); setLoaded(true);
+                }
+            })
             .catch((err) => console.log(err))
     }
 
@@ -151,6 +160,10 @@ export default function ItemPage(){
         }
         return ""
     }
+
+    // const didAcquireAuction(){
+
+    // }
 
     return(
         <>
