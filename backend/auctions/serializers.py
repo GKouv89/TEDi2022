@@ -86,6 +86,11 @@ class ItemSerializer(serializers.ModelSerializer):
 
 # WRITE ONLY SERIALIZERS
 
+class ItemRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ['rating', 'buyer_rating']
+
 class ItemCreationSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
     fmt = '%d-%m-%Y %H:%M:%S'

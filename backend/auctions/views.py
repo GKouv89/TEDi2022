@@ -16,7 +16,7 @@ from knox.auth import AuthToken, TokenAuthentication
 
 import datetime
 
-from .serializers import BidCreationSerializer, BidSerializer, CategorySerializer, ItemSerializer, ItemCreationSerializer
+from .serializers import BidCreationSerializer, BidSerializer, CategorySerializer, ItemRatingSerializer, ItemSerializer, ItemCreationSerializer
 from .models import Category, Item, ItemImage
 
 # Create your views here.
@@ -287,7 +287,7 @@ class SoldItems(ListAPIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class ItemRatingView(UpdateAPIView):
-    serializer_class = ItemCreationSerializer
+    serializer_class = ItemRatingSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, )
     
@@ -328,7 +328,7 @@ class BoughtItems(ListAPIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class BuyerRatingView(UpdateAPIView):
-    serializer_class = ItemCreationSerializer
+    serializer_class = ItemRatingSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, )
     
