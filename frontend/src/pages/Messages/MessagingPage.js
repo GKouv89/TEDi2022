@@ -18,6 +18,8 @@ import { UnreadMessagesContext } from '../../context/UnreadMessages'
 function MessagePreview(props){
     const [type, setType] = useState(props.type)
 
+    console.log(props.type)
+
     let folder = getFolder(props.message)
     let bold
     if (folder === 'sent/') {
@@ -28,7 +30,7 @@ function MessagePreview(props){
 
     return(
         <TableRow onClick={() => {props.clickOnMessage(true, props.message)}}>
-            <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}}>{type == 'Sent' ? `To ${props.message.receiver.username}` : props.message.sender.username}</TableCell>
+            <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}}>{props.type == 'Sent' ? `To ${props.message.receiver.username}` : props.message.sender.username}</TableCell>
             <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}} align="right">{props.message.subject}</TableCell>
             <TableCell sx={{fontSize: 'large', fontWeight: !bold ? 'normal' : '900'}} align="right">{props.message.date}</TableCell>
         </TableRow>
@@ -92,7 +94,7 @@ function MessageFolder(props){
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{fontWeight: 'bold'}}>Αποστολέας</TableCell>
+                                <TableCell sx={{fontWeight: 'bold'}}>{folder == 'Inbox' ? "Αποστολέας" : "Παραλήπτης"}</TableCell>
                                 <TableCell sx={{fontWeight: 'bold'}} align="right">Θέμα</TableCell>
                                 <TableCell sx={{fontWeight: 'bold'}} align="right">Ημερομηνία</TableCell>
                             </TableRow>
@@ -215,7 +217,10 @@ function MessageCreation(props){
                                     }
                                 }
                             )
-                            .then((r)=> {setReceiverExists(true)})
+                            .then((r)=> {
+                                setReceiverExists(true);
+                                props.escapeMsgCreation('Sent')
+                            })
                             .catch((e) => {
                                 if (e.response.status === 400) {
                                     setReceiverExists(false)
