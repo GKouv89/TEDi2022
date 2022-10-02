@@ -8,7 +8,7 @@ from django.db.models import Q
 import time
 import datetime
 
-LATENT_FEATURES = 5
+LATENT_FEATURES = 5 # Τhis is for running cross-validation.
 
 def update_auctions_status():
     acquired_items = Item.objects.filter(ended__lt=datetime.datetime.now())
@@ -85,6 +85,7 @@ class MatrixFactorization():
 
             if (old_RMSE != -1 and old_RMSE - RMSE < 0.00001) or reps_done==max_iter:
                 print('Reps done: ', reps_done)
+                print(RMSE)
                 print('Bye bye')
                 break
             old_RMSE = RMSE
@@ -163,7 +164,7 @@ class MatrixFactorization():
 
     def make_recommendations(self):
         R_new = np.dot(self.V, self.F)
-        threshold = 1.3
+        threshold = 2.5
         user_dict = {}
         for user in self.users:
             u_index = self.user_dict[user.id]
@@ -193,13 +194,13 @@ class MatrixFactorization():
 
 def update_recommendations():
     print('UPDATING RECOMMENDATIONS')
-    print("Optimal number of latent features => "+str(LATENT_FEATURES))
+    # print("Optimal number of latent features => "+str(LATENT_FEATURES))
     start_time = time.time()
     instance = MatrixFactorization()
     end_time = time.time()
     print('Initialization: ', end_time - start_time)
     start_time = time.time()
-    instance.factorize(k=3, eta=0.001)
+    instance.factorize(k=2, eta=0.001) # K's value was chosen after running cross-validation.
     end_time = time.time()
     print('Factorization: ', end_time - start_time)
     start_time = time.time()
