@@ -208,7 +208,7 @@ function MessageCreation(props){
                             console.log(myobject)
 
                             axios.post(
-                                'https://localhost:8000/messages/sent/1/',
+                                'https://localhost:8000/messages/sent/',
                                 myobject,
                                 {
                                     headers: {

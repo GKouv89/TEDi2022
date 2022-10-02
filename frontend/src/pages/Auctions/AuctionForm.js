@@ -127,22 +127,24 @@ function AuctionCreationForm(props){
     }
 
     const deleteImageUrl = (imageName) => {
-        props.state.setOkToSend(false)
-        let new_image_url = []
-        for(let i=0; i<image_url.length; i++) {
-            if(image_url[i].name === imageName)
-                continue
-            new_image_url.push(image_url[i])
+        if(image_url){
+            props.state.setOkToSend(false)
+            let new_image_url = []
+            for(let i=0; i<image_url.length; i++) {
+                if(image_url[i].name === imageName)
+                    continue
+                new_image_url.push(image_url[i])
+            }
+            setImage_url(new_image_url)
         }
-        setImage_url(new_image_url)
     }
 
 
     useEffect(()=>{
         if(image_url) {
             props.setFieldValue('image_url', image_url);
-            props.state.setOkToSend(true)
         }
+        props.state.setOkToSend(true)
     }, [image_url])
 
     //check dates

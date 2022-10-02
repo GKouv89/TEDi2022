@@ -8,6 +8,8 @@ from django.db.models import Q
 import time
 import datetime
 
+LATENT_FEATURES = 5
+
 def update_auctions_status():
     acquired_items = Item.objects.filter(ended__lt=datetime.datetime.now())
     for item in acquired_items:
@@ -49,7 +51,21 @@ class MatrixFactorization():
                 else:
                     print('Edge case')
                     self.R[self.user_dict[user.id], self.item_dict[item.id]] = 2.5 # A little higher interest than if he had just bid
-    def factorize(self, k, eta):
+    
+    def calculate_cost(self):
+        MSE = 0
+        observations = 0
+        for i in range(self.N):
+            for j in range(self.M):
+                if self.R[i][j] > 0:
+                    observations += 1
+                    MSE += pow(self.R[i][j] - np.dot(self.V[i, :], self.F[:, j]), 2)
+        if observations != 0:
+            MSE /= observations
+        RMSE = math.sqrt(MSE)
+        return RMSE
+
+    def factorize(self, k, eta=0.001, max_iter=25000):
         self.V = 2*np.random.rand(self.N, k)
         self.F = 2*np.random.rand(k, self.M)
 
@@ -59,30 +75,91 @@ class MatrixFactorization():
             for i in range(self.N): # For each row
                 for j in range(self.M): # For each column
                     if self.R[i][j] > 0:
-                        eij = self.R[i][j] - np.dot(self.V[i, :], self.F[:, j])
-                        for feature in range(k):
+                        eij = self.R[i][j] - np.dot(self.V[i, :], self.F[:, j]) #error
+                        for feature in range(k):    #gradient
                             self.V[i][feature] += eta * 2 * eij * self.F[feature][j]
                             self.F[feature][j] += eta * 2 * eij * self.V[i][feature]
 
-            MSE = 0
-            observations = 0
-            for i in range(self.N):
-                for j in range(self.M):
-                    if self.R[i][j] > 0:
-                        observations += 1
-                        MSE += pow(self.R[i][j] - np.dot(self.V[i, :], self.F[:, j]), 2)
-            if observations != 0:
-                MSE /= observations
-            RMSE = math.sqrt(MSE)
+            RMSE = self.calculate_cost()
             reps_done += 1
 
-            if old_RMSE != -1 and old_RMSE - RMSE < 0.00001:
+            if (old_RMSE != -1 and old_RMSE - RMSE < 0.00001) or reps_done==max_iter:
                 print('Reps done: ', reps_done)
                 print('Bye bye')
                 break
             old_RMSE = RMSE
 
-        print('MSE: ', MSE)
+        return RMSE
+
+    def cv_matrices(self, fold):
+        # Create a dict with the slicing indices
+        rows = self.R.shape[0]
+        cols = self.R.shape[1]
+        mid_rows = int(rows/2)
+        mid_cols = int(cols/2)
+        
+        idx_dict = {
+                    0: [[0,mid_rows],[0, mid_cols]],
+                    1: [[0,mid_rows],[mid_cols, cols]],
+                    2: [[mid_rows, rows], [0, mid_cols]],
+                    3: [[mid_rows, rows], [mid_cols, cols]]
+        }
+        
+        idexes = idx_dict[fold]
+        # Create masks
+        train_mask = np.full((rows, cols), 1)
+        train_mask[idexes[0][0]:idexes[0][1], idexes[1][0]:idexes[1][1]] = 0
+        test_mask = 1 - train_mask
+        
+        # Create X_train
+        X_train = self.R.copy()
+        X_train[train_mask==0] = 0
+        
+        # Create X_test
+        X_test = self.R.copy()
+        X_test[train_mask==1] = 0
+            
+        return X_train, X_test, train_mask, test_mask
+
+    def nmf_cv(self, latent_features):
+
+        mask = ~np.isnan(self.R)
+        trainErrors = {}
+        testErrors = {}
+        for fold in range(4):
+            print("fold => "+str(fold))
+            X_train, X_test, train_mask, test_mask = self.cv_matrices(fold)
+            train_null_mask = mask * train_mask
+            test_null_mask = mask * test_mask
+
+            #train
+            masked_X = train_null_mask * X_train    #get only train values
+            original_array = self.R.copy()
+            self.R = masked_X
+            print("training... train error")
+            trainError = self.factorize(latent_features)
+            print(trainError) 
+            trainErrors[fold] = trainError
+
+            #validate
+            masked_X = test_null_mask * X_test
+            self.R = masked_X
+            print("testing... test error")
+            testError = self.calculate_cost()
+            print(testError)
+            testErrors[fold] = testError
+
+            self.R = original_array
+
+        #find average train & test error
+        avg_testError = 0
+        for i in range(4):
+            avg_testError += testErrors.get(i)
+
+        avg_testError /= 4
+
+        return avg_testError
+
 
     def make_recommendations(self):
         R_new = np.dot(self.V, self.F)
@@ -116,6 +193,7 @@ class MatrixFactorization():
 
 def update_recommendations():
     print('UPDATING RECOMMENDATIONS')
+    print("Optimal number of latent features => "+str(LATENT_FEATURES))
     start_time = time.time()
     instance = MatrixFactorization()
     end_time = time.time()
@@ -128,3 +206,23 @@ def update_recommendations():
     instance.make_recommendations()
     end_time = time.time()
     print('Recommendation creation: ', end_time - start_time)
+
+def cross_validate():
+    print('CROSS VALIDATING')
+    start_time = time.time()
+    instance = MatrixFactorization()
+    end_time = time.time()
+    print(instance.R)
+    null_mask = np.isnan(instance.R)
+    mask = ~np.isnan(instance.R)
+    avg_testErrors = {}
+    for k in range(1, LATENT_FEATURES +1):   #find optimal number of latent features
+        avg = instance.nmf_cv(k)
+        avg_testErrors[k] = avg
+        
+    #find best test error and set optimal V,F for this # of latent features
+    temp = min(avg_testErrors.values())
+    res = [key for key in avg_testErrors if avg_testErrors[key] == temp]
+    print(res)
+
+    print("Optimal number of latent features => "+str(res))

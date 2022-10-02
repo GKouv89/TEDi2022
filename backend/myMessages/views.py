@@ -61,36 +61,7 @@ class SentMessages(ListAPIView):
         else:
             Response({})
 
-class InboxMessageView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
-
-    def get_queryset(self, mess_id): 
-        queryset = Message.objects.get(id=mess_id)
-        if not queryset:
-            raise Http404
-        return queryset
-
-    def get(self, request, mess_id):
-        message = self.get_queryset(mess_id)
-        serializer = MessageSerializer(message)
-        
-        object = serializer.data
-        user = object.get('receiver').get('id')
-        # if user != user_id:
-        #     return Response("Message ID does not match this user.", status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(serializer.data)
-    
-    def patch(self, request, mess_id):
-        Message.objects.filter(id=mess_id).update(read=True)
-        return Response({})
-
-class SentMessageView(GenericAPIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticatedOrReadOnly, )
-
-    def create(self, request, mess_id):
+    def create(self, request):
         print(request.data)
         serializer = NewMessageSerializer(request.data)
 
@@ -110,25 +81,16 @@ class SentMessageView(GenericAPIView):
         message = Message.objects.create(sender=sender_instance, receiver=receiver_instance, body=data.get('body'), subject=data.get('subject'), date=data.get('date'))
         return Response({})
 
-    def post(self, request, mess_id):
-        return self.create(request, mess_id)
+    def post(self, request):
+        return self.create(request)
 
-    def get_queryset(self, mess_id): 
-        queryset = Message.objects.get(id=mess_id)
-        if not queryset:
-            raise Http404
-        return queryset
-
-    def get(self, request,  mess_id):
-        message = self.get_queryset(mess_id)
-        serializer = MessageSerializer(message)
-        
-        object = serializer.data
-        user = object.get('sender').get('id')
-        if user != user.request:
-            return Response("Message ID does not match this user.", status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(serializer.data)
+class InboxMessageView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    
+    def patch(self, request, mess_id):
+        Message.objects.filter(id=mess_id).update(read=True)
+        return Response({})
 
 class DeleteInboxMessage(DestroyAPIView):
     authentication_classes = (TokenAuthentication,)

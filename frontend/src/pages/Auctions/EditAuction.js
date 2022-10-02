@@ -90,6 +90,7 @@ function EditAuction() {
                     validationSchema={schema}
                     onSubmit={(values, actions) => {
                         console.log("SUBMITTING")
+                        console.log(okToSend)
                         if (okToSend) {
                             const data = {}
                             const url = 'https://localhost:8000/auctions/' + bid.id + '/'
